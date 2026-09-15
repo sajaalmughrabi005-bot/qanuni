@@ -1,0 +1,177 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "cases": "Cases",
+    "clients": "Clients",
+    "documents": "Documents",
+    "calendar": "Calendar",
+    "drafts": "Drafts",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {name}",
+    "subtitle": "Here's what's happening today",
+    "newCases": "New cases",
+    "activeCases": "Active cases",
+    "upcomingAppointments": "Upcoming appointments",
+    "pendingResponses": "Pending responses",
+    "documentsToReview": "Documents to review",
+    "recentActivity": "Recent activity",
+    "quickActions": "Quick actions"
+  },
+  "quickActions": {
+    "requestDocument": "Request missing document",
+    "scheduleConsultation": "Schedule consultation",
+    "sendProposal": "Send consultation proposal",
+    "askClarification": "Ask client for clarification",
+    "sendReminder": "Send payment reminder",
+    "markReviewed": "Mark case as reviewed",
+    "sentDemo": "Sent (demo simulation)"
+  },
+  "cases": {
+    "title": "Cases",
+    "kanban": "Kanban view",
+    "list": "List view",
+    "columns": {
+      "new": "New",
+      "contacted": "Contacted",
+      "reviewing": "Reviewing",
+      "in_progress": "In Progress",
+      "court": "Court / Proceedings",
+      "closed": "Closed"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "lastActivity": "Last activity",
+    "nextAction": "Next action",
+    "deadline": "Deadline",
+    "empty": "No cases in this column",
+    "matchScore": "Match score"
+  },
+  "caseDetail": {
+    "clientStory": "Client Story",
+    "evidence": "Evidence",
+    "legalContext": "Legal Context",
+    "aiSummary": "AI Summary",
+    "situation": "Situation",
+    "keyIssue": "Key Issue",
+    "importantDocuments": "Important documents",
+    "importantDates": "Important dates",
+    "potentialConcerns": "Points worth attention",
+    "questionsForReview": "Questions requiring legal review",
+    "relevantClauses": "Relevant clauses",
+    "changeStatus": "Change status",
+    "assignPriority": "Assign priority",
+    "openDrafter": "Open AI Drafter",
+    "sendMessage": "Send message"
+  },
+  "dataEntry": {
+    "title": "Extract from Document",
+    "subtitle": "Upload a scanned legal document and extract its data automatically",
+    "upload": "Upload document to extract",
+    "extracting": "Extracting data...",
+    "reviewTitle": "Review extracted information before saving",
+    "fields": {
+      "clientName": "Client name",
+      "opposingParty": "Opposing party",
+      "caseNumber": "Case number",
+      "court": "Court",
+      "importantDates": "Important dates",
+      "amounts": "Amounts",
+      "deadline": "Deadline"
+    },
+    "confidence": "Extraction confidence",
+    "confirmSave": "Confirm & Save"
+  },
+  "drafter": {
+    "title": "AI Legal Drafter",
+    "subtitle": "Write your instructions and get a professional draft instantly",
+    "instructionsLabel": "Instructions",
+    "instructionsPlaceholder": "e.g. Draft a formal notice regarding non-payment of rent",
+    "generate": "Generate Draft",
+    "draftLabel": "Draft",
+    "regenerate": "Regenerate",
+    "improve": "Improve",
+    "shorten": "Shorten",
+    "makeFormal": "Make more formal",
+    "translate": "Translate",
+    "copy": "Copy",
+    "saveDraft": "Save Draft",
+    "export": "Export",
+    "aiDisclosure": "AI-generated draft — lawyer review required before use.",
+    "savedSuccess": "Draft saved",
+    "empty": "No drafts yet",
+    "status": {
+      "draft": "Draft",
+      "final": "Final",
+      "sent": "Sent"
+    }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "newEvent": "New event",
+    "today": "Today",
+    "types": {
+      "video": "Video consultation",
+      "phone": "Phone consultation",
+      "in_person": "In-person consultation",
+      "court": "Court hearing",
+      "deadline": "Deadline",
+      "follow_up": "Follow-up"
+    },
+    "eventTitle": "Event title",
+    "client": "Client",
+    "relatedCase": "Related case",
+    "date": "Date",
+    "time": "Time",
+    "reminder": "Reminder",
+    "save": "Save event",
+    "delete": "Delete event"
+  },
+  "clients": {
+    "title": "Clients",
+    "empty": "No clients yet",
+    "activeCases": "Active cases",
+    "totalCases": "Total cases"
+  },
+  "documents": {
+    "title": "Case Documents",
+    "empty": "No documents"
+  },
+  "messages": {
+    "title": "Messages",
+    "empty": "No messages yet",
+    "placeholder": "Type your message..."
+  },
+  "voice": {
+    "title": "Voice Command",
+    "subtitle": "Press to speak — we'll turn it into an action",
+    "listening": "Listening...",
+    "processing": "Processing...",
+    "transcript": "Transcript",
+    "confirmAction": "Confirm action",
+    "suggestedReminder": "Suggested reminder",
+    "client": "Client",
+    "when": "When",
+    "create": "Create reminder",
+    "simulatedNotice": "Simulated voice demo — no real speech-to-text service"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit profile",
+    "verificationStatus": "Verification status"
+  },
+  "settings": {
+    "title": "Settings",
+    "notifications": "Notification settings",
+    "language": "Default language",
+    "availability": "Availability status"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "title": "Lawyer Directory",
+  "subtitle": "Find a licensed lawyer matched to your case",
+  "search": {
+    "placeholder": "Search by name or specialty...",
+    "city": "City",
+    "specialty": "Specialty",
+    "language": "Language",
+    "priceRange": "Price range",
+    "availability": "Availability",
+    "consultationType": "Consultation type",
+    "allCities": "All cities",
+    "allSpecialties": "All specialties",
+    "clearFilters": "Clear filters"
+  },
+  "specialties": {
+    "rental": "Rental",
+    "employment": "Employment",
+    "commercial": "Commercial",
+    "family": "Family",
+    "criminal": "Criminal",
+    "real_estate": "Real Estate",
+    "corporate": "Corporate",
+    "civil": "Civil"
+  },
+  "availability": {
+    "available_today": "Available today",
+    "available_this_week": "Available this week",
+    "busy": "Currently busy"
+  },
+  "card": {
+    "yearsExperience": "{years} years experience",
+    "completedCases": "{count} completed cases",
+    "responseTime": "Responds within {hours}h",
+    "perConsultation": "JOD / consultation",
+    "matchPercent": "{percent}% match",
+    "viewProfile": "View profile",
+    "verifiedDemo": "Demo verified",
+    "reviewsCount": "{count} reviews"
+  },
+  "empty": "No lawyers matched your search",
+  "profile": {
+    "about": "About",
+    "specialties": "Specialties",
+    "experience": "Experience",
+    "languages": "Languages",
+    "pricing": "Consultation pricing",
+    "availability": "Availability",
+    "reviews": "Reviews",
+    "completedCases": "Completed cases",
+    "requestConsultation": "Request Consultation",
+    "consultationTypes": "Consultation types",
+    "demoReviewNotice": "Demo reviews for illustration purposes"
+  },
+  "matching": {
+    "whyMatch": "Why this lawyer matches your case",
+    "disclaimer": "The match percentage is an automated indicator and does not guarantee service quality"
+  },
+  "consultation": {
+    "title": "Request a Consultation",
+    "selectType": "Consultation type",
+    "selectTime": "Pick a time",
+    "message": "Short message (optional)",
+    "submit": "Send Request",
+    "success": "Your request was sent! You'll be notified when the lawyer responds.",
+    "successDemo": "Your request was sent (demo simulation). In production, you'd get a WhatsApp notification."
+  }
+}

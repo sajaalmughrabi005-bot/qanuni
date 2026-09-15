@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf8f4;
+  --surface: #ffffff;
+  --surface-muted: #f4f1ea;
+  --foreground: #17212b;
+  --foreground-muted: #5b6773;
+  --border: #e6e1d6;
+  --navy: #0f1c30;
+  --navy-light: #16273f;
+  --charcoal: #1c1f24;
+  --beige: #efe9dc;
+  --gold: #b68a35;
+  --gold-light: #d9b063;
+  --risk-low: #1f7a4d;
+  --risk-low-bg: #e7f5ee;
+  --risk-medium: #b8791a;
+  --risk-medium-bg: #fdf1de;
+  --risk-high: #b3312c;
+  --risk-high-bg: #fbeaea;
+  --radius: 0.9rem;
+  --font-latin: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: "Tajawal", "Noto Kufi Arabic", ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-border: var(--border);
+  --color-navy: var(--navy);
+  --color-navy-light: var(--navy-light);
+  --color-charcoal: var(--charcoal);
+  --color-beige: var(--beige);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-risk-low: var(--risk-low);
+  --color-risk-low-bg: var(--risk-low-bg);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-medium-bg: var(--risk-medium-bg);
+  --color-risk-high: var(--risk-high);
+  --color-risk-high-bg: var(--risk-high-bg);
+  --radius-md: var(--radius);
+  --font-sans: var(--font-latin);
+}
+
+html[lang="ar"] {
+  --font-sans: var(--font-arabic);
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+html[dir="rtl"] body {
+  font-family: var(--font-arabic);
+}
+
+::selection {
+  background: var(--gold-light);
+  color: var(--navy);
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, var(--surface-muted) 25%, var(--border) 37%, var(--surface-muted) 63%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s linear infinite;
+}

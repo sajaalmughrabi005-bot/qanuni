@@ -1,0 +1,164 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "documents": "My Documents",
+    "analyses": "My Analyses",
+    "cases": "My Cases",
+    "lawyers": "Saved Lawyers",
+    "appointments": "Appointments",
+    "notifications": "Notifications"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {name}",
+    "subtitle": "Here's a summary of your legal activity",
+    "analyzeDocument": "Analyze a Document",
+    "describeProblem": "Describe My Legal Problem",
+    "findLawyer": "Find a Lawyer",
+    "askTheLaw": "Ask the Law",
+    "statDocuments": "Documents analyzed",
+    "statCases": "Cases",
+    "statAppointments": "Upcoming appointments",
+    "statNotifications": "Unread notifications",
+    "recentActivity": "Recent activity"
+  },
+  "documents": {
+    "title": "My Documents",
+    "empty": "No documents yet",
+    "emptyDesc": "Upload your first legal document to start analyzing",
+    "uploadNew": "Upload new document",
+    "status": {
+      "uploaded": "Uploaded",
+      "processing": "Processing",
+      "analyzed": "Analyzed",
+      "failed": "Analysis failed"
+    }
+  },
+  "analyses": {
+    "title": "My Analyses",
+    "empty": "No analyses yet",
+    "viewAnalysis": "View analysis"
+  },
+  "cases": {
+    "title": "My Cases",
+    "empty": "No cases yet",
+    "emptyDesc": "Create a case from one of your analyses to connect with a lawyer",
+    "status": {
+      "new": "New",
+      "contacted": "Contacted",
+      "reviewing": "Reviewing",
+      "in_progress": "In Progress",
+      "court": "Court / Proceedings",
+      "closed": "Closed"
+    }
+  },
+  "lawyers": {
+    "title": "Saved Lawyers",
+    "empty": "You haven't saved any lawyers yet"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "empty": "No upcoming appointments",
+    "with": "with",
+    "status": {
+      "pending": "Pending confirmation",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "markAllRead": "Mark all as read"
+  },
+  "upload": {
+    "title": "Analyze a Legal Document",
+    "subtitle": "Upload your contract and get instant AI analysis",
+    "dropzone": "Drag and drop a file here, or click to select",
+    "dropzoneHint": "PDF or image — up to 10MB",
+    "orPasteText": "Or paste the contract text directly",
+    "pasteTextPlaceholder": "Paste the contract text here for real analysis, even without an AI provider...",
+    "documentType": "Document type",
+    "types": {
+      "rental": "Rental contract",
+      "employment": "Employment contract",
+      "service": "Service agreement",
+      "sale": "Sale agreement",
+      "general": "General document"
+    },
+    "useDemo": "Or try the ready-made demo rental contract",
+    "analyzeButton": "Start Analysis",
+    "privacyNotice": "Legal documents may contain sensitive information. Upload only documents you are authorized to share."
+  },
+  "processing": {
+    "uploading": "Uploading document...",
+    "extracting": "Extracting text...",
+    "identifying": "Identifying clauses...",
+    "comparing": "Comparing against legal knowledge...",
+    "generating": "Generating explanation...",
+    "done": "Analysis complete"
+  },
+  "results": {
+    "overview": "Document Overview",
+    "parties": "Parties",
+    "duration": "Duration",
+    "effectiveDate": "Effective date",
+    "keyAmounts": "Key amounts",
+    "clauseMap": "Clause Map",
+    "clauseMapDesc": "Click any highlighted clause to view details",
+    "riskDisclaimer": "These colors are AI risk indicators, not definitive legal conclusions.",
+    "whatThisMeans": "What this means for you",
+    "yourObligations": "Your obligations",
+    "otherPartyObligations": "Other party's obligations",
+    "deadlines": "Important deadlines",
+    "paymentTerms": "Payment terms",
+    "cancellationTerms": "Cancellation terms",
+    "concerns": "Points worth your attention",
+    "questionsForLawyer": "Questions to ask a lawyer",
+    "riskOverview": "Legal Risk Overview",
+    "riskOverviewDesc": "An automated AI indicator, not legal advice",
+    "askLawyerCta": "Ask a lawyer about this clause",
+    "confidence": "Confidence level",
+    "tabClauses": "Clauses",
+    "tabSummary": "Summary",
+    "tabRisk": "Risk",
+    "tabAsk": "Ask the Law",
+    "tabScenario": "Scenario Simulator",
+    "createCase": "Create a Case",
+    "createCaseDesc": "Turn this analysis into a structured case and send it to a matching lawyer"
+  },
+  "askTheLaw": {
+    "title": "Ask the Law",
+    "subtitle": "Ask in your own words about anything in your document",
+    "placeholder": "e.g. What happens if I leave the apartment before the contract ends?",
+    "send": "Send",
+    "talkToLawyer": "Talk to a lawyer about this",
+    "emptyState": "Ask your first question about this document",
+    "thinking": "Thinking..."
+  },
+  "scenario": {
+    "title": "Scenario Simulator",
+    "subtitle": "Test \"what if\" before making a decision — this is a simulation, not legal advice",
+    "disclaimer": "Scenario simulation — not legal advice",
+    "custom": "Or write your own scenario",
+    "customPlaceholder": "e.g. What if I'm a full month late on payment?",
+    "run": "Run Simulation",
+    "affectedClause": "Affected clause",
+    "questionsToAsk": "Questions worth discussing with a lawyer",
+    "presets": {
+      "leaveEarly": "What if I leave the apartment before the contract ends?",
+      "notPay": "What if I do not pay this amount?",
+      "damage": "What if the apartment is damaged for a reason beyond my control?"
+    }
+  },
+  "termSimplifier": {
+    "title": "Legal Language Simplifier",
+    "englishEquivalent": "English equivalent",
+    "example": "Example"
+  },
+  "findLawyer": {
+    "title": "Find the right lawyer",
+    "matchTitle": "Lawyers suggested for your case",
+    "matchDesc": "Based on your case specialty and city"
+  }
+}

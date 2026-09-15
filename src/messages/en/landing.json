@@ -1,0 +1,89 @@
+{
+  "hero": {
+    "title": "Understand your rights before you sign.",
+    "subtitle": "Analyze your contract, understand its clauses, identify potential risks, and connect with the right lawyer — all in one place.",
+    "ctaPrimary": "Check Your Contract — Free",
+    "ctaSecondary": "Find a Lawyer",
+    "ctaTertiary": "I'm a Lawyer",
+    "trustBadge": "A bilingual Jordanian LegalTech platform"
+  },
+  "loop": {
+    "title": "The core product loop",
+    "understand": "Understand",
+    "understandDesc": "AI explains the document",
+    "identify": "Identify",
+    "identifyDesc": "Risks and key clauses surfaced",
+    "ask": "Ask",
+    "askDesc": "Ask questions in your own words",
+    "connect": "Connect",
+    "connectDesc": "Get matched with the right lawyer",
+    "act": "Act",
+    "actDesc": "The lawyer manages your case with AI tools"
+  },
+  "howItWorks": {
+    "title": "How QANUNI works",
+    "subtitle": "From document to resolution, in clear steps",
+    "step1Title": "Upload your document",
+    "step1Desc": "A rental contract, employment agreement, or any legal document",
+    "step2Title": "Get instant analysis",
+    "step2Desc": "AI identifies clauses and potential risks",
+    "step3Title": "Ask and explore",
+    "step3Desc": "Ask questions and simulate different scenarios",
+    "step4Title": "Connect with a lawyer",
+    "step4Desc": "Get a consultation from a lawyer matched to your case"
+  },
+  "citizenFeatures": {
+    "title": "For anyone facing a legal document",
+    "subtitle": "Understand your rights without the complexity",
+    "f1Title": "AI Contract Analysis",
+    "f1Desc": "Upload your contract and get a clear breakdown of clauses and risks",
+    "f2Title": "Legal Language Simplifier",
+    "f2Desc": "Understand any legal term with plain explanations and examples",
+    "f3Title": "Ask the Law",
+    "f3Desc": "Ask questions naturally and get answers grounded in your document",
+    "f4Title": "Scenario Simulator",
+    "f4Desc": "Test \"what if\" scenarios before making a decision"
+  },
+  "lawyerFeatures": {
+    "title": "Smart tools for lawyers",
+    "subtitle": "Structured cases instead of starting from zero",
+    "f1Title": "Case Management (Kanban)",
+    "f1Desc": "Track every case from intake to close",
+    "f2Title": "AI Case Summary",
+    "f2Desc": "Client story, evidence, and legal context in one place",
+    "f3Title": "AI Legal Drafter",
+    "f3Desc": "Generate professional notices and memos in seconds",
+    "f4Title": "Smart calendar & reminders",
+    "f4Desc": "Never miss a deadline or court date again"
+  },
+  "aiCapabilities": {
+    "title": "AI built for the Jordanian context",
+    "subtitle": "Understands Modern Standard Arabic, Jordanian dialect, and mixed Arabic-English"
+  },
+  "security": {
+    "title": "Privacy and security first",
+    "subtitle": "Your documents are protected and accessible only to you",
+    "p1": "Secure storage with authorized access only",
+    "p2": "AI processing happens server-side",
+    "p3": "Your documents are never shared without consent"
+  },
+  "bilingual": {
+    "title": "A complete bilingual experience",
+    "subtitle": "Fluent Arabic, full RTL, and professional English — one click away"
+  },
+  "finalCta": {
+    "title": "Ready to understand your rights?",
+    "subtitle": "Try the platform now for free — no account required",
+    "cta": "Try the Demo"
+  },
+  "demoEntry": {
+    "title": "Try QANUNI now",
+    "subtitle": "Pick a role to explore the platform instantly, no sign-up needed",
+    "citizen": "Try Citizen Demo",
+    "citizenDesc": "Check a ready-made rental contract and see the full analysis",
+    "lawyer": "Try Lawyer Demo",
+    "lawyerDesc": "Explore the lawyer dashboard and case pipeline",
+    "admin": "Try Admin Demo",
+    "adminDesc": "See the full platform analytics"
+  }
+}

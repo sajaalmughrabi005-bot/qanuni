@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "dashboard": "الرئيسية",
+    "users": "المستخدمون",
+    "lawyers": "المحامون",
+    "cases": "القضايا",
+    "documents": "المستندات",
+    "reports": "التقارير",
+    "verification": "طلبات التوثيق",
+    "analytics": "تحليلات المنصة"
+  },
+  "dashboard": {
+    "title": "لوحة تحكم المدير",
+    "subtitle": "نظرة عامة على أداء المنصة",
+    "totalCitizens": "إجمالي المواطنين",
+    "registeredLawyers": "المحامون المسجّلون",
+    "activeCases": "القضايا النشطة",
+    "documentsAnalyzed": "المستندات المحللة",
+    "consultations": "الاستشارات",
+    "aiAnalyses": "تحليلات الذكاء الاصطناعي",
+    "platformActivity": "نشاط المنصة",
+    "activityOverTime": "النشاط عبر الوقت",
+    "casesByCategory": "القضايا حسب التصنيف",
+    "casesByStatus": "القضايا حسب الحالة",
+    "topLawyers": "أفضل المحامين نشاطاً"
+  },
+  "verification": {
+    "title": "طلبات التوثيق",
+    "empty": "لا توجد طلبات معلّقة",
+    "approve": "قبول",
+    "reject": "رفض"
+  }
+}

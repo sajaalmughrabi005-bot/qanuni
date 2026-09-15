@@ -1,0 +1,68 @@
+{
+  "title": "دليل المحامين",
+  "subtitle": "ابحث عن محامٍ مرخّص يناسب قضيتك",
+  "search": {
+    "placeholder": "ابحث بالاسم أو التخصص...",
+    "city": "المدينة",
+    "specialty": "التخصص",
+    "language": "اللغة",
+    "priceRange": "نطاق السعر",
+    "availability": "التوفر",
+    "consultationType": "نوع الاستشارة",
+    "allCities": "كل المدن",
+    "allSpecialties": "كل التخصصات",
+    "clearFilters": "مسح الفلاتر"
+  },
+  "specialties": {
+    "rental": "الإيجارات",
+    "employment": "قانون العمل",
+    "commercial": "تجاري",
+    "family": "الأحوال الشخصية",
+    "criminal": "جزائي",
+    "real_estate": "عقاري",
+    "corporate": "شركات",
+    "civil": "مدني"
+  },
+  "availability": {
+    "available_today": "متاح اليوم",
+    "available_this_week": "متاح هذا الأسبوع",
+    "busy": "غير متاح حالياً"
+  },
+  "card": {
+    "yearsExperience": "{years} سنوات خبرة",
+    "completedCases": "{count} قضية منجزة",
+    "responseTime": "يرد خلال {hours} ساعات",
+    "perConsultation": "دينار / استشارة",
+    "matchPercent": "نسبة التوافق {percent}٪",
+    "viewProfile": "عرض الملف",
+    "verifiedDemo": "توثيق تجريبي",
+    "reviewsCount": "{count} تقييم"
+  },
+  "empty": "لم نجد محامين مطابقين لبحثك",
+  "profile": {
+    "about": "نبذة",
+    "specialties": "التخصصات",
+    "experience": "الخبرة",
+    "languages": "اللغات",
+    "pricing": "أسعار الاستشارة",
+    "availability": "التوفر",
+    "reviews": "التقييمات",
+    "completedCases": "القضايا المنجزة",
+    "requestConsultation": "طلب استشارة",
+    "consultationTypes": "أنواع الاستشارة",
+    "demoReviewNotice": "تقييمات تجريبية لأغراض العرض التوضيحي"
+  },
+  "matching": {
+    "whyMatch": "لماذا يناسبك هذا المحامي",
+    "disclaimer": "نسبة التوافق مؤشر آلي ولا تضمن جودة الخدمة"
+  },
+  "consultation": {
+    "title": "طلب استشارة",
+    "selectType": "نوع الاستشارة",
+    "selectTime": "اختر موعداً",
+    "message": "رسالة مختصرة (اختياري)",
+    "submit": "إرسال الطلب",
+    "success": "تم إرسال طلبك بنجاح! سيتم إشعارك عند رد المحامي.",
+    "successDemo": "تم إرسال طلبك (محاكاة تجريبية). في النسخة الحقيقية سيصل إشعار عبر واتساب."
+  }
+}

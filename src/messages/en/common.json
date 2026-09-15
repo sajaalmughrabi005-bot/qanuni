@@ -1,0 +1,82 @@
+{
+  "brand": {
+    "name": "QANUNI",
+    "tagline": "Understand your rights before you sign."
+  },
+  "nav": {
+    "home": "Home",
+    "howItWorks": "How it works",
+    "forCitizens": "For Citizens",
+    "forLawyers": "For Lawyers",
+    "findLawyer": "Find a Lawyer",
+    "login": "Log in",
+    "dashboard": "Dashboard",
+    "logout": "Log out"
+  },
+  "language": {
+    "ar": "العربية",
+    "en": "English",
+    "switch": "Language"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "send": "Send",
+    "copy": "Copy",
+    "download": "Download",
+    "viewAll": "View all",
+    "learnMore": "Learn more",
+    "getStarted": "Get Started",
+    "tryDemo": "Try the Demo",
+    "retry": "Retry"
+  },
+  "roles": {
+    "citizen": "Citizen",
+    "lawyer": "Lawyer",
+    "admin": "Admin"
+  },
+  "riskLevel": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
+  "riskCategory": {
+    "contractual": "Contractual risk",
+    "financial": "Financial risk",
+    "deadline": "Deadline risk",
+    "termination": "Termination risk",
+    "liability": "Liability risk"
+  },
+  "status": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "empty": "No data yet",
+    "demo": "Demo",
+    "demoNotification": "Demo notification",
+    "aiConnected": "Provider: OpenAI connected",
+    "aiDemoEngine": "Demo mode — local analysis engine"
+  },
+  "footer": {
+    "description": "A LegalTech platform combining AI and licensed lawyers to help you understand your rights in Jordan.",
+    "product": "Product",
+    "company": "Platform",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "rights": "All rights reserved"
+  },
+  "disclaimer": {
+    "notLegalAdvice": "This analysis is AI-generated and is not binding legal advice. A licensed lawyer should review this before you rely on it.",
+    "aiGenerated": "AI-generated content",
+    "verifiedSource": "Verified legal source",
+    "demoPlaceholder": "Demo / Placeholder — requires verification",
+    "privacyNotice": "Legal documents may contain sensitive information. Upload only documents you are authorized to share."
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "nav": {
+    "dashboard": "الرئيسية",
+    "cases": "القضايا",
+    "clients": "العملاء",
+    "documents": "المستندات",
+    "calendar": "التقويم",
+    "drafts": "المسودات",
+    "messages": "الرسائل",
+    "notifications": "الإشعارات",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات"
+  },
+  "dashboard": {
+    "welcome": "أهلاً، {name}",
+    "subtitle": "إليك ملخص نشاطك اليوم",
+    "newCases": "قضايا جديدة",
+    "activeCases": "قضايا نشطة",
+    "upcomingAppointments": "مواعيد قادمة",
+    "pendingResponses": "ردود بانتظارك",
+    "documentsToReview": "مستندات تحتاج مراجعة",
+    "recentActivity": "النشاط الأخير",
+    "quickActions": "إجراءات سريعة"
+  },
+  "quickActions": {
+    "requestDocument": "طلب مستند ناقص",
+    "scheduleConsultation": "جدولة استشارة",
+    "sendProposal": "إرسال عرض استشارة",
+    "askClarification": "طلب توضيح من العميل",
+    "sendReminder": "إرسال تذكير دفع",
+    "markReviewed": "تعليم القضية كمُراجعة",
+    "sentDemo": "تم الإرسال (محاكاة تجريبية)"
+  },
+  "cases": {
+    "title": "القضايا",
+    "kanban": "عرض كانبان",
+    "list": "عرض القائمة",
+    "columns": {
+      "new": "جديدة",
+      "contacted": "تم التواصل",
+      "reviewing": "قيد المراجعة",
+      "in_progress": "قيد التنفيذ",
+      "court": "إجراءات قضائية",
+      "closed": "مغلقة"
+    },
+    "priority": {
+      "low": "منخفضة",
+      "medium": "متوسطة",
+      "high": "عالية",
+      "urgent": "عاجلة"
+    },
+    "lastActivity": "آخر نشاط",
+    "nextAction": "الإجراء التالي",
+    "deadline": "الموعد النهائي",
+    "empty": "لا توجد قضايا في هذا العمود",
+    "matchScore": "نسبة التوافق"
+  },
+  "caseDetail": {
+    "clientStory": "قصة العميل",
+    "evidence": "الأدلة",
+    "legalContext": "السياق القانوني",
+    "aiSummary": "الملخص الذكي",
+    "situation": "الوضع",
+    "keyIssue": "القضية الجوهرية",
+    "importantDocuments": "المستندات المهمة",
+    "importantDates": "التواريخ المهمة",
+    "potentialConcerns": "نقاط تستحق الانتباه",
+    "questionsForReview": "أسئلة تحتاج مراجعة قانونية",
+    "relevantClauses": "البنود ذات الصلة",
+    "changeStatus": "تغيير الحالة",
+    "assignPriority": "تحديد الأولوية",
+    "openDrafter": "فتح صائغ المسودات",
+    "sendMessage": "إرسال رسالة"
+  },
+  "dataEntry": {
+    "title": "استخراج من مستند",
+    "subtitle": "ارفع مستنداً قانونياً مصوّراً واستخرج بياناته تلقائياً",
+    "upload": "رفع مستند للاستخراج",
+    "extracting": "جارٍ استخراج البيانات...",
+    "reviewTitle": "راجع البيانات المستخرجة قبل الحفظ",
+    "fields": {
+      "clientName": "اسم العميل",
+      "opposingParty": "الطرف الآخر",
+      "caseNumber": "رقم الدعوى",
+      "court": "المحكمة",
+      "importantDates": "تواريخ مهمة",
+      "amounts": "مبالغ",
+      "deadline": "الموعد النهائي"
+    },
+    "confidence": "مستوى الثقة بالاستخراج",
+    "confirmSave": "تأكيد وحفظ"
+  },
+  "drafter": {
+    "title": "صائغ المسودات القانونية",
+    "subtitle": "اكتب تعليماتك واحصل على مسودة احترافية فوراً",
+    "instructionsLabel": "التعليمات",
+    "instructionsPlaceholder": "مثال: اكتبلي إنذار عدلي بخصوص عدم دفع الأجرة",
+    "generate": "توليد المسودة",
+    "draftLabel": "المسودة",
+    "regenerate": "إعادة التوليد",
+    "improve": "تحسين",
+    "shorten": "تقصير",
+    "makeFormal": "صياغة أكثر رسمية",
+    "translate": "ترجمة",
+    "copy": "نسخ",
+    "saveDraft": "حفظ المسودة",
+    "export": "تصدير",
+    "aiDisclosure": "مسودة مُولّدة بالذكاء الاصطناعي — تتطلب مراجعة المحامي قبل الاستخدام.",
+    "savedSuccess": "تم حفظ المسودة",
+    "empty": "لا توجد مسودات بعد",
+    "status": {
+      "draft": "مسودة",
+      "final": "نهائية",
+      "sent": "مرسلة"
+    }
+  },
+  "calendar": {
+    "title": "التقويم",
+    "newEvent": "حدث جديد",
+    "today": "اليوم",
+    "types": {
+      "video": "استشارة فيديو",
+      "phone": "استشارة هاتفية",
+      "in_person": "استشارة حضورية",
+      "court": "جلسة محكمة",
+      "deadline": "موعد نهائي",
+      "follow_up": "متابعة"
+    },
+    "eventTitle": "عنوان الحدث",
+    "client": "العميل",
+    "relatedCase": "القضية المرتبطة",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "reminder": "تذكير",
+    "save": "حفظ الحدث",
+    "delete": "حذف الحدث"
+  },
+  "clients": {
+    "title": "العملاء",
+    "empty": "لا يوجد عملاء بعد",
+    "activeCases": "قضايا نشطة",
+    "totalCases": "إجمالي القضايا"
+  },
+  "documents": {
+    "title": "مستندات القضايا",
+    "empty": "لا توجد مستندات"
+  },
+  "messages": {
+    "title": "الرسائل",
+    "empty": "لا توجد رسائل بعد",
+    "placeholder": "اكتب رسالتك..."
+  },
+  "voice": {
+    "title": "أمر صوتي",
+    "subtitle": "اضغط للتحدث — سنحوّل كلامك إلى إجراء",
+    "listening": "جارٍ الاستماع...",
+    "processing": "جارٍ المعالجة...",
+    "transcript": "النص المسموع",
+    "confirmAction": "تأكيد الإجراء",
+    "suggestedReminder": "تذكير مقترح",
+    "client": "العميل",
+    "when": "الموعد",
+    "create": "إنشاء التذكير",
+    "simulatedNotice": "محاكاة صوتية تجريبية — بدون خدمة تحويل كلام حقيقية"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "editProfile": "تعديل الملف",
+    "verificationStatus": "حالة التوثيق"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "notifications": "إعدادات الإشعارات",
+    "language": "اللغة الافتراضية",
+    "availability": "حالة التوفر"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "lawyers": "Lawyers",
+    "cases": "Cases",
+    "documents": "Documents",
+    "reports": "Reports",
+    "verification": "Verification requests",
+    "analytics": "Platform analytics"
+  },
+  "dashboard": {
+    "title": "Admin Dashboard",
+    "subtitle": "An overview of platform performance",
+    "totalCitizens": "Total citizens",
+    "registeredLawyers": "Registered lawyers",
+    "activeCases": "Active cases",
+    "documentsAnalyzed": "Documents analyzed",
+    "consultations": "Consultations",
+    "aiAnalyses": "AI analyses",
+    "platformActivity": "Platform activity",
+    "activityOverTime": "Activity over time",
+    "casesByCategory": "Cases by category",
+    "casesByStatus": "Cases by status",
+    "topLawyers": "Top active lawyers"
+  },
+  "verification": {
+    "title": "Verification requests",
+    "empty": "No pending requests",
+    "approve": "Approve",
+    "reject": "Reject"
+  }
+}
