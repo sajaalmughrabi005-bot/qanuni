@@ -49,11 +49,11 @@ export function DashboardShell({
 
   const SidebarContent = (
     <div className="flex h-full flex-col">
-      <Link href="/" className="flex items-center gap-2 bg-white px-5 py-5 font-semibold text-navy">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-navy text-gold">
-          <Scale className="h-4 w-4" />
+      <Link href="/" className="flex items-center gap-2.5 border-b border-white/10 px-5 py-5">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold text-navy shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
+          <Scale className="h-4.5 w-4.5" />
         </span>
-        {t("brand.name")}
+        <span className="text-base font-semibold tracking-tight text-white">{t("brand.name")}</span>
       </Link>
       <nav className="flex-1 space-y-1 px-3 pt-3">
         {navItems.map((item) => {
