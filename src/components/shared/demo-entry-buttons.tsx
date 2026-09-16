@@ -42,7 +42,7 @@ export function DemoEntryButtons({ variant = "landing" }: { variant?: "landing" 
       {roles.map(({ role, icon: Icon, key }) => (
         <Card key={role} className="group cursor-pointer transition hover:-translate-y-1 hover:shadow-md" onClick={() => enter(role)}>
           <CardContent className="flex flex-col items-start gap-3 p-6">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-navy/5 text-navy group-hover:bg-navy group-hover:text-gold transition-colors">
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ink/5 text-ink group-hover:bg-navy group-hover:text-gold transition-colors">
               <Icon className="h-5 w-5" />
             </span>
             <div>

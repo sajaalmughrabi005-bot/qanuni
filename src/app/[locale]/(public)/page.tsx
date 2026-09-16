@@ -172,7 +172,7 @@ export default async function LandingPage({
               <Reveal key={key} delay={i * 0.08}>
                 <Card className="h-full">
                   <CardContent className="p-6">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-navy/5 text-navy">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-ink/5 text-ink">
                       <Icon className="h-5 w-5" />
                     </span>
                     <p className="mt-4 font-semibold">{t(`lawyerFeatures.${key}Title`)}</p>
@@ -233,7 +233,7 @@ export default async function LandingPage({
       {/* Final CTA */}
       <section className="bg-gold/10 py-20">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <h2 className="text-3xl font-bold text-navy">{t("finalCta.title")}</h2>
+          <h2 className="text-3xl font-bold text-ink">{t("finalCta.title")}</h2>
           <p className="mt-3 text-foreground-muted">{t("finalCta.subtitle")}</p>
           <StartAnalysisButton className="mt-8">
             {t("finalCta.cta")}

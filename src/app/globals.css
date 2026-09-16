@@ -9,6 +9,7 @@
   --border: #e6e1d6;
   --navy: #0f1c30;
   --navy-light: #16273f;
+  --ink: #0f1c30;
   --charcoal: #1c1f24;
   --beige: #efe9dc;
   --gold: #b68a35;
@@ -33,6 +34,7 @@
   --color-border: var(--border);
   --color-navy: var(--navy);
   --color-navy-light: var(--navy-light);
+  --color-ink: var(--ink);
   --color-charcoal: var(--charcoal);
   --color-beige: var(--beige);
   --color-gold: var(--gold);
@@ -60,6 +62,7 @@ html[lang="ar"] {
   --border: #33363d;
   --navy: #0c111a;
   --navy-light: #17222f;
+  --ink: #eeece5;
   --charcoal: #0a0b0e;
   --beige: #2a2c30;
   --gold: #cf9f4f;

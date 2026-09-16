@@ -10,7 +10,7 @@ export function PublicFooter() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2 font-semibold text-navy">
+            <div className="flex items-center gap-2 font-semibold text-ink">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-navy text-gold">
                 <Scale className="h-4 w-4" />
               </span>
@@ -21,7 +21,7 @@ export function PublicFooter() {
           <div>
             <p className="text-sm font-semibold">{t("footer.product")}</p>
             <ul className="mt-3 space-y-2 text-sm text-foreground-muted">
-              <li><Link href="/analyze/new">{t("nav.forCitizens")}</Link></li>
+              <li><Link href="/login">{t("nav.forCitizens")}</Link></li>
               <li><Link href="/lawyers">{t("nav.findLawyer")}</Link></li>
               <li><Link href="/login">{t("nav.forLawyers")}</Link></li>
             </ul>

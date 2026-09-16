@@ -40,7 +40,7 @@ export default function DocumentsPage() {
               <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy/5 text-navy">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink/5 text-ink">
                       <FileText className="h-5 w-5" />
                     </span>
                     <Badge variant="subtle">{t(`status.${doc.status}` as "status.analyzed")}</Badge>

@@ -137,7 +137,7 @@ export default function LawyerCaseDetailPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex-row items-center gap-2 space-y-0">
-            <MessageSquareQuote className="h-4.5 w-4.5 text-navy" />
+            <MessageSquareQuote className="h-4.5 w-4.5 text-ink" />
             <CardTitle className="text-base">{t("clientStory")}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -149,7 +149,7 @@ export default function LawyerCaseDetailPage() {
 
         <Card>
           <CardHeader className="flex-row items-center gap-2 space-y-0">
-            <FileSearch className="h-4.5 w-4.5 text-navy" />
+            <FileSearch className="h-4.5 w-4.5 text-ink" />
             <CardTitle className="text-base">{t("evidence")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -168,7 +168,7 @@ export default function LawyerCaseDetailPage() {
 
         <Card>
           <CardHeader className="flex-row items-center gap-2 space-y-0">
-            <Scale className="h-4.5 w-4.5 text-navy" />
+            <Scale className="h-4.5 w-4.5 text-ink" />
             <CardTitle className="text-base">{t("legalContext")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">

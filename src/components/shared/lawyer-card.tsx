@@ -61,7 +61,7 @@ export function LawyerCard({ lawyer, matchScore }: { lawyer: Lawyer; matchScore?
               <Star className="h-3.5 w-3.5 fill-gold text-gold" />
               {lawyer.rating} · {t("card.reviewsCount", { count: lawyer.reviewCount })}
             </span>
-            <span className="font-semibold text-navy">
+            <span className="font-semibold text-ink">
               {lawyer.consultationPrice} {t("card.perConsultation")}
             </span>
           </div>

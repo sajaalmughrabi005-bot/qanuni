@@ -20,7 +20,7 @@ function Section({
   return (
     <Card>
       <CardHeader className="flex-row items-center gap-2.5 space-y-0 pb-2">
-        <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${tone === "warning" ? "bg-risk-medium-bg text-risk-medium" : "bg-navy/5 text-navy"}`}>
+        <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${tone === "warning" ? "bg-risk-medium-bg text-risk-medium" : "bg-ink/5 text-ink"}`}>
           <Icon className="h-4 w-4" />
         </span>
         <CardTitle className="text-base">{title}</CardTitle>

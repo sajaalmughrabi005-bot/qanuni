@@ -15,7 +15,7 @@ export function DocumentOverview({ document }: { document: LegalDocument }) {
     <Card>
       <CardContent className="p-6">
         <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-navy/5 text-navy">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-ink/5 text-ink">
             <FileText className="h-5 w-5" />
           </span>
           <div>

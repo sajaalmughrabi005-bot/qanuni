@@ -28,7 +28,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-muted/40 px-4 py-16">
       <div className="w-full max-w-md">
-        <Link href="/" className="mb-8 flex items-center justify-center gap-2 font-semibold text-navy">
+        <Link href="/" className="mb-8 flex items-center justify-center gap-2 font-semibold text-ink">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-gold">
             <Scale className="h-4 w-4" />
           </span>
