@@ -7,12 +7,14 @@ import { Star, MapPin, Clock, Briefcase, Languages as LanguagesIcon, ShieldCheck
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/shared/empty-state";
 import { RequestConsultationDialog } from "@/components/citizen/request-consultation-dialog";
+import { WriteReviewForm } from "@/components/citizen/write-review-form";
 import { reviews as allReviews } from "@/lib/mock-data";
 import { useLawyer } from "@/lib/auth/use-lawyer";
-import { initials, lawyerAvatarUrl, formatDate } from "@/lib/utils";
+import { useAppStore } from "@/lib/store/app-store";
+import { initials, formatDate } from "@/lib/utils";
 
 export default function LawyerProfilePage() {
   const params = useParams<{ id: string }>();
@@ -25,7 +27,8 @@ export default function LawyerProfilePage() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const lawyer = useLawyer(params.id);
-  const reviews = allReviews.filter((r) => r.lawyerId === params.id);
+  const customReviews = useAppStore((s) => s.customReviews);
+  const reviews = [...customReviews, ...allReviews].filter((r) => r.lawyerId === params.id);
 
   if (!lawyer) {
     return <EmptyState icon={Briefcase} title="Not found" className="mx-auto mt-16 max-w-lg" />;
@@ -37,7 +40,6 @@ export default function LawyerProfilePage() {
         <CardContent className="p-8">
           <div className="flex flex-col items-start gap-5 sm:flex-row">
             <Avatar className="h-20 w-20 text-xl">
-              <AvatarImage src={lawyerAvatarUrl(lawyer)} alt={lawyer.fullName} />
               <AvatarFallback>{initials(lawyer.fullName)}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
@@ -126,6 +128,7 @@ export default function LawyerProfilePage() {
           <span className="text-xs text-foreground-muted">{t("demoReviewNotice")}</span>
         </div>
         <div className="space-y-3">
+          <WriteReviewForm lawyerId={lawyer.id} />
           {reviews.map((r) => (
             <Card key={r.id}>
               <CardContent className="p-4">
@@ -136,7 +139,7 @@ export default function LawyerProfilePage() {
                     {r.rating}
                   </span>
                 </div>
-                <p className="mt-1.5 text-sm text-foreground-muted">{r.review}</p>
+                {r.review && <p className="mt-1.5 text-sm text-foreground-muted">{r.review}</p>}
                 <p className="mt-1.5 text-xs text-foreground-muted">{formatDate(r.createdAt, locale)}</p>
               </CardContent>
             </Card>

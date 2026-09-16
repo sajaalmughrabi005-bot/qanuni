@@ -50,7 +50,14 @@
     "completedCases": "Completed cases",
     "requestConsultation": "Request Consultation",
     "consultationTypes": "Consultation types",
-    "demoReviewNotice": "Demo reviews for illustration purposes"
+    "demoReviewNotice": "Demo reviews for illustration purposes",
+    "writeReview": "Add your review",
+    "yourRating": "Your rating",
+    "yourReview": "Your comment (optional)",
+    "yourReviewPlaceholder": "Share your experience with this lawyer...",
+    "submitReview": "Submit Review",
+    "reviewSubmitted": "Your review was submitted, thank you",
+    "loginToReview": "Log in to leave a review"
   },
   "matching": {
     "whyMatch": "Why this lawyer matches your case",

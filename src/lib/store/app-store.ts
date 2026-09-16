@@ -16,6 +16,7 @@ import {
   Lawyer,
   LawyerSpecialty,
   Profile,
+  Review,
 } from "@/types";
 import {
   appointments as seedAppointments,
@@ -25,6 +26,7 @@ import {
   demoDocument,
   drafts as seedDrafts,
   notifications as seedNotifications,
+  lawyers as seedLawyers,
   DEMO_LAWYER_ID,
   DEMO_USER_ID,
   ADMIN_USER_ID,
@@ -78,6 +80,8 @@ interface AppState {
   updateLawyerProfile: (lawyerId: string, patch: Partial<Lawyer>) => void;
   profileOverrides: Record<string, Partial<Profile>>;
   updateProfile: (userId: string, patch: Partial<Profile>) => void;
+  customReviews: Review[];
+  addReview: (input: { lawyerId: string; clientName: string; rating: number; review: string }) => Review;
 
   setHydrated: () => void;
   loginDemo: (role: UserRole) => Session;
@@ -128,6 +132,7 @@ export const useAppStore = create<AppState>()(
       profileOverrides: {},
       registeredUsers: {},
       customLawyers: [],
+      customReviews: [],
 
       toggleSavedLawyer: (lawyerId) =>
         set((s) => ({
@@ -151,6 +156,30 @@ export const useAppStore = create<AppState>()(
             [userId]: { ...s.profileOverrides[userId], ...patch },
           },
         })),
+
+      addReview: (input) => {
+        const newReview: Review = {
+          id: uid("review"),
+          lawyerId: input.lawyerId,
+          clientName: input.clientName,
+          rating: input.rating,
+          review: input.review,
+          createdAt: new Date().toISOString(),
+        };
+        set((s) => ({ customReviews: [newReview, ...s.customReviews] }));
+
+        const s = get();
+        const lawyer = [...seedLawyers, ...s.customLawyers].find((l) => l.id === input.lawyerId);
+        if (lawyer) {
+          const override = s.lawyerOverrides[input.lawyerId];
+          const baseRating = override?.rating ?? lawyer.rating;
+          const baseCount = override?.reviewCount ?? lawyer.reviewCount;
+          const newCount = baseCount + 1;
+          const newRating = Math.round(((baseRating * baseCount + input.rating) / newCount) * 10) / 10;
+          get().updateLawyerProfile(input.lawyerId, { rating: newRating, reviewCount: newCount });
+        }
+        return newReview;
+      },
 
       setHydrated: () => set({ hydrated: true }),
 

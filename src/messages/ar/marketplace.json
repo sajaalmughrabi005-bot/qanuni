@@ -50,7 +50,14 @@
     "completedCases": "القضايا المنجزة",
     "requestConsultation": "طلب استشارة",
     "consultationTypes": "أنواع الاستشارة",
-    "demoReviewNotice": "تقييمات تجريبية لأغراض العرض التوضيحي"
+    "demoReviewNotice": "تقييمات تجريبية لأغراض العرض التوضيحي",
+    "writeReview": "أضف تقييمك",
+    "yourRating": "تقييمك",
+    "yourReview": "رأيك بالمحامي (اختياري)",
+    "yourReviewPlaceholder": "شاركنا تجربتك مع هذا المحامي...",
+    "submitReview": "إرسال التقييم",
+    "reviewSubmitted": "تم إرسال تقييمك، شكراً لك",
+    "loginToReview": "سجّل الدخول لتتمكن من إضافة تقييم"
   },
   "matching": {
     "whyMatch": "لماذا يناسبك هذا المحامي",
