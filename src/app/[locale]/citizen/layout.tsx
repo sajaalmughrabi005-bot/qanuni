@@ -9,12 +9,14 @@ import {
   Heart,
   CalendarDays,
   Bell,
+  UserCircle,
 } from "lucide-react";
 import { RoleGuard } from "@/components/providers/role-guard";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 
 export default function CitizenLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations("citizen.nav");
+  const tProfile = useTranslations("common.profile");
 
   const navItems = [
     { href: "/citizen/dashboard", label: t("dashboard"), icon: LayoutDashboard },
@@ -24,6 +26,7 @@ export default function CitizenLayout({ children }: { children: React.ReactNode 
     { href: "/citizen/lawyers", label: t("lawyers"), icon: Heart },
     { href: "/citizen/appointments", label: t("appointments"), icon: CalendarDays },
     { href: "/citizen/notifications", label: t("notifications"), icon: Bell },
+    { href: "/citizen/profile", label: tProfile("title"), icon: UserCircle },
   ];
 
   return (

@@ -513,13 +513,32 @@ export function heuristicTransformDraft(params: {
     return `${opening}${text}${closing}\n\n${disclaimer}`;
   }
 
-  // translate: no real offline translation engine — the body stays in its
-  // original language, so the notice explaining that must stay in the
-  // CURRENT UI locale too (not the untranslated target locale), otherwise
-  // the result reads as broken, mismatched text.
+  // translate: no external AI provider offline, but the draft body is built
+  // from one of our own bilingual templates — if we can still find the
+  // original instructions line, we can genuinely re-render the legal
+  // boilerplate in the other language (only the short user instructions
+  // stay untranslated, clearly labeled). Only freeform hand-edited text
+  // that no longer contains that marker falls back to an honest notice.
+  const targetLocale: Locale = params.locale === "ar" ? "en" : "ar";
+  const regardingMatch = body.match(/\((?:بخصوص|Regarding):\s*([\s\S]+?)\)\s*$/);
+  if (regardingMatch) {
+    const instructions = regardingMatch[1].trim();
+    const isNotice = /إنذار|notice|formal/i.test(instructions);
+    const isReminder = /تذكير|reminder|follow.?up/i.test(instructions);
+    const key = isNotice ? "notice" : isReminder ? "reminder" : "general";
+    const template = DRAFT_TEMPLATES[key][targetLocale];
+    const regardingLabel = targetLocale === "ar" ? "بخصوص" : "Regarding";
+    const targetDisclaimer = targetLocale === "ar" ? DISCLAIMER_AR : DISCLAIMER_EN;
+    const translatedNote =
+      targetLocale === "ar"
+        ? "(تمت ترجمة النص القانوني الأساسي محلياً؛ التعليمات الأصلية أدناه بقيت كما كتبها المحامي.)"
+        : "(The core legal text was translated locally; the original instructions below were kept as the lawyer wrote them.)";
+    return `${translatedNote}\n\n${template}\n\n(${regardingLabel}: ${instructions})\n\n${targetDisclaimer}`;
+  }
+
   const note =
     params.locale === "ar"
-      ? "(وضع الديمو: لا يوجد محرك ترجمة محلي متاح بدون مزود ذكاء اصطناعي خارجي. النص أدناه هو النص الأصلي — يحتاج ترجمة يدوية من المحامي.)"
-      : "(Demo mode: no offline translation engine is available without an external AI provider. The text below is the original — it needs manual translation by the lawyer.)";
+      ? "(لا يمكن ترجمة هذا النص آلياً لأنه عُدِّل يدوياً بشكل يخفي التعليمات الأصلية، ولا يوجد مزود ذكاء اصطناعي خارجي متاح. يحتاج ترجمة يدوية من المحامي.)"
+      : "(This text can't be translated automatically because it was hand-edited in a way that removed the original instructions marker, and no external AI provider is available. It needs manual translation by the lawyer.)";
   return `${note}\n\n${body}\n\n${disclaimer}`;
 }

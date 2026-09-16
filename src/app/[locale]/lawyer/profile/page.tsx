@@ -36,6 +36,7 @@ export default function LawyerProfileSettingsPage() {
   const { session } = useSession();
   const lawyer = useLawyer(session?.userId);
   const updateLawyerProfile = useAppStore((s) => s.updateLawyerProfile);
+  const updateProfile = useAppStore((s) => s.updateProfile);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [editing, setEditing] = useState(false);
@@ -58,6 +59,7 @@ export default function LawyerProfileSettingsPage() {
 
   const save = () => {
     updateLawyerProfile(lawyer.id, form);
+    if (session) updateProfile(session.userId, { avatarUrl: form.avatarUrl, city: form.city });
     setEditing(false);
     toast.success(t("saved"));
   };

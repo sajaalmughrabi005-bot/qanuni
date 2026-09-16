@@ -14,6 +14,7 @@ import {
   AppNotification,
   UserRole,
   Lawyer,
+  Profile,
 } from "@/types";
 import {
   appointments as seedAppointments,
@@ -49,6 +50,8 @@ interface AppState {
   toggleSavedLawyer: (lawyerId: string) => void;
   lawyerOverrides: Record<string, Partial<Lawyer>>;
   updateLawyerProfile: (lawyerId: string, patch: Partial<Lawyer>) => void;
+  profileOverrides: Record<string, Partial<Profile>>;
+  updateProfile: (userId: string, patch: Partial<Profile>) => void;
 
   setHydrated: () => void;
   loginDemo: (role: UserRole) => Session;
@@ -92,6 +95,7 @@ export const useAppStore = create<AppState>()(
       scenarioChats: {},
       savedLawyerIds: [],
       lawyerOverrides: {},
+      profileOverrides: {},
 
       toggleSavedLawyer: (lawyerId) =>
         set((s) => ({
@@ -105,6 +109,14 @@ export const useAppStore = create<AppState>()(
           lawyerOverrides: {
             ...s.lawyerOverrides,
             [lawyerId]: { ...s.lawyerOverrides[lawyerId], ...patch },
+          },
+        })),
+
+      updateProfile: (userId, patch) =>
+        set((s) => ({
+          profileOverrides: {
+            ...s.profileOverrides,
+            [userId]: { ...s.profileOverrides[userId], ...patch },
           },
         })),
 

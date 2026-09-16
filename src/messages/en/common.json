@@ -72,6 +72,16 @@
     "terms": "Terms",
     "rights": "All rights reserved"
   },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit profile",
+    "changePhoto": "Change photo",
+    "phone": "Phone number",
+    "city": "City",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saved": "Changes saved"
+  },
   "assistant": {
     "title": "Legal Assistant — help & technical issues",
     "placeholder": "Ask about any feature or describe an issue...",
