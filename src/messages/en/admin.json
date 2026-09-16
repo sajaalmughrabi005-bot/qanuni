@@ -28,6 +28,16 @@
     "title": "Verification requests",
     "empty": "No pending requests",
     "approve": "Approve",
-    "reject": "Reject"
+    "reject": "Reject",
+    "barNumber": "Bar number",
+    "specialty": "Specialty",
+    "pendingBadge": "Pending verification"
+  },
+  "users": {
+    "statusActive": "Active",
+    "statusDisabled": "Disabled",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "demoBadge": "Demo account"
   }
 }

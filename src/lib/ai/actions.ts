@@ -14,6 +14,13 @@ import {
   VoiceCommandResult,
 } from "./engine";
 
+// Hard constraint injected into every AI-backed legal system prompt: keep every
+// analysis, risk flag, and draft strictly grounded in official Jordanian law
+// (Civil Code, Labour Law, Landlords & Tenants Law, etc.) and never reason from
+// or cite another country's legal system.
+const JORDAN_LAW_LOCK =
+  "STRICT RULE: Every legal analysis, risk flag, explanation, and drafted document must be grounded exclusively in official Jordanian law (e.g. the Jordanian Civil Code, Labour Law, Landlords and Tenants Law, Companies Law, as applicable). Never reason from, cite, or apply the law of any other country. If a matter depends on a specific Jordanian statute you cannot verify, say so explicitly instead of guessing or citing a foreign equivalent.";
+
 export async function processVoiceCommandAction(transcript: string): Promise<VoiceCommandResult> {
   return heuristicParseVoiceCommand(transcript);
 }
@@ -32,8 +39,7 @@ export async function analyzeDocumentAction(params: {
 }): Promise<{ clauses: DocumentClause[]; analysis: Analysis; source: "ai" | "demo_engine" }> {
   if (hasOpenAI()) {
     const json = await completeJSON({
-      system:
-        "You are a legal-document analysis assistant for Jordan. Extract clauses and risk indicators as strict JSON. Never invent legal citations or article numbers — only reference sources if explicitly provided. Always caveat that this is not legal advice.",
+      system: `You are a legal-document analysis assistant for Jordan. Extract clauses and risk indicators as strict JSON. Never invent legal citations or article numbers — only reference sources if explicitly provided. Always caveat that this is not legal advice.\n\n${JORDAN_LAW_LOCK}`,
       user: `Analyze this contract text and return JSON with fields: clauses (array of {clauseNumber, clauseTextAr, clauseTextEn, riskLevel: low|medium|high, category, explanationAr, explanationEn, confidence}), overallRisk, summaryAr, summaryEn. Document type: ${params.documentType}. Text:\n\n${params.text.slice(0, 6000)}`,
     });
     if (json) {
@@ -57,8 +63,7 @@ export async function askTheLawAction(params: {
       .map((c) => `Clause ${c.clauseNumber} [${c.riskLevel}]: ${c.clauseTextEn}`)
       .join("\n");
     const text = await completeText({
-      system:
-        "You are QANUNI's legal-understanding assistant for Jordan. Answer using only the provided contract clauses and general context. Never invent Jordanian laws or citations. Always note this is not a substitute for a licensed lawyer. Reply in the user's language.",
+      system: `You are QANUNI's legal-understanding assistant for Jordan. Answer using only the provided contract clauses and general context. Never invent Jordanian laws or citations. Always note this is not a substitute for a licensed lawyer. Reply in the user's language.\n\n${JORDAN_LAW_LOCK}`,
       user: `Contract clauses:\n${context}\n\nQuestion (${params.locale}): ${params.question}`,
     });
     if (text) {
@@ -93,8 +98,7 @@ export async function generateDraftAction(params: {
 }): Promise<{ content: string; source: "ai" | "demo_engine" }> {
   if (hasOpenAI()) {
     const text = await completeText({
-      system:
-        "You are a legal drafting assistant for a Jordanian lawyer. Produce a professional draft based on the instructions. Never invent specific legal citations, article numbers, or court decisions. Always end with a clear AI-disclosure note that a lawyer must review the draft before use.",
+      system: `You are a legal drafting assistant for a Jordanian lawyer. Produce a professional draft based on the instructions. Never invent specific legal citations, article numbers, or court decisions. Always end with a clear AI-disclosure note that a lawyer must review the draft before use.\n\n${JORDAN_LAW_LOCK}`,
       user: `Instructions: ${params.instructions}\nMode: ${params.mode || "generate"}\nLocale: ${params.locale}\n${
         params.existingContent ? `Existing draft:\n${params.existingContent}` : ""
       }`,
@@ -120,8 +124,7 @@ export async function assistantChatAction(params: {
 }): Promise<{ reply: string; source: "ai" | "demo_engine" }> {
   if (hasOpenAI()) {
     const text = await completeText({
-      system:
-        "You are QANUNI's site-wide help assistant. Help users navigate the platform's features (contract analysis, Ask the Law, scenario simulator, lawyer marketplace, case creation, lawyer dashboard, AI drafter, calendar) and troubleshoot technical issues. Never invent Jordanian legal citations. Keep replies concise. Reply in the user's language.",
+      system: `You are QANUNI's site-wide help assistant. Help users navigate the platform's features (contract analysis, Ask the Law, scenario simulator, lawyer marketplace, case creation, lawyer dashboard, AI drafter, calendar) and troubleshoot technical issues. Never invent Jordanian legal citations. Keep replies concise. Reply in the user's language.\n\n${JORDAN_LAW_LOCK}`,
       user: params.message,
     });
     if (text) return { reply: text, source: "ai" };

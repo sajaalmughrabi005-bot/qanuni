@@ -4,6 +4,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { StoreHydration } from "@/components/providers/store-hydration";
+import { ThemeSync } from "@/components/providers/theme-sync";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { AiAssistantWidget } from "@/components/shared/ai-assistant-widget";
@@ -56,6 +57,7 @@ export default async function LocaleLayout({
       <body className={`${manrope.variable} ${plexArabic.variable} antialiased`}>
         <NextIntlClientProvider>
           <StoreHydration>
+            <ThemeSync />
             <TooltipProvider delayDuration={200}>
               {children}
               <AiAssistantWidget />

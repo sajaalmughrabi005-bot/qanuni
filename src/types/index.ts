@@ -11,6 +11,7 @@ export interface Profile {
   city?: string;
   avatarUrl?: string;
   createdAt: string;
+  accountStatus?: "active" | "disabled";
 }
 
 export type LawyerSpecialty =

@@ -14,6 +14,7 @@ import {
   AppNotification,
   UserRole,
   Lawyer,
+  LawyerSpecialty,
   Profile,
 } from "@/types";
 import {
@@ -34,9 +35,34 @@ export interface Session {
   role: UserRole;
 }
 
+export interface RegisteredUser {
+  profile: Profile;
+  password: string;
+  lawyerId?: string;
+}
+
+export interface SignUpInput {
+  fullName: string;
+  email: string;
+  password: string;
+  role: "citizen" | "lawyer";
+  barNumber?: string;
+  specialty?: LawyerSpecialty;
+}
+
+export type SignUpResult =
+  | { ok: true; session: Session }
+  | { ok: false; error: "email_taken" };
+
+export type LoginResult =
+  | { ok: true; session: Session }
+  | { ok: false; error: "invalid_credentials" | "account_disabled" };
+
 interface AppState {
   hydrated: boolean;
   session: Session | null;
+  registeredUsers: Record<string, RegisteredUser>;
+  customLawyers: Lawyer[];
   documents: LegalDocument[];
   clauses: DocumentClause[];
   analyses: Analysis[];
@@ -56,6 +82,10 @@ interface AppState {
   setHydrated: () => void;
   loginDemo: (role: UserRole) => Session;
   logout: () => void;
+  signUp: (input: SignUpInput) => SignUpResult;
+  login: (email: string, password: string) => LoginResult;
+  setAccountStatus: (userId: string, status: "active" | "disabled") => void;
+  setLawyerVerification: (lawyerId: string, status: Lawyer["verificationStatus"]) => void;
 
   addDocument: (doc: LegalDocument, clauses: DocumentClause[], analysis: Analysis) => void;
   createCase: (data: Omit<CaseRecord, "id" | "createdAt" | "updatedAt">) => CaseRecord;
@@ -96,6 +126,8 @@ export const useAppStore = create<AppState>()(
       savedLawyerIds: [],
       lawyerOverrides: {},
       profileOverrides: {},
+      registeredUsers: {},
+      customLawyers: [],
 
       toggleSavedLawyer: (lawyerId) =>
         set((s) => ({
@@ -131,6 +163,95 @@ export const useAppStore = create<AppState>()(
       },
 
       logout: () => set({ session: null }),
+
+      signUp: (input) => {
+        const email = input.email.trim().toLowerCase();
+        const existing = get().registeredUsers[email];
+        if (existing) return { ok: false, error: "email_taken" };
+
+        const userId = uid("user");
+        const profile: Profile = {
+          id: userId,
+          fullName: input.fullName,
+          email,
+          role: input.role,
+          language: "ar",
+          createdAt: new Date().toISOString(),
+          accountStatus: "active",
+        };
+
+        let lawyerId: string | undefined;
+        if (input.role === "lawyer") {
+          lawyerId = uid("lawyer");
+          const newLawyer: Lawyer = {
+            id: lawyerId,
+            profileId: userId,
+            fullName: input.fullName,
+            specialties: input.specialty ? [input.specialty] : [],
+            bio: "",
+            city: "",
+            languages: ["ar"],
+            consultationPrice: 0,
+            availabilityStatus: "busy",
+            consultationTypes: ["video"],
+            verificationStatus: "pending",
+            yearsExperience: 0,
+            rating: 0,
+            reviewCount: 0,
+            completedCases: 0,
+            responseTimeHours: 24,
+          };
+          set((s) => ({ customLawyers: [...s.customLawyers, newLawyer] }));
+        }
+
+        const registered: RegisteredUser = { profile, password: input.password, lawyerId };
+        set((s) => ({
+          registeredUsers: { ...s.registeredUsers, [email]: registered },
+        }));
+
+        const session: Session = { userId, role: input.role };
+        set({ session });
+        return { ok: true, session };
+      },
+
+      login: (email, password) => {
+        const key = email.trim().toLowerCase();
+        const registered = get().registeredUsers[key];
+        if (!registered || registered.password !== password) {
+          return { ok: false, error: "invalid_credentials" };
+        }
+        if (registered.profile.accountStatus === "disabled") {
+          return { ok: false, error: "account_disabled" };
+        }
+        const session: Session = { userId: registered.profile.id, role: registered.profile.role };
+        set({ session });
+        return { ok: true, session };
+      },
+
+      setAccountStatus: (userId, status) => {
+        set((s) => {
+          const entry = Object.entries(s.registeredUsers).find(([, u]) => u.profile.id === userId);
+          if (!entry) return {};
+          const [key, user] = entry;
+          return {
+            registeredUsers: {
+              ...s.registeredUsers,
+              [key]: { ...user, profile: { ...user.profile, accountStatus: status } },
+            },
+          };
+        });
+      },
+
+      setLawyerVerification: (lawyerId, status) => {
+        set((s) => ({
+          customLawyers: s.customLawyers.map((l) =>
+            l.id === lawyerId ? { ...l, verificationStatus: status } : l
+          ),
+          lawyerOverrides: s.customLawyers.some((l) => l.id === lawyerId)
+            ? s.lawyerOverrides
+            : { ...s.lawyerOverrides, [lawyerId]: { ...s.lawyerOverrides[lawyerId], verificationStatus: status } },
+        }));
+      },
 
       addDocument: (doc, clauses, analysis) =>
         set((s) => ({

@@ -5,7 +5,7 @@
     "ctaPrimary": "Check Your Contract — Free",
     "ctaSecondary": "Find a Lawyer",
     "ctaTertiary": "I'm a Lawyer",
-    "trustBadge": "A bilingual Jordanian LegalTech platform"
+    "trustBadge": "An AI-powered Jordanian LegalTech platform"
   },
   "loop": {
     "title": "The core product loop",
@@ -47,7 +47,7 @@
   "lawyerFeatures": {
     "title": "Smart tools for lawyers",
     "subtitle": "Structured cases instead of starting from zero",
-    "f1Title": "Case Management (Kanban)",
+    "f1Title": "Interactive Case Board",
     "f1Desc": "Track every case from intake to close",
     "f2Title": "AI Case Summary",
     "f2Desc": "Client story, evidence, and legal context in one place",
@@ -68,7 +68,7 @@
     "p3": "Your documents are never shared without consent"
   },
   "bilingual": {
-    "title": "A complete bilingual experience",
+    "title": "A complete Arabic and English experience",
     "subtitle": "Fluent Arabic, full RTL, and professional English — one click away"
   },
   "finalCta": {

@@ -28,9 +28,16 @@ export default function LawyerMarketplacePage() {
   const [query, setQuery] = useState("");
   const [city, setCity] = useState<string>("all");
   const [specialty, setSpecialty] = useState<string>("all");
-  const lawyers = useLawyersWithOverrides();
+  const allLawyers = useLawyersWithOverrides();
+  const lawyers = useMemo(
+    () => allLawyers.filter((l) => l.verificationStatus !== "pending" && l.verificationStatus !== "unverified"),
+    [allLawyers]
+  );
 
-  const cities = useMemo(() => Array.from(new Set(lawyers.map((l) => l.city))), [lawyers]);
+  const cities = useMemo(
+    () => Array.from(new Set(lawyers.map((l) => l.city).filter(Boolean))),
+    [lawyers]
+  );
 
   const filtered = lawyers.filter((l) => {
     if (query && !l.fullName.toLowerCase().includes(query.toLowerCase())) return false;

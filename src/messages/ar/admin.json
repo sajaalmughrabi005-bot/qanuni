@@ -28,6 +28,16 @@
     "title": "طلبات التوثيق",
     "empty": "لا توجد طلبات معلّقة",
     "approve": "قبول",
-    "reject": "رفض"
+    "reject": "رفض",
+    "barNumber": "رقم النقابة",
+    "specialty": "التخصص",
+    "pendingBadge": "بانتظار التوثيق"
+  },
+  "users": {
+    "statusActive": "نشط",
+    "statusDisabled": "معطّل",
+    "activate": "تفعيل",
+    "deactivate": "تعطيل",
+    "demoBadge": "حساب تجريبي"
   }
 }

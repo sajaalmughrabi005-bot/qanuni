@@ -24,7 +24,7 @@ type SpeechRecognitionLike = {
   interimResults: boolean;
   continuous: boolean;
   onresult: ((event: { results: { transcript: string }[][] } & Record<string, unknown>) => void) | null;
-  onerror: (() => void) | null;
+  onerror: ((event: { error?: string }) => void) | null;
   onend: (() => void) | null;
   start: () => void;
   stop: () => void;
@@ -80,7 +80,10 @@ export function VoiceCommandWidget() {
 
     try {
       const recognition = new SpeechRecognitionCtor();
-      recognition.lang = locale === "ar" ? "ar-JO" : "en-US";
+      // "ar-SA" is the most broadly supported Arabic locale across browsers'
+      // speech engines; regional accents (Jordanian included) are still
+      // recognized fine since the transcript is only used for keyword parsing.
+      recognition.lang = locale === "ar" ? "ar-SA" : "en-US";
       recognition.interimResults = false;
       recognition.continuous = false;
       recognition.onresult = (event) => {
@@ -88,9 +91,19 @@ export function VoiceCommandWidget() {
         if (text) finishTranscript(text);
         else setListening(false);
       };
-      recognition.onerror = () => {
+      recognition.onerror = (event) => {
         setListening(false);
-        toast.error(t("micError"));
+        const errorCode = event?.error;
+        if (errorCode === "not-allowed" || errorCode === "service-not-allowed") {
+          toast.error(t("micPermissionDenied"));
+        } else if (errorCode === "no-speech") {
+          toast.error(t("micNoSpeech"));
+        } else {
+          toast.error(t("micError"));
+        }
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("SpeechRecognition error:", errorCode);
+        }
       };
       recognition.onend = () => setListening(false);
       recognitionRef.current = recognition;

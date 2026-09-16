@@ -33,7 +33,7 @@
   },
   "cases": {
     "title": "Cases",
-    "kanban": "Kanban view",
+    "kanban": "Board view",
     "list": "List view",
     "columns": {
       "new": "New",
@@ -170,6 +170,8 @@
     "simulatedNotice": "Simulated voice demo — your browser doesn't support speech recognition",
     "realMicNotice": "Real speech recognition via your browser — speak naturally and we'll turn it into a reminder",
     "micError": "Couldn't access the microphone. Make sure it's allowed.",
+    "micPermissionDenied": "The browser blocked microphone access — click the lock icon next to the address bar and allow the microphone for this site.",
+    "micNoSpeech": "We didn't hear anything. Make sure your microphone is on and try again.",
     "notUnderstood": "We couldn't understand a clear command. Try e.g. \"Remind me to call Ahmad tomorrow at 11\"."
   },
   "profile": {

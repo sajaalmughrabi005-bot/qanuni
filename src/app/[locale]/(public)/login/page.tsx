@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Scale } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,18 +11,25 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { DemoEntryButtons } from "@/components/shared/demo-entry-buttons";
 import { toast } from "sonner";
+import { useAppStore } from "@/lib/store/app-store";
 
 export default function LoginPage() {
   const t = useTranslations("auth.login");
   const tc = useTranslations("common");
+  const router = useRouter();
+  const login = useAppStore((s) => s.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info(
-      "Supabase Auth is not connected in this demo — use one of the demo entry buttons below."
-    );
+    const result = login(email, password);
+    if (!result.ok) {
+      toast.error(result.error === "account_disabled" ? t("accountDisabled") : t("invalidCredentials"));
+      return;
+    }
+    toast.success(t("success"));
+    router.push(`/${result.session.role}/dashboard`);
   };
 
   return (
@@ -53,6 +60,13 @@ export default function LoginPage() {
                 {t("submit")}
               </Button>
             </form>
+
+            <p className="mt-4 text-center text-sm text-foreground-muted">
+              {t("noAccount")}{" "}
+              <Link href="/signup" className="font-medium text-navy hover:underline dark:text-gold">
+                {t("signup")}
+              </Link>
+            </p>
 
             <div className="my-6 flex items-center gap-3">
               <Separator className="flex-1" />
