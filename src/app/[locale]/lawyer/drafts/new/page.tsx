@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
@@ -20,11 +20,26 @@ function DrafterInner() {
   const { session } = useSession();
   const params = useSearchParams();
   const caseId = params.get("caseId") || undefined;
+  const draftId = params.get("draftId") || undefined;
+  const allDrafts = useAppStore((s) => s.drafts);
   const addDraft = useAppStore((s) => s.addDraft);
+  const updateDraft = useAppStore((s) => s.updateDraft);
 
   const [instructions, setInstructions] = useState("");
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!draftId) return;
+    Promise.resolve().then(() => {
+      const existing = allDrafts.find((d) => d.id === draftId);
+      if (existing) {
+        setInstructions(existing.instructions);
+        setDraft(existing.content);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftId]);
 
   const generate = async (mode: "generate" | "shorten" | "formal" | "translate" = "generate") => {
     if (mode === "generate" && !instructions.trim()) return;
@@ -41,14 +56,18 @@ function DrafterInner() {
 
   const save = () => {
     if (!session || !draft.trim()) return;
-    addDraft({
-      caseId,
-      lawyerId: session.userId,
-      title: instructions.slice(0, 60) || (locale === "ar" ? "مسودة بدون عنوان" : "Untitled draft"),
-      instructions,
-      content: draft,
-      status: "draft",
-    });
+    if (draftId) {
+      updateDraft(draftId, { instructions, content: draft });
+    } else {
+      addDraft({
+        caseId,
+        lawyerId: session.userId,
+        title: instructions.slice(0, 60) || (locale === "ar" ? "مسودة بدون عنوان" : "Untitled draft"),
+        instructions,
+        content: draft,
+        status: "draft",
+      });
+    }
     toast.success(t("savedSuccess"));
   };
 

@@ -2,13 +2,20 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Scale, Menu, Bell, LogOut } from "lucide-react";
+import { Scale, Menu, Bell, LogOut, UserCircle } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { LucideIcon } from "lucide-react";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { useSession } from "@/lib/auth/use-session";
 import { useAppStore } from "@/lib/store/app-store";
 import { initials, cn } from "@/lib/utils";
@@ -108,12 +115,31 @@ export function DashboardShell({
                 </Badge>
               )}
             </Link>
-            <Link href={`/${session?.role}/profile`} aria-label={tProfile("title")}>
-              <Avatar className="h-8 w-8 transition hover:opacity-80">
-                {profile?.avatarUrl && <AvatarImage src={profile.avatarUrl} alt={profile.fullName} />}
-                <AvatarFallback>{profile ? initials(profile.fullName) : "?"}</AvatarFallback>
-              </Avatar>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2 rounded-full">
+                <Avatar className="h-8 w-8">
+                  {profile?.avatarUrl && <AvatarImage src={profile.avatarUrl} alt={profile.fullName} />}
+                  <AvatarFallback>{profile ? initials(profile.fullName) : "?"}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <div className="px-2.5 py-1.5 text-sm">
+                  <p className="font-medium">{profile?.fullName}</p>
+                  <p className="text-xs text-foreground-muted">{profile?.email}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href={`/${session?.role}/profile`}>
+                    <UserCircle className="h-4 w-4" />
+                    {tProfile("title")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="text-risk-high">
+                  <LogOut className="h-4 w-4" />
+                  {t("nav.logout")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
         <main className="flex-1 p-4 sm:p-6">{children}</main>

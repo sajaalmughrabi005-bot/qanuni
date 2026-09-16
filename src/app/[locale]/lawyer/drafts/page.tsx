@@ -35,16 +35,18 @@ export default function DraftsListPage() {
       ) : (
         <div className="space-y-3">
           {drafts.map((d) => (
-            <Card key={d.id}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium">{d.title}</p>
-                  <Badge variant="outline">{t(`status.${d.status}` as "status.draft")}</Badge>
-                </div>
-                <p className="mt-1.5 line-clamp-2 text-sm text-foreground-muted">{d.content}</p>
-                <p className="mt-2 text-xs text-foreground-muted">{formatDateTime(d.updatedAt, locale)}</p>
-              </CardContent>
-            </Card>
+            <Link key={d.id} href={`/lawyer/drafts/new?draftId=${d.id}`}>
+              <Card className="transition hover:shadow-md">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">{d.title}</p>
+                    <Badge variant="outline">{t(`status.${d.status}` as "status.draft")}</Badge>
+                  </div>
+                  <p className="mt-1.5 line-clamp-2 text-sm text-foreground-muted">{d.content}</p>
+                  <p className="mt-2 text-xs text-foreground-muted">{formatDateTime(d.updatedAt, locale)}</p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
