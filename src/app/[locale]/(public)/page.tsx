@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 import {
-  FileSearch,
   Brain,
   MessagesSquare,
   Users,
@@ -8,12 +7,10 @@ import {
   ArrowLeft,
   Upload,
   Sparkles,
-  MessageCircleQuestion,
   ShieldCheck,
   Languages,
   Lock,
   ClipboardList,
-  Gavel,
   Calendar,
   FileEdit,
 } from "lucide-react";
@@ -23,6 +20,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Reveal } from "@/components/shared/reveal";
 import { DemoEntryButtons } from "@/components/shared/demo-entry-buttons";
 import { StartAnalysisButton } from "@/components/shared/start-analysis-button";
+import { CoreLoopSteps } from "@/components/shared/core-loop-steps";
 
 export default async function LandingPage({
   params,
@@ -32,14 +30,6 @@ export default async function LandingPage({
   const { locale } = await params;
   const t = await getTranslations("landing");
   const ArrowIcon = locale === "ar" ? ArrowLeft : ArrowRight;
-
-  const loopSteps = [
-    { key: "understand", icon: FileSearch },
-    { key: "identify", icon: Brain },
-    { key: "ask", icon: MessageCircleQuestion },
-    { key: "connect", icon: Users },
-    { key: "act", icon: Gavel },
-  ] as const;
 
   const howSteps = [
     { key: "step1", icon: Upload },
@@ -99,19 +89,7 @@ export default async function LandingPage({
           <Reveal>
             <h2 className="text-center text-xl font-semibold text-foreground-muted">{t("loop.title")}</h2>
           </Reveal>
-          <div className="mt-10 grid gap-4 sm:grid-cols-5">
-            {loopSteps.map(({ key, icon: Icon }, i) => (
-              <Reveal key={key} delay={i * 0.06}>
-                <div className="flex flex-col items-center gap-3 text-center">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-navy text-gold shadow-sm">
-                    <Icon className="h-6 w-6" />
-                  </span>
-                  <p className="font-semibold">{t(`loop.${key}`)}</p>
-                  <p className="text-sm text-foreground-muted">{t(`loop.${key}Desc`)}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+          <CoreLoopSteps />
         </div>
       </section>
 
