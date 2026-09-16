@@ -31,7 +31,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useSession } from "@/lib/auth/use-session";
 import { useAppStore } from "@/lib/store/app-store";
 import { Appointment } from "@/types";
-import { cn, formatDateTime } from "@/lib/utils";
+import { cn, formatDateTime, formatMonthYear, formatDayNumber, formatWeekdayShort, formatWeekdayLong } from "@/lib/utils";
 
 const typeIcon = { video: Video, phone: Phone, in_person: MapPin, court: Gavel, deadline: AlarmClock, follow_up: RotateCcw };
 
@@ -91,7 +91,7 @@ export function CalendarView() {
             <ChevronRight className="h-4 w-4 rtl:hidden" />
             <ChevronLeft className="h-4 w-4 hidden rtl:block" />
           </Button>
-          <p className="w-36 text-center font-semibold">{format(month, "MMMM yyyy")}</p>
+          <p className="w-36 text-center font-semibold">{formatMonthYear(month, locale)}</p>
           <Button variant="ghost" size="icon" onClick={() => setMonth((m) => addMonths(m, 1))}>
             <ChevronLeft className="h-4 w-4 rtl:hidden" />
             <ChevronRight className="h-4 w-4 hidden rtl:block" />
@@ -112,7 +112,7 @@ export function CalendarView() {
             <div className="grid grid-cols-7 gap-1 text-center text-xs text-foreground-muted">
               {days.slice(0, 7).map((d) => (
                 <div key={d.toISOString()} className="py-1.5">
-                  {format(d, "EEEEEE")}
+                  {formatWeekdayShort(d, locale)}
                 </div>
               ))}
             </div>
@@ -131,7 +131,7 @@ export function CalendarView() {
                       !isSameDay(day, selectedDay) && "hover:bg-surface-muted"
                     )}
                   >
-                    {format(day, "d")}
+                    {formatDayNumber(day, locale)}
                     {dEvents.length > 0 && (
                       <span className={cn("h-1.5 w-1.5 rounded-full", isSameDay(day, selectedDay) ? "bg-gold" : "bg-gold")} />
                     )}
@@ -144,7 +144,7 @@ export function CalendarView() {
 
         <Card>
           <CardContent className="space-y-3 p-4">
-            <p className="text-sm font-semibold">{format(selectedDay, "EEEE, MMMM d")}</p>
+            <p className="text-sm font-semibold">{formatWeekdayLong(selectedDay, locale)}</p>
             {selectedEvents.length === 0 && <p className="text-sm text-foreground-muted">—</p>}
             {selectedEvents.map((e) => {
               const Icon = typeIcon[e.type] || Video;

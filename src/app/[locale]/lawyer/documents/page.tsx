@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { Upload, FileText, Sparkles, Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { ExtractedCaseData } from "@/types";
 
 export default function LawyerDocumentsPage() {
   const t = useTranslations("lawyer.dataEntry");
+  const locale = useLocale();
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [text, setText] = useState("");
@@ -23,9 +24,11 @@ export default function LawyerDocumentsPage() {
 
   const extract = async () => {
     setLoading(true);
-    const content =
-      text.trim() ||
-      `المدعي: أحمد محمد الزعبي\nالمدعى عليه: محمد علي الحوراني\nرقم الدعوى: 2026/451\nمحكمة: محكمة صلح عمّان\nالمبلغ المطالب به: 1000 دينار\nالتاريخ: 2026/09/15`;
+    const demoContent =
+      locale === "ar"
+        ? `المدعي: أحمد محمد الزعبي\nالمدعى عليه: محمد علي الحوراني\nرقم الدعوى: 2026/451\nمحكمة: محكمة صلح عمّان\nالمبلغ المطالب به: 1000 دينار\nالتاريخ: 2026/09/15`
+        : `client: Ahmad Mohammad Al-Zoubi\nopposing party: Mohammad Ali Al-Hourani\ncase number: 2026/451\ncourt: Amman Magistrate Court\namount claimed: 1000 JOD\ndate: 2026/09/15`;
+    const content = text.trim() || demoContent;
     await new Promise((r) => setTimeout(r, 900));
     const res = await extractCaseDataAction(content);
     setData(res);
@@ -57,7 +60,7 @@ export default function LawyerDocumentsPage() {
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="أو الصق نص المستند هنا للاستخراج..."
+            placeholder={t("pasteHint")}
             className="min-h-28"
           />
           <Button className="w-full" onClick={extract} disabled={loading}>

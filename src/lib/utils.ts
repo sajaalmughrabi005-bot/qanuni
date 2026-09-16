@@ -33,6 +33,25 @@ export function formatDateTime(date: string | Date, locale: string) {
   }).format(d);
 }
 
+export function formatMonthYear(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en-GB", {
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+export function formatDayNumber(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en-GB", { day: "numeric" }).format(date);
+}
+
+export function formatWeekdayShort(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en-GB", { weekday: "short" }).format(date);
+}
+
+export function formatWeekdayLong(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en-GB", { weekday: "long", month: "long", day: "numeric" }).format(date);
+}
+
 export function initials(name: string) {
   return name
     .split(" ")

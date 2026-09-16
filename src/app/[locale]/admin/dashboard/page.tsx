@@ -28,7 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { StatCard } from "@/components/shared/stat-card";
 import { useAppStore } from "@/lib/store/app-store";
-import { lawyers } from "@/lib/mock-data";
+import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
 import { initials } from "@/lib/utils";
 import type { CaseStatus } from "@/types";
 
@@ -62,6 +62,7 @@ export default function AdminDashboardPage() {
   const documents = useAppStore((s) => s.documents);
   const analyses = useAppStore((s) => s.analyses);
   const appointments = useAppStore((s) => s.appointments);
+  const lawyers = useLawyersWithOverrides();
 
   const casesByStatus = (["new", "contacted", "reviewing", "in_progress", "court", "closed"] as CaseStatus[]).map(
     (status) => ({

@@ -44,7 +44,7 @@ function DrafterInner() {
     addDraft({
       caseId,
       lawyerId: session.userId,
-      title: instructions.slice(0, 60) || "مسودة بدون عنوان",
+      title: instructions.slice(0, 60) || (locale === "ar" ? "مسودة بدون عنوان" : "Untitled draft"),
       instructions,
       content: draft,
       status: "draft",

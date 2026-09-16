@@ -76,6 +76,7 @@
     "title": "Extract from Document",
     "subtitle": "Upload a scanned legal document and extract its data automatically",
     "upload": "Upload document to extract",
+    "pasteHint": "Or paste the document text here to extract...",
     "extracting": "Extracting data...",
     "reviewTitle": "Review extracted information before saving",
     "fields": {

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LawyerCard } from "@/components/shared/lawyer-card";
-import { lawyers } from "@/lib/mock-data";
+import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
 import type { LawyerSpecialty } from "@/types";
 
 const specialties: LawyerSpecialty[] = [
@@ -28,8 +28,9 @@ export default function LawyerMarketplacePage() {
   const [query, setQuery] = useState("");
   const [city, setCity] = useState<string>("all");
   const [specialty, setSpecialty] = useState<string>("all");
+  const lawyers = useLawyersWithOverrides();
 
-  const cities = useMemo(() => Array.from(new Set(lawyers.map((l) => l.city))), []);
+  const cities = useMemo(() => Array.from(new Set(lawyers.map((l) => l.city))), [lawyers]);
 
   const filtered = lawyers.filter((l) => {
     if (query && !l.fullName.toLowerCase().includes(query.toLowerCase())) return false;

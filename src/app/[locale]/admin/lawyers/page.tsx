@@ -5,12 +5,13 @@ import { Link } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { lawyers } from "@/lib/mock-data";
+import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
 import { initials } from "@/lib/utils";
 
 export default function AdminLawyersPage() {
   const t = useTranslations("admin.nav");
   const tSpec = useTranslations("marketplace.specialties");
+  const lawyers = useLawyersWithOverrides();
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">

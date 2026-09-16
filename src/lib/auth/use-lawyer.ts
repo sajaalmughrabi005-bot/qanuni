@@ -10,3 +10,8 @@ export function useLawyer(id: string | undefined): Lawyer | undefined {
   if (!base) return undefined;
   return overrides ? { ...base, ...overrides } : base;
 }
+
+export function useLawyersWithOverrides(): Lawyer[] {
+  const overrides = useAppStore((s) => s.lawyerOverrides);
+  return lawyers.map((l) => (overrides[l.id] ? { ...l, ...overrides[l.id] } : l));
+}

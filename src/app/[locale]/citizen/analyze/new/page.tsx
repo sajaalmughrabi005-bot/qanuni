@@ -45,7 +45,7 @@ export default function NewAnalysisPage() {
     setPhase("processing");
 
     const documentId = `doc-${Date.now()}`;
-    const fileName = file?.name || "مستند-ملصق.txt";
+    const fileName = file?.name || (locale === "ar" ? "مستند-ملصق.txt" : "pasted-document.txt");
     const text =
       pastedText.trim() ||
       `Document: ${fileName}\nType: ${docType}\n(No extracted text available — file uploaded in demo mode without OCR. Paste contract text for a fully grounded analysis.)`;

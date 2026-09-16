@@ -5,11 +5,12 @@ import { Heart } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LawyerCard } from "@/components/shared/lawyer-card";
 import { useAppStore } from "@/lib/store/app-store";
-import { lawyers } from "@/lib/mock-data";
+import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
 
 export default function SavedLawyersPage() {
   const t = useTranslations("citizen.lawyers");
   const savedLawyerIds = useAppStore((s) => s.savedLawyerIds);
+  const lawyers = useLawyersWithOverrides();
   const saved = lawyers.filter((l) => savedLawyerIds.includes(l.id));
 
   return (
