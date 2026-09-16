@@ -5,10 +5,10 @@ import { Star, MapPin, Clock, ShieldCheck, Heart } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Lawyer } from "@/types";
-import { initials, cn } from "@/lib/utils";
+import { initials, lawyerAvatarUrl, cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store/app-store";
 
 export function LawyerCard({ lawyer, matchScore }: { lawyer: Lawyer; matchScore?: number }) {
@@ -35,6 +35,7 @@ export function LawyerCard({ lawyer, matchScore }: { lawyer: Lawyer; matchScore?
         <CardContent className="p-5">
           <div className="flex items-start gap-3">
             <Avatar className="h-12 w-12">
+              <AvatarImage src={lawyerAvatarUrl(lawyer)} alt={lawyer.fullName} />
               <AvatarFallback>{initials(lawyer.fullName)}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">

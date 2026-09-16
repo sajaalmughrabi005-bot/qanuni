@@ -60,6 +60,8 @@
     "title": "Request a Consultation",
     "selectType": "Consultation type",
     "selectTime": "Pick a time",
+    "attachCase": "Attach a previous case or contract (optional)",
+    "noCase": "Don't attach",
     "message": "Short message (optional)",
     "submit": "Send Request",
     "success": "Your request was sent! You'll be notified when the lawyer responds.",

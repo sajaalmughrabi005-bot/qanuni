@@ -59,3 +59,20 @@ export function initials(name: string) {
     .map((p) => p[0])
     .join("");
 }
+
+const PRAVATAR_COUNT = 70;
+
+function hashToInt(value: string) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash << 5) - hash + value.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+export function lawyerAvatarUrl(lawyer: { id: string; avatarUrl?: string }) {
+  if (lawyer.avatarUrl) return lawyer.avatarUrl;
+  const index = (hashToInt(lawyer.id) % PRAVATAR_COUNT) + 1;
+  return `https://i.pravatar.cc/150?img=${index}`;
+}

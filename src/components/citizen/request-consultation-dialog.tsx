@@ -34,8 +34,12 @@ export function RequestConsultationDialog({
   const { session, profile } = useSession();
   const addAppointment = useAppStore((s) => s.addAppointment);
   const addNotification = useAppStore((s) => s.addNotification);
+  const cases = useAppStore((s) => s.cases);
   const [type, setType] = useState<ConsultationType>(lawyer.consultationTypes[0] || "video");
   const [message, setMessage] = useState("");
+  const [caseId, setCaseId] = useState<string>("none");
+
+  const myCases = session ? cases.filter((c) => c.clientId === session.userId) : [];
 
   const submit = () => {
     if (!session || !profile) return;
@@ -48,6 +52,7 @@ export function RequestConsultationDialog({
       clientId: session.userId,
       clientName: profile.fullName,
       lawyerId: lawyer.id,
+      caseId: caseId !== "none" ? caseId : undefined,
       title: locale === "ar" ? `استشارة مع ${lawyer.fullName}` : `Consultation with ${lawyer.fullName}`,
       startTime: start.toISOString(),
       endTime: end.toISOString(),
@@ -71,6 +76,7 @@ export function RequestConsultationDialog({
     toast.success(t("successDemo"));
     onOpenChange(false);
     setMessage("");
+    setCaseId("none");
   };
 
   if (!session || !profile) {
@@ -115,6 +121,24 @@ export function RequestConsultationDialog({
               </SelectContent>
             </Select>
           </div>
+          {myCases.length > 0 && (
+            <div className="space-y-1.5">
+              <Label>{t("attachCase")}</Label>
+              <Select value={caseId} onValueChange={setCaseId}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("noCase")}</SelectItem>
+                  {myCases.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="space-y-1.5">
             <Label>{t("message")}</Label>
             <Textarea value={message} onChange={(e) => setMessage(e.target.value)} />
