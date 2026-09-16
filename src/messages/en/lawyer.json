@@ -59,6 +59,9 @@
     "clientStory": "Client Story",
     "evidence": "Evidence",
     "legalContext": "Legal Context",
+    "evidenceVsLegal": "Evidence vs. Legal Context",
+    "noMatchingSource": "No matching legal source",
+    "whatsappContact": "Contact on WhatsApp",
     "aiSummary": "AI Summary",
     "situation": "Situation",
     "keyIssue": "Key Issue",
@@ -70,7 +73,21 @@
     "changeStatus": "Change status",
     "assignPriority": "Assign priority",
     "openDrafter": "Open AI Drafter",
-    "sendMessage": "Send message"
+    "sendMessage": "Send message",
+    "legalStage": "Case Stages",
+    "stages": {
+      "initial_review": "Initial Review",
+      "negotiation": "Negotiation",
+      "legal_notice": "Legal Notice",
+      "in_court": "In Court",
+      "closed": "Closed"
+    },
+    "financialTracker": "Financial Tracker",
+    "totalFees": "Total fees",
+    "paymentsReceived": "Payments received",
+    "remainingBalance": "Remaining balance",
+    "sendPaymentReminder": "Send Payment Reminder",
+    "paymentReminderSent": "Payment reminder sent (demo simulation)"
   },
   "dataEntry": {
     "title": "Extract from Document",
@@ -145,7 +162,12 @@
     "title": "Clients",
     "empty": "No clients yet",
     "activeCases": "Active cases",
-    "totalCases": "Total cases"
+    "totalCases": "Total cases",
+    "contactInfo": "Contact information",
+    "caseHistory": "Case history",
+    "documentArchive": "Document archive",
+    "noDocuments": "No documents for this client",
+    "backToClients": "Back to clients"
   },
   "documents": {
     "title": "Case Documents",

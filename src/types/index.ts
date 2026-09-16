@@ -173,6 +173,13 @@ export type CaseStatus =
 
 export type CasePriority = "low" | "medium" | "high" | "urgent";
 
+export type LegalStage =
+  | "initial_review"
+  | "negotiation"
+  | "legal_notice"
+  | "in_court"
+  | "closed";
+
 export interface CaseRecord {
   id: string;
   clientId: string;
@@ -200,6 +207,9 @@ export interface CaseRecord {
   nextActionAr?: string;
   nextActionEn?: string;
   deadline?: string;
+  legalStage?: LegalStage;
+  totalFees?: number;
+  paymentsReceived?: number;
 }
 
 export interface Appointment {

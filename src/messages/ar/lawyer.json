@@ -59,6 +59,9 @@
     "clientStory": "قصة العميل",
     "evidence": "الأدلة",
     "legalContext": "السياق القانوني",
+    "evidenceVsLegal": "مقارنة الأدلة بالسياق القانوني",
+    "noMatchingSource": "لا يوجد مصدر قانوني مطابق",
+    "whatsappContact": "تواصل عبر واتساب",
     "aiSummary": "الملخص الذكي",
     "situation": "الوضع",
     "keyIssue": "القضية الجوهرية",
@@ -70,7 +73,21 @@
     "changeStatus": "تغيير الحالة",
     "assignPriority": "تحديد الأولوية",
     "openDrafter": "فتح صائغ المسودات",
-    "sendMessage": "إرسال رسالة"
+    "sendMessage": "إرسال رسالة",
+    "legalStage": "مراحل القضية",
+    "stages": {
+      "initial_review": "دراسة مبدئية",
+      "negotiation": "مفاوضات",
+      "legal_notice": "إنذار عدلي",
+      "in_court": "منظورة بالمحكمة",
+      "closed": "مغلقة"
+    },
+    "financialTracker": "متابعة الأتعاب المالية",
+    "totalFees": "إجمالي الأتعاب",
+    "paymentsReceived": "المدفوعات المستلمة",
+    "remainingBalance": "المتبقي",
+    "sendPaymentReminder": "إرسال تذكير بالدفع",
+    "paymentReminderSent": "تم إرسال تذكير الدفع (محاكاة تجريبية)"
   },
   "dataEntry": {
     "title": "استخراج من مستند",
@@ -145,7 +162,12 @@
     "title": "العملاء",
     "empty": "لا يوجد عملاء بعد",
     "activeCases": "قضايا نشطة",
-    "totalCases": "إجمالي القضايا"
+    "totalCases": "إجمالي القضايا",
+    "contactInfo": "معلومات التواصل",
+    "caseHistory": "سجل القضايا",
+    "documentArchive": "أرشيف المستندات",
+    "noDocuments": "لا توجد مستندات لهذا العميل",
+    "backToClients": "رجوع للعملاء"
   },
   "documents": {
     "title": "مستندات القضايا",

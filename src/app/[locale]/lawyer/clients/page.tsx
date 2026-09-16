@@ -38,27 +38,23 @@ export default function ClientsPage() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {clients.map(([id, c]) => (
-            <Card key={id}>
-              <CardContent className="flex items-center gap-3 p-4">
-                <Avatar>
-                  <AvatarFallback>{initials(c.name)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <p className="font-medium">{c.name}</p>
-                  <div className="mt-1 flex gap-3 text-xs text-foreground-muted">
-                    <span>{t("activeCases")}: {c.active}</span>
-                    <span>{t("totalCases")}: {c.total}</span>
+            <Link key={id} href={`/lawyer/clients/${id}`}>
+              <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+                <CardContent className="flex items-center gap-3 p-4">
+                  <Avatar>
+                    <AvatarFallback>{initials(c.name)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="font-medium">{c.name}</p>
+                    <div className="mt-1 flex gap-3 text-xs text-foreground-muted">
+                      <span>{t("activeCases")}: {c.active}</span>
+                      <span>{t("totalCases")}: {c.total}</span>
+                    </div>
                   </div>
-                </div>
-                {c.active > 0 && c.activeCaseId && (
-                  <Link href={`/lawyer/cases/${c.activeCaseId}`}>
-                    <Badge variant="gold" className="cursor-pointer hover:opacity-80">
-                      {c.active}
-                    </Badge>
-                  </Link>
-                )}
-              </CardContent>
-            </Card>
+                  {c.active > 0 && <Badge variant="gold">{c.active}</Badge>}
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

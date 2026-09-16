@@ -35,20 +35,8 @@ export default function LawyerDashboardPage() {
         <p className="mt-1 text-foreground-muted">{t("subtitle")}</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Briefcase} label={t("newCases")} value={newCases.length} accent="gold" href="/lawyer/cases" />
-        <StatCard icon={Briefcase} label={t("activeCases")} value={activeCases.length} href="/lawyer/cases" />
-        <StatCard icon={CalendarDays} label={t("upcomingAppointments")} value={upcoming.length} href="/lawyer/calendar" />
-        <StatCard icon={FileText} label={t("documentsToReview")} value={myCases.reduce((n, c) => n + c.documentIds.length, 0)} href="/lawyer/documents" />
-      </div>
-
-      <div>
-        <p className="mb-3 text-sm font-medium text-foreground-muted">{t("quickActions")}</p>
-        <QuickActionsBar />
-      </div>
-
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
+        <Card className="border-gold/30">
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle>{t("newCases")}</CardTitle>
             <Link href="/lawyer/cases" className="text-sm text-gold hover:underline">
@@ -69,7 +57,7 @@ export default function LawyerDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-gold/30">
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle>{t("upcomingAppointments")}</CardTitle>
             <Link href="/lawyer/calendar" className="text-sm text-gold hover:underline">
@@ -97,6 +85,24 @@ export default function LawyerDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard icon={Briefcase} label={t("newCases")} value={newCases.length} accent="gold" href="/lawyer/cases" />
+        <StatCard icon={Briefcase} label={t("activeCases")} value={activeCases.length} href="/lawyer/cases" />
+        <StatCard icon={CalendarDays} label={t("upcomingAppointments")} value={upcoming.length} href="/lawyer/calendar" />
+        <StatCard icon={FileText} label={t("documentsToReview")} value={myCases.reduce((n, c) => n + c.documentIds.length, 0)} href="/lawyer/documents" />
+      </div>
+
+      <details className="group rounded-2xl border border-border">
+        <summary className="flex cursor-pointer list-none items-center justify-between p-4 text-sm font-medium text-foreground-muted">
+          {t("quickActions")}
+          <span className="text-xs text-foreground-muted group-open:hidden">+</span>
+          <span className="hidden text-xs text-foreground-muted group-open:inline">-</span>
+        </summary>
+        <div className="px-4 pb-4">
+          <QuickActionsBar />
+        </div>
+      </details>
 
       <VoiceCommandWidget />
     </div>
