@@ -52,24 +52,24 @@ html[lang="ar"] {
 }
 
 :root[data-theme="dark"] {
-  --background: #10141c;
-  --surface: #171d28;
-  --surface-muted: #1e2632;
-  --foreground: #eef1f5;
-  --foreground-muted: #98a3b3;
-  --border: #2a3342;
-  --navy: #0b1420;
-  --navy-light: #16273f;
-  --charcoal: #0d0f13;
-  --beige: #232a35;
-  --gold: #d9b063;
-  --gold-light: #eccd8f;
-  --risk-low: #4ade9a;
-  --risk-low-bg: #103524;
-  --risk-medium: #f0b04e;
-  --risk-medium-bg: #3a2a10;
-  --risk-high: #f0716b;
-  --risk-high-bg: #3a1414;
+  --background: #14161b;
+  --surface: #1b1e24;
+  --surface-muted: #24272e;
+  --foreground: #eeece5;
+  --foreground-muted: #a3a29b;
+  --border: #33363d;
+  --navy: #0c111a;
+  --navy-light: #17222f;
+  --charcoal: #0a0b0e;
+  --beige: #2a2c30;
+  --gold: #cf9f4f;
+  --gold-light: #e2bc78;
+  --risk-low: #7cb894;
+  --risk-low-bg: #1a2b22;
+  --risk-medium: #c99a5b;
+  --risk-medium-bg: #322920;
+  --risk-high: #c47b73;
+  --risk-high-bg: #332120;
 }
 
 * {
