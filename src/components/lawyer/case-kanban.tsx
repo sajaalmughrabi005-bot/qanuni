@@ -75,7 +75,7 @@ function Column({ status, items }: { status: CaseStatus; items: CaseRecord[] }) 
     <div
       ref={setNodeRef}
       className={cn(
-        "flex w-72 shrink-0 flex-col rounded-2xl bg-surface-muted/60 p-3 transition-colors",
+        "flex min-h-32 flex-col rounded-2xl bg-surface-muted/60 p-3 transition-colors",
         isOver && "bg-gold/10 ring-2 ring-gold/40"
       )}
     >
@@ -83,7 +83,7 @@ function Column({ status, items }: { status: CaseStatus; items: CaseRecord[] }) 
         <p className="text-sm font-semibold">{t(status)}</p>
         <Badge variant="subtle">{items.length}</Badge>
       </div>
-      <div className="space-y-2.5">
+      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <CaseCard key={item.id} item={item} />
         ))}
@@ -108,7 +108,7 @@ export function CaseKanban({ cases }: { cases: CaseRecord[] }) {
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex flex-col gap-4">
         {columns.map((status) => (
           <Column key={status} status={status} items={cases.filter((c) => c.status === status)} />
         ))}

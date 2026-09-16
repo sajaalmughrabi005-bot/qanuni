@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Users } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -18,12 +19,15 @@ export default function ClientsPage() {
 
   const clients = Array.from(
     myCases.reduce((map, c) => {
-      const existing = map.get(c.clientId) || { name: c.clientName, total: 0, active: 0 };
+      const existing = map.get(c.clientId) || { name: c.clientName, total: 0, active: 0, activeCaseId: undefined as string | undefined };
       existing.total += 1;
-      if (c.status !== "closed") existing.active += 1;
+      if (c.status !== "closed") {
+        existing.active += 1;
+        existing.activeCaseId = existing.activeCaseId || c.id;
+      }
       map.set(c.clientId, existing);
       return map;
-    }, new Map<string, { name: string; total: number; active: number }>())
+    }, new Map<string, { name: string; total: number; active: number; activeCaseId?: string }>())
   );
 
   return (
@@ -46,7 +50,13 @@ export default function ClientsPage() {
                     <span>{t("totalCases")}: {c.total}</span>
                   </div>
                 </div>
-                {c.active > 0 && <Badge variant="gold">{c.active}</Badge>}
+                {c.active > 0 && c.activeCaseId && (
+                  <Link href={`/lawyer/cases/${c.activeCaseId}`}>
+                    <Badge variant="gold" className="cursor-pointer hover:opacity-80">
+                      {c.active}
+                    </Badge>
+                  </Link>
+                )}
               </CardContent>
             </Card>
           ))}

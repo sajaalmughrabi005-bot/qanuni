@@ -22,6 +22,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -29,6 +30,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { useAppStore } from "@/lib/store/app-store";
 import { lawyers } from "@/lib/mock-data";
 import { initials } from "@/lib/utils";
+import type { CaseStatus } from "@/types";
 
 const activityData = [
   { week: "W1", analyses: 18, consultations: 6 },
@@ -41,21 +43,33 @@ const activityData = [
 
 const COLORS = ["#b68a35", "#0f1c30", "#1f7a4d", "#b8791a", "#b3312c", "#5b6773"];
 
+const STATUS_COLORS: Record<CaseStatus, string> = {
+  new: "#b68a35",
+  contacted: "#0ea5e9",
+  reviewing: "#8b5cf6",
+  in_progress: "#0f1c30",
+  court: "#b3312c",
+  closed: "#5b6773",
+};
+
 export default function AdminDashboardPage() {
   const t = useTranslations("admin.dashboard");
   const tCol = useTranslations("lawyer.cases.columns");
   const tSpec = useTranslations("marketplace.specialties");
+  const router = useRouter();
 
   const cases = useAppStore((s) => s.cases);
   const documents = useAppStore((s) => s.documents);
   const analyses = useAppStore((s) => s.analyses);
   const appointments = useAppStore((s) => s.appointments);
 
-  const casesByStatus = ["new", "contacted", "reviewing", "in_progress", "court", "closed"].map((status) => ({
-    status,
-    label: tCol(status as "new"),
-    count: cases.filter((c) => c.status === status).length,
-  }));
+  const casesByStatus = (["new", "contacted", "reviewing", "in_progress", "court", "closed"] as CaseStatus[]).map(
+    (status) => ({
+      status,
+      label: tCol(status),
+      count: cases.filter((c) => c.status === status).length,
+    })
+  );
 
   const categoryMap = new Map<string, number>();
   cases.forEach((c) => categoryMap.set(c.category, (categoryMap.get(c.category) || 0) + 1));
@@ -112,7 +126,18 @@ export default function AdminDashboardPage() {
                 <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
                 <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--border)" }} />
-                <Bar dataKey="count" fill="#0f1c30" radius={[6, 6, 0, 0]} />
+                <Bar
+                  dataKey="count"
+                  radius={[6, 6, 0, 0]}
+                  cursor="pointer"
+                  onClick={(data: { payload?: { status?: CaseStatus } }) =>
+                    data?.payload?.status && router.push(`/admin/cases?status=${data.payload.status}`)
+                  }
+                >
+                  {casesByStatus.map((d) => (
+                    <Cell key={d.status} fill={STATUS_COLORS[d.status]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -123,16 +148,27 @@ export default function AdminDashboardPage() {
             <CardTitle className="text-base">{t("casesByCategory")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={casesByCategory} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={2}>
-                  {casesByCategory.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--border)" }} />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="flex h-full items-center gap-4">
+              <ResponsiveContainer width="60%" height="100%">
+                <PieChart>
+                  <Pie data={casesByCategory} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={2}>
+                    {casesByCategory.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--border)" }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <ul className="flex-1 space-y-1.5 text-xs">
+                {casesByCategory.map((d, i) => (
+                  <li key={d.name} className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
+                    <span className="truncate text-foreground-muted">{d.name}</span>
+                    <span className="ms-auto font-medium">{d.value}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </CardContent>
         </Card>
 
@@ -142,16 +178,20 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {topLawyers.map((l) => (
-              <div key={l.id} className="flex items-center gap-3">
+              <Link
+                key={l.id}
+                href={`/lawyers/${l.id}`}
+                className="flex items-center gap-3 rounded-lg p-1 transition hover:bg-surface-muted"
+              >
                 <Avatar className="h-9 w-9">
                   <AvatarFallback>{initials(l.fullName)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">{l.fullName}</p>
+                  <p className="text-sm font-medium text-gold">{l.fullName}</p>
                   <p className="text-xs text-foreground-muted">{l.city}</p>
                 </div>
                 <Badge variant="gold">{l.completedCases}</Badge>
-              </div>
+              </Link>
             ))}
           </CardContent>
         </Card>

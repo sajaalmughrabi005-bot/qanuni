@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Reveal } from "@/components/shared/reveal";
 import { DemoEntryButtons } from "@/components/shared/demo-entry-buttons";
+import { StartAnalysisButton } from "@/components/shared/start-analysis-button";
 
 export default async function LandingPage({
   params,
@@ -77,12 +78,10 @@ export default async function LandingPage({
           </Reveal>
           <Reveal delay={0.24}>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              <Button asChild size="lg" variant="gold">
-                <Link href="/analyze/new">
-                  {t("hero.ctaPrimary")}
-                  <ArrowIcon className="h-4 w-4" />
-                </Link>
-              </Button>
+              <StartAnalysisButton>
+                {t("hero.ctaPrimary")}
+                <ArrowIcon className="h-4 w-4" />
+              </StartAnalysisButton>
               <Button asChild size="lg" variant="outline" className="border-white/25 bg-transparent text-white hover:bg-white/10">
                 <Link href="/lawyers">{t("hero.ctaSecondary")}</Link>
               </Button>
@@ -236,12 +235,10 @@ export default async function LandingPage({
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <h2 className="text-3xl font-bold text-navy">{t("finalCta.title")}</h2>
           <p className="mt-3 text-foreground-muted">{t("finalCta.subtitle")}</p>
-          <Button asChild size="lg" className="mt-8" variant="gold">
-            <Link href="/analyze/new">
-              {t("finalCta.cta")}
-              <ArrowIcon className="h-4 w-4" />
-            </Link>
-          </Button>
+          <StartAnalysisButton className="mt-8">
+            {t("finalCta.cta")}
+            <ArrowIcon className="h-4 w-4" />
+          </StartAnalysisButton>
         </div>
       </section>
     </div>

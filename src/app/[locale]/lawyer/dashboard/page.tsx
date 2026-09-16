@@ -36,10 +36,10 @@ export default function LawyerDashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Briefcase} label={t("newCases")} value={newCases.length} accent="gold" />
-        <StatCard icon={Briefcase} label={t("activeCases")} value={activeCases.length} />
-        <StatCard icon={CalendarDays} label={t("upcomingAppointments")} value={upcoming.length} />
-        <StatCard icon={FileText} label={t("documentsToReview")} value={myCases.reduce((n, c) => n + c.documentIds.length, 0)} />
+        <StatCard icon={Briefcase} label={t("newCases")} value={newCases.length} accent="gold" href="/lawyer/cases" />
+        <StatCard icon={Briefcase} label={t("activeCases")} value={activeCases.length} href="/lawyer/cases" />
+        <StatCard icon={CalendarDays} label={t("upcomingAppointments")} value={upcoming.length} href="/lawyer/calendar" />
+        <StatCard icon={FileText} label={t("documentsToReview")} value={myCases.reduce((n, c) => n + c.documentIds.length, 0)} href="/lawyer/documents" />
       </div>
 
       <div>
@@ -79,7 +79,11 @@ export default function LawyerDashboardPage() {
           <CardContent className="space-y-3">
             {upcoming.length === 0 && <p className="text-sm text-foreground-muted">—</p>}
             {upcoming.slice(0, 5).map((a) => (
-              <div key={a.id} className="flex items-center justify-between rounded-xl border border-border p-3 text-sm">
+              <Link
+                key={a.id}
+                href={a.caseId ? `/lawyer/cases/${a.caseId}` : "/lawyer/calendar"}
+                className="flex items-center justify-between rounded-xl border border-border p-3 text-sm hover:bg-surface-muted"
+              >
                 <div>
                   <p className="font-medium">{a.title}</p>
                   <p className="text-xs text-foreground-muted">{a.clientName}</p>
@@ -88,7 +92,7 @@ export default function LawyerDashboardPage() {
                   <Clock className="h-3 w-3" />
                   {formatDateTime(a.startTime, locale)}
                 </span>
-              </div>
+              </Link>
             ))}
           </CardContent>
         </Card>

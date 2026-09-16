@@ -42,6 +42,7 @@
     "title": "My Cases",
     "empty": "No cases yet",
     "emptyDesc": "Create a case from one of your analyses to connect with a lawyer",
+    "yourLawyer": "Your Lawyer",
     "status": {
       "new": "New",
       "contacted": "Contacted",
@@ -126,6 +127,11 @@
     "tabScenario": "Scenario Simulator",
     "createCase": "Create a Case",
     "createCaseDesc": "Turn this analysis into a structured case and send it to a matching lawyer"
+  },
+  "describeProblem": {
+    "title": "Describe Your Legal Problem",
+    "subtitle": "Explain your situation in your own words and we'll help you understand it — no document required",
+    "preferDocument": "Have a contract or document? Analyze it instead for a more precise answer"
   },
   "askTheLaw": {
     "title": "Ask the Law",

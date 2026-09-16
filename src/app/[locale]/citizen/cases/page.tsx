@@ -2,6 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { Briefcase } from "lucide-react";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -14,6 +15,7 @@ export default function CitizenCasesPage() {
   const t = useTranslations("citizen.cases");
   const tStatus = useTranslations("citizen.cases.status");
   const locale = useLocale();
+  const router = useRouter();
   const { session } = useSession();
   const allCases = useAppStore((s) => s.cases);
   const cases = allCases.filter((c) => c.clientId === session?.userId);
@@ -29,15 +31,27 @@ export default function CitizenCasesPage() {
           {cases.map((c) => {
             const lawyer = lawyers.find((l) => l.id === c.lawyerId);
             return (
-              <Card key={c.id}>
-                <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
+              <Card key={c.id} className="cursor-pointer transition hover:shadow-md">
+                <CardContent
+                  className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between"
+                  onClick={() => router.push(`/citizen/cases/${c.id}`)}
+                >
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium">{c.title}</p>
                     <p className="mt-1 text-sm text-foreground-muted">
                       {locale === "ar" ? c.summaryAr : c.summaryEn}
                     </p>
                     <p className="mt-2 text-xs text-foreground-muted">
-                      {lawyer?.fullName} · {formatDate(c.updatedAt, locale)}
+                      {lawyer && (
+                        <Link
+                          href={`/lawyers/${lawyer.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-medium text-gold hover:underline"
+                        >
+                          {lawyer.fullName}
+                        </Link>
+                      )}{" "}
+                      · {formatDate(c.updatedAt, locale)}
                     </p>
                   </div>
                   <Badge variant="outline" className="w-fit shrink-0">

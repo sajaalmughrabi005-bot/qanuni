@@ -13,6 +13,7 @@ import {
   Message,
   AppNotification,
   UserRole,
+  Lawyer,
 } from "@/types";
 import {
   appointments as seedAppointments,
@@ -46,6 +47,8 @@ interface AppState {
   scenarioChats: Record<string, ChatMessage[]>;
   savedLawyerIds: string[];
   toggleSavedLawyer: (lawyerId: string) => void;
+  lawyerOverrides: Record<string, Partial<Lawyer>>;
+  updateLawyerProfile: (lawyerId: string, patch: Partial<Lawyer>) => void;
 
   setHydrated: () => void;
   loginDemo: (role: UserRole) => Session;
@@ -88,12 +91,21 @@ export const useAppStore = create<AppState>()(
       messages: [],
       scenarioChats: {},
       savedLawyerIds: [],
+      lawyerOverrides: {},
 
       toggleSavedLawyer: (lawyerId) =>
         set((s) => ({
           savedLawyerIds: s.savedLawyerIds.includes(lawyerId)
             ? s.savedLawyerIds.filter((id) => id !== lawyerId)
             : [...s.savedLawyerIds, lawyerId],
+        })),
+
+      updateLawyerProfile: (lawyerId, patch) =>
+        set((s) => ({
+          lawyerOverrides: {
+            ...s.lawyerOverrides,
+            [lawyerId]: { ...s.lawyerOverrides[lawyerId], ...patch },
+          },
         })),
 
       setHydrated: () => set({ hydrated: true }),

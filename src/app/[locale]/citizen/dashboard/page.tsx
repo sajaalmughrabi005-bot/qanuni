@@ -42,7 +42,7 @@ export default function CitizenDashboardPage() {
 
   const actions = [
     { href: "/citizen/analyze/new", label: t("analyzeDocument"), icon: FileSearch },
-    { href: "/citizen/analyze/new?mode=describe", label: t("describeProblem"), icon: MessageCircleQuestion },
+    { href: "/citizen/ask", label: t("describeProblem"), icon: MessageCircleQuestion },
     { href: "/lawyers", label: t("findLawyer"), icon: Search },
   ];
 
@@ -67,10 +67,10 @@ export default function CitizenDashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={FileText} label={t("statDocuments")} value={documents.length} />
-        <StatCard icon={Briefcase} label={t("statCases")} value={cases.length} />
-        <StatCard icon={CalendarDays} label={t("statAppointments")} value={appointments.length} />
-        <StatCard icon={Bell} label={t("statNotifications")} value={notifications.length} accent="gold" />
+        <StatCard icon={FileText} label={t("statDocuments")} value={documents.length} href="/citizen/documents" />
+        <StatCard icon={Briefcase} label={t("statCases")} value={cases.length} href="/citizen/cases" />
+        <StatCard icon={CalendarDays} label={t("statAppointments")} value={appointments.length} href="/citizen/appointments" />
+        <StatCard icon={Bell} label={t("statNotifications")} value={notifications.length} accent="gold" href="/citizen/notifications" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -86,7 +86,7 @@ export default function CitizenDashboardPage() {
             {cases.slice(0, 4).map((c) => (
               <Link
                 key={c.id}
-                href="/citizen/cases"
+                href={`/citizen/cases/${c.id}`}
                 className="flex items-center justify-between rounded-xl border border-border p-3 text-sm hover:bg-surface-muted"
               >
                 <span className="font-medium">{c.title}</span>
@@ -108,10 +108,14 @@ export default function CitizenDashboardPage() {
               <p className="text-sm text-foreground-muted">{tAppointments("empty")}</p>
             )}
             {appointments.slice(0, 4).map((a) => (
-              <div key={a.id} className="flex items-center justify-between rounded-xl border border-border p-3 text-sm">
+              <Link
+                key={a.id}
+                href={a.caseId ? `/citizen/cases/${a.caseId}` : "/citizen/appointments"}
+                className="flex items-center justify-between rounded-xl border border-border p-3 text-sm hover:bg-surface-muted"
+              >
                 <span className="font-medium">{a.title}</span>
                 <span className="text-foreground-muted">{formatDateTime(a.startTime, locale)}</span>
-              </div>
+              </Link>
             ))}
           </CardContent>
         </Card>

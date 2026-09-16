@@ -6,6 +6,7 @@ import { Scale, Menu, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { useSession } from "@/lib/auth/use-session";
 
 export function PublicNavbar() {
@@ -37,6 +38,7 @@ export function PublicNavbar() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
           <LanguageSwitcher />
           {session ? (
             <Button asChild size="sm">
@@ -66,7 +68,10 @@ export function PublicNavbar() {
                 {l.label}
               </Link>
             ))}
-            <LanguageSwitcher className="justify-start px-0" />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <LanguageSwitcher className="justify-start px-0" />
+            </div>
             {session ? (
               <Button asChild size="sm">
                 <Link href={`/${session.role}/dashboard`}>{t("nav.dashboard")}</Link>

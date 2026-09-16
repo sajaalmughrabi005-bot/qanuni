@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/shared/empty-state";
 import { RequestConsultationDialog } from "@/components/citizen/request-consultation-dialog";
-import { lawyers, reviews as allReviews } from "@/lib/mock-data";
+import { reviews as allReviews } from "@/lib/mock-data";
+import { useLawyer } from "@/lib/auth/use-lawyer";
 import { initials, formatDate } from "@/lib/utils";
 
 export default function LawyerProfilePage() {
@@ -23,7 +24,7 @@ export default function LawyerProfilePage() {
   const locale = useLocale();
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const lawyer = lawyers.find((l) => l.id === params.id);
+  const lawyer = useLawyer(params.id);
   const reviews = allReviews.filter((r) => r.lawyerId === params.id);
 
   if (!lawyer) {

@@ -1,5 +1,6 @@
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 export function StatCard({
@@ -8,15 +9,17 @@ export function StatCard({
   value,
   accent,
   className,
+  href,
 }: {
   icon: LucideIcon;
   label: string;
   value: string | number;
   accent?: "gold" | "navy";
   className?: string;
+  href?: string;
 }) {
-  return (
-    <Card className={className}>
+  const content = (
+    <Card className={cn(href && "transition hover:-translate-y-0.5 hover:shadow-md", className)}>
       <CardContent className="flex items-center gap-4 p-5">
         <span
           className={cn(
@@ -33,4 +36,6 @@ export function StatCard({
       </CardContent>
     </Card>
   );
+
+  return href ? <Link href={href}>{content}</Link> : content;
 }

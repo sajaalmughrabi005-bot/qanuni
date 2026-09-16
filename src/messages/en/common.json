@@ -72,6 +72,13 @@
     "terms": "Terms",
     "rights": "All rights reserved"
   },
+  "assistant": {
+    "title": "Legal Assistant — help & technical issues",
+    "placeholder": "Ask about any feature or describe an issue...",
+    "emptyState": "Ask me how to use any platform feature, or describe a technical issue you're facing.",
+    "thinking": "Thinking...",
+    "disclaimer": "Automated support assistant — not legal advice."
+  },
   "disclaimer": {
     "notLegalAdvice": "This analysis is AI-generated and is not binding legal advice. A licensed lawyer should review this before you rely on it.",
     "aiGenerated": "AI-generated content",

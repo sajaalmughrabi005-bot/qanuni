@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { Mic, Sparkles, Check } from "lucide-react";
@@ -19,6 +19,26 @@ const DEMO_TRANSCRIPTS_AR = [
 ];
 const DEMO_TRANSCRIPTS_EN = ["Remind me to call Ahmad tomorrow at 11", "Remind me to follow up with Salma today at 3"];
 
+type SpeechRecognitionLike = {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onresult: ((event: { results: { transcript: string }[][] } & Record<string, unknown>) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+function getSpeechRecognition(): (new () => SpeechRecognitionLike) | null {
+  if (typeof window === "undefined") return null;
+  const w = window as unknown as {
+    SpeechRecognition?: new () => SpeechRecognitionLike;
+    webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+  };
+  return w.SpeechRecognition || w.webkitSpeechRecognition || null;
+}
+
 export function VoiceCommandWidget() {
   const t = useTranslations("lawyer.voice");
   const locale = useLocale();
@@ -29,19 +49,62 @@ export function VoiceCommandWidget() {
   const [processing, setProcessing] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [result, setResult] = useState<VoiceCommandResult | null>(null);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
-  const startListening = async () => {
-    setListening(true);
-    setResult(null);
-    const demo = locale === "ar" ? DEMO_TRANSCRIPTS_AR : DEMO_TRANSCRIPTS_EN;
-    const pick = demo[Math.floor(Math.random() * demo.length)];
-    await new Promise((r) => setTimeout(r, 1400));
-    setTranscript(pick);
+  useEffect(() => {
+    Promise.resolve().then(() => setSpeechSupported(!!getSpeechRecognition()));
+  }, []);
+
+  const finishTranscript = async (text: string) => {
+    setTranscript(text);
     setListening(false);
     setProcessing(true);
-    const res = await processVoiceCommandAction(pick);
+    const res = await processVoiceCommandAction(text);
     setResult(res);
     setProcessing(false);
+  };
+
+  const startListening = async () => {
+    setResult(null);
+    const SpeechRecognitionCtor = getSpeechRecognition();
+
+    if (!SpeechRecognitionCtor) {
+      setListening(true);
+      const demo = locale === "ar" ? DEMO_TRANSCRIPTS_AR : DEMO_TRANSCRIPTS_EN;
+      const pick = demo[Math.floor(Math.random() * demo.length)];
+      await new Promise((r) => setTimeout(r, 1400));
+      await finishTranscript(pick);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognitionCtor();
+      recognition.lang = locale === "ar" ? "ar-JO" : "en-US";
+      recognition.interimResults = false;
+      recognition.continuous = false;
+      recognition.onresult = (event) => {
+        const text = event.results?.[0]?.[0]?.transcript || "";
+        if (text) finishTranscript(text);
+        else setListening(false);
+      };
+      recognition.onerror = () => {
+        setListening(false);
+        toast.error(t("micError"));
+      };
+      recognition.onend = () => setListening(false);
+      recognitionRef.current = recognition;
+      setListening(true);
+      recognition.start();
+    } catch {
+      setListening(false);
+      toast.error(t("micError"));
+    }
+  };
+
+  const stopListening = () => {
+    recognitionRef.current?.stop();
+    setListening(false);
   };
 
   const confirm = () => {
@@ -77,8 +140,8 @@ export function VoiceCommandWidget() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={startListening}
-            disabled={listening || processing}
+            onClick={speechSupported && listening ? stopListening : startListening}
+            disabled={processing}
             className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition-colors ${
               listening ? "animate-pulse bg-risk-high text-white" : "bg-navy text-gold hover:bg-navy-light"
             }`}
@@ -112,7 +175,15 @@ export function VoiceCommandWidget() {
           </div>
         )}
 
-        <p className="text-[11px] text-foreground-muted">{t("simulatedNotice")}</p>
+        {result && result.action === "unknown" && !processing && (
+          <div className="rounded-xl border border-border bg-surface-muted p-4 text-sm text-foreground-muted">
+            {t("notUnderstood")}
+          </div>
+        )}
+
+        <p className="text-[11px] text-foreground-muted">
+          {speechSupported ? t("realMicNotice") : t("simulatedNotice")}
+        </p>
       </CardContent>
     </Card>
   );

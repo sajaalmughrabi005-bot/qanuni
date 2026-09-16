@@ -27,6 +27,8 @@ const RISK_KEYWORDS: { pattern: RegExp; risk: RiskLevel; category: DocumentClaus
   { pattern: /مدة العقد|duration|تاريخ البدء|effective date/i, risk: "low", category: "contractual" },
 ];
 
+const NO_OCR_MARKER = "No extracted text available";
+
 function splitIntoClauses(text: string): string[] {
   return text
     .split(/\n+|(?<=[.؟!])\s+(?=[A-Zأ-ي])/)
@@ -49,6 +51,53 @@ export function heuristicAnalyzeText(params: {
   userId: string;
   documentType: DocumentType;
 }): { clauses: DocumentClause[]; analysis: Analysis } {
+  if (params.text.includes(NO_OCR_MARKER)) {
+    const clause: DocumentClause = {
+      id: `${params.documentId}-cl-1`,
+      documentId: params.documentId,
+      clauseNumber: "1",
+      clauseTextAr: `لم نتمكن من استخراج نص من "${params.fileName}" (لا يوجد OCR في وضع الديمو). الصق نص العقد أو استخدم العقد التجريبي الجاهز للحصول على تحليل حقيقي مبني على المحتوى.`,
+      clauseTextEn: `We couldn't extract text from "${params.fileName}" (no OCR in demo mode). Paste the contract text or use the ready-made demo contract to get a real, content-grounded analysis.`,
+      riskLevel: "low",
+      category: "contractual",
+      explanationAr: "هذا ليس تحليلاً قانونياً — هو إشعار بأن المستند يحتاج نصاً قابلاً للقراءة ليُحلَّل فعلياً.",
+      explanationEn: "This is not a legal analysis — it's a notice that the document needs readable text to be actually analyzed.",
+      confidence: 0,
+    };
+    const analysis: Analysis = {
+      id: `an-${params.documentId}`,
+      documentId: params.documentId,
+      userId: params.userId,
+      overallRisk: "low",
+      riskCategories: (["contractual", "financial", "deadline", "termination", "liability"] as const).map(
+        (category) => ({
+          category,
+          level: "low" as RiskLevel,
+          reasonAr: "لا يوجد نص مستخرج بعد لتحليل هذه الفئة.",
+          reasonEn: "No extracted text yet to analyze this category.",
+        })
+      ),
+      summaryAr: `لم نستخرج نصاً من "${params.fileName}" لأن الرفع تم بدون OCR في وضع الديمو. الصق نص العقد أو جرّب العقد التجريبي للحصول على تحليل كامل.`,
+      summaryEn: `No text was extracted from "${params.fileName}" because upload works without OCR in demo mode. Paste the contract text or try the demo contract for a full analysis.`,
+      yourObligationsAr: [],
+      yourObligationsEn: [],
+      otherPartyObligationsAr: [],
+      otherPartyObligationsEn: [],
+      deadlinesAr: [],
+      deadlinesEn: [],
+      paymentTermsAr: [],
+      paymentTermsEn: [],
+      cancellationTermsAr: [],
+      cancellationTermsEn: [],
+      concernsAr: [],
+      concernsEn: [],
+      questionsForLawyerAr: [],
+      questionsForLawyerEn: [],
+      createdAt: new Date().toISOString(),
+    };
+    return { clauses: [clause], analysis };
+  }
+
   const rawClauses = splitIntoClauses(params.text);
   const clauses: DocumentClause[] = (rawClauses.length ? rawClauses : [params.text]).map(
     (text, i) => {
@@ -219,6 +268,17 @@ export function heuristicAnswerQuestion(params: {
   const relevant = findRelevantClauses(params.clauses, params.question);
   const { locale } = params;
 
+  if (params.clauses.length === 0) {
+    return {
+      answer:
+        locale === "ar"
+          ? "هذا سؤال عام دون مستند مرفق، فالإجابة هنا عامة وغير مبنية على عقد محدد. لإجابة أدق ومبنية على حالتك الفعلية، حلّل مستندك القانوني أولاً — أو تحدّث مباشرة مع محامٍ إذا كانت المسألة عاجلة."
+          : "This is a general question without an attached document, so the answer here is general and not based on a specific contract. For a more precise, grounded answer, analyze your legal document first — or speak directly with a lawyer if the matter is urgent.",
+      sourceIds: [],
+      matchedClauseIds: [],
+    };
+  }
+
   if (relevant.length === 0) {
     return {
       answer:
@@ -362,6 +422,43 @@ export function heuristicParseVoiceCommand(transcript: string): VoiceCommandResu
   };
 }
 
+const ASSISTANT_TOPICS: { pattern: RegExp; ar: string; en: string }[] = [
+  {
+    pattern: /عقد|مستند|رفع|analyz|document|upload|contract/i,
+    ar: "لتحليل عقد: من داشبورد المواطن اضغط \"حلّل مستنداً\"، ارفع ملفك أو الصق نصه، ثم اضغط \"ابدأ التحليل\". بدون OCR، الصق النص مباشرة أو جرّب العقد التجريبي الجاهز للحصول على تحليل كامل.",
+    en: "To analyze a contract: from the citizen dashboard, click \"Analyze a Document\", upload your file or paste its text, then click \"Start Analysis\". Without OCR, paste the text directly or try the ready-made demo contract for a full analysis.",
+  },
+  {
+    pattern: /محامٍ|محامي|lawyer|find/i,
+    ar: "للبحث عن محامٍ: اضغط \"ابحث عن محامٍ\" من القائمة، صفّي حسب المدينة أو التخصص، وادخل على بروفايل أي محامٍ لطلب استشارة.",
+    en: "To find a lawyer: click \"Find a Lawyer\" from the menu, filter by city or specialty, and open a lawyer's profile to request a consultation.",
+  },
+  {
+    pattern: /قضية|case|create/i,
+    ar: "لإنشاء قضية: بعد تحليل مستند، اضغط \"أنشئ قضية\" في صفحة النتائج — سيتم تحويل تحليلك لقضية منظمة تصل لمحامٍ مناسب.",
+    en: "To create a case: after analyzing a document, click \"Create a Case\" on the results page — your analysis becomes a structured case sent to a matching lawyer.",
+  },
+  {
+    pattern: /مسودة|صياغة|draft/i,
+    ar: "لصياغة مستند قانوني: من داشبورد المحامي افتح \"صائغ المسودات\"، اكتب تعليماتك، ثم استخدم أزرار التقصير/الصياغة الرسمية/الترجمة لتعديل المسودة.",
+    en: "To draft a legal document: from the lawyer dashboard open the \"AI Legal Drafter\", write your instructions, then use the shorten/formal/translate buttons to refine the draft.",
+  },
+  {
+    pattern: /خطأ|error|مشكلة|bug|لا يعمل|مايشتغل|not working/i,
+    ar: "إذا واجهت مشكلة تقنية: جرّب تحديث الصفحة أولاً. المنصة تعمل بوضع تجريبي محلي بدون خادم خارجي، فبعض الميزات (مثل التحقق من المحامين أو واتساب) محاكاة مقصودة وليست أعطالاً. إذا استمرت المشكلة، صف الخطوة بالتحديد وسنساعدك.",
+    en: "If you're hitting a technical issue: try refreshing the page first. The platform runs in local demo mode with no external backend, so some features (like lawyer verification or WhatsApp) are intentionally simulated, not broken. If it persists, describe the exact step and we'll help.",
+  },
+];
+
+export function heuristicAssistantReply(message: string, locale: Locale): string {
+  for (const topic of ASSISTANT_TOPICS) {
+    if (topic.pattern.test(message)) return locale === "ar" ? topic.ar : topic.en;
+  }
+  return locale === "ar"
+    ? "أنا مساعد قانوني مبني على محرك محلي بدون اتصال خارجي بوضع الديمو الحالي. اسألني عن كيفية استخدام أي ميزة بالمنصة (تحليل عقد، البحث عن محامٍ، إنشاء قضية، صياغة مسودة)، أو صف مشكلة تقنية تواجهها."
+    : "I'm a legal assistant running on a local engine with no external connection in the current demo mode. Ask me how to use any platform feature (analyzing a contract, finding a lawyer, creating a case, drafting a document), or describe a technical issue you're facing.";
+}
+
 export function heuristicGenerateDraft(instructions: string, locale: Locale): string {
   const isNotice = /إنذار|notice|formal/i.test(instructions);
   const isReminder = /تذكير|reminder|follow.?up/i.test(instructions);
@@ -372,4 +469,56 @@ export function heuristicGenerateDraft(instructions: string, locale: Locale): st
       ? "\n\n⚠️ مسودة تم إنشاؤها بواسطة الذكاء الاصطناعي — تتطلب مراجعة المحامي قبل الاستخدام."
       : "\n\n⚠️ AI-generated draft — lawyer review required before use.";
   return `${template}\n\n(${locale === "ar" ? "بخصوص" : "Regarding"}: ${instructions})${disclaimer}`;
+}
+
+const DISCLAIMER_AR = "⚠️ مسودة تم إنشاؤها بواسطة الذكاء الاصطناعي — تتطلب مراجعة المحامي قبل الاستخدام.";
+const DISCLAIMER_EN = "⚠️ AI-generated draft — lawyer review required before use.";
+
+function stripDisclaimer(content: string): string {
+  return content.replace(DISCLAIMER_AR, "").replace(DISCLAIMER_EN, "").trim();
+}
+
+const FORMAL_SWAPS_AR: [RegExp, string][] = [
+  [/بدي|بدنا/g, "أرغب"],
+  [/احكيلك|بحكيلك/g, "أفيدكم"],
+  [/شكراً/g, "وتفضلوا بقبول فائق الاحترام والتقدير"],
+];
+const FORMAL_SWAPS_EN: [RegExp, string][] = [
+  [/\bwanna\b/gi, "would like to"],
+  [/\bgonna\b/gi, "going to"],
+  [/\bthanks\b/gi, "sincerely"],
+];
+
+export function heuristicTransformDraft(params: {
+  existingContent: string;
+  mode: "shorten" | "formal" | "translate";
+  locale: Locale;
+}): string {
+  const body = stripDisclaimer(params.existingContent);
+  const disclaimer = params.locale === "ar" ? DISCLAIMER_AR : DISCLAIMER_EN;
+
+  if (params.mode === "shorten") {
+    const sentences = body.split(/(?<=[.؟!\n])\s+/).filter((s) => s.trim().length > 0);
+    const kept = sentences.slice(0, Math.max(2, Math.ceil(sentences.length / 2)));
+    const label = params.locale === "ar" ? "(نسخة مختصرة)" : "(Shortened version)";
+    return `${label}\n\n${kept.join(" ").trim()}\n\n${disclaimer}`;
+  }
+
+  if (params.mode === "formal") {
+    let text = body;
+    const swaps = params.locale === "ar" ? FORMAL_SWAPS_AR : FORMAL_SWAPS_EN;
+    for (const [pattern, replacement] of swaps) text = text.replace(pattern, replacement);
+    const opening = params.locale === "ar" ? "تحية طيبة وبعد،\n\n" : "Dear Sir/Madam,\n\n";
+    const closing = params.locale === "ar" ? "\n\nوتفضلوا بقبول فائق الاحترام." : "\n\nSincerely,";
+    return `${opening}${text}${closing}\n\n${disclaimer}`;
+  }
+
+  // translate: no real translation engine offline — swap to the other locale's
+  // template voice while preserving the original as reference, and say so clearly.
+  const targetLocale: Locale = params.locale === "ar" ? "en" : "ar";
+  const note =
+    targetLocale === "en"
+      ? "(Demo mode: no offline translation engine available. Showing the original text for lawyer translation/review.)"
+      : "(وضع الديمو: لا يوجد محرك ترجمة محلي متاح. عرض النص الأصلي لمراجعته وترجمته من قبل المحامي.)";
+  return `${note}\n\n${body}\n\n${targetLocale === "ar" ? DISCLAIMER_AR : DISCLAIMER_EN}`;
 }

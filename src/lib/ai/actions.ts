@@ -8,6 +8,8 @@ import {
   heuristicSimulateScenario,
   heuristicExtractCaseData,
   heuristicGenerateDraft,
+  heuristicTransformDraft,
+  heuristicAssistantReply,
   heuristicParseVoiceCommand,
   VoiceCommandResult,
 } from "./engine";
@@ -99,7 +101,32 @@ export async function generateDraftAction(params: {
     });
     if (text) return { content: text, source: "ai" };
   }
+  if (params.mode && params.mode !== "generate" && params.existingContent) {
+    return {
+      content: heuristicTransformDraft({
+        existingContent: params.existingContent,
+        mode: params.mode,
+        locale: params.locale,
+      }),
+      source: "demo_engine",
+    };
+  }
   return { content: heuristicGenerateDraft(params.instructions, params.locale), source: "demo_engine" };
+}
+
+export async function assistantChatAction(params: {
+  message: string;
+  locale: Locale;
+}): Promise<{ reply: string; source: "ai" | "demo_engine" }> {
+  if (hasOpenAI()) {
+    const text = await completeText({
+      system:
+        "You are QANUNI's site-wide help assistant. Help users navigate the platform's features (contract analysis, Ask the Law, scenario simulator, lawyer marketplace, case creation, lawyer dashboard, AI drafter, calendar) and troubleshoot technical issues. Never invent Jordanian legal citations. Keep replies concise. Reply in the user's language.",
+      user: params.message,
+    });
+    if (text) return { reply: text, source: "ai" };
+  }
+  return { reply: heuristicAssistantReply(params.message, params.locale), source: "demo_engine" };
 }
 
 export async function askTheLawTurn(params: {
@@ -121,6 +148,6 @@ export async function askTheLawTurn(params: {
     content: res.answer,
     sourceIds: res.sourceIds,
     createdAt: new Date().toISOString(),
-    showLawyerCta: res.matchedClauseIds.length > 0,
+    showLawyerCta: res.matchedClauseIds.length > 0 || params.clauses.length === 0,
   };
 }

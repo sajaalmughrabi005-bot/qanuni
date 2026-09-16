@@ -135,6 +135,11 @@
     "save": "Save event",
     "delete": "Delete event"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "markAllRead": "Mark all as read"
+  },
   "clients": {
     "title": "Clients",
     "empty": "No clients yet",
@@ -161,12 +166,23 @@
     "client": "Client",
     "when": "When",
     "create": "Create reminder",
-    "simulatedNotice": "Simulated voice demo — no real speech-to-text service"
+    "simulatedNotice": "Simulated voice demo — your browser doesn't support speech recognition",
+    "realMicNotice": "Real speech recognition via your browser — speak naturally and we'll turn it into a reminder",
+    "micError": "Couldn't access the microphone. Make sure it's allowed.",
+    "notUnderstood": "We couldn't understand a clear command. Try e.g. \"Remind me to call Ahmad tomorrow at 11\"."
   },
   "profile": {
     "title": "Profile",
     "editProfile": "Edit profile",
-    "verificationStatus": "Verification status"
+    "verificationStatus": "Verification status",
+    "bio": "Bio",
+    "city": "City",
+    "price": "Consultation price (JOD)",
+    "experience": "Years of experience",
+    "availability": "Availability",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saved": "Changes saved"
   },
   "settings": {
     "title": "Settings",
