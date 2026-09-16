@@ -40,24 +40,32 @@ export default function AnalysisResultsPage() {
       <DocumentOverview document={document} />
       <AiDisclaimer />
 
-      <Tabs defaultValue="clauses">
+      <Tabs defaultValue="risk">
         <TabsList className="flex-wrap">
-          <TabsTrigger value="clauses">{t("tabClauses")}</TabsTrigger>
-          <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
           <TabsTrigger value="risk">{t("tabRisk")}</TabsTrigger>
+          <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
+          <TabsTrigger value="clauses">{t("tabClauses")}</TabsTrigger>
           <TabsTrigger value="ask">{t("tabAsk")}</TabsTrigger>
           <TabsTrigger value="scenario">{t("tabScenario")}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="clauses">
-          <ClauseMap clauses={clauses} />
+        <TabsContent value="risk" className="space-y-6">
+          <RiskOverview analysis={analysis} />
+          <div className="rounded-2xl border border-gold/30 bg-gold/5 p-6 text-center">
+            <p className="font-semibold">{t("createCase")}</p>
+            <p className="mt-1 text-sm text-foreground-muted">{t("createCaseDesc")}</p>
+            <Button variant="gold" className="mt-4" onClick={() => setCaseDialogOpen(true)}>
+              <Briefcase className="h-4 w-4" />
+              {t("createCase")}
+            </Button>
+          </div>
         </TabsContent>
         <TabsContent value="summary" className="space-y-4">
           <CaseUnderstanding analysis={analysis} />
           <TermSimplifierCard />
         </TabsContent>
-        <TabsContent value="risk">
-          <RiskOverview analysis={analysis} />
+        <TabsContent value="clauses">
+          <ClauseMap clauses={clauses} />
         </TabsContent>
         <TabsContent value="ask">
           <AskTheLawPanel documentId={document.id} clauses={clauses} />
@@ -66,15 +74,6 @@ export default function AnalysisResultsPage() {
           <ScenarioSimulatorPanel clauses={clauses} />
         </TabsContent>
       </Tabs>
-
-      <div className="rounded-2xl border border-gold/30 bg-gold/5 p-6 text-center">
-        <p className="font-semibold">{t("createCase")}</p>
-        <p className="mt-1 text-sm text-foreground-muted">{t("createCaseDesc")}</p>
-        <Button variant="gold" className="mt-4" onClick={() => setCaseDialogOpen(true)}>
-          <Briefcase className="h-4 w-4" />
-          {t("createCase")}
-        </Button>
-      </div>
 
       <CreateCaseDialog
         document={document}

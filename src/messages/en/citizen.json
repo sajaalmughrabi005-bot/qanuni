@@ -77,8 +77,24 @@
     "subtitle": "Upload your contract and get instant AI analysis",
     "dropzone": "Drag and drop a file here, or click to select",
     "dropzoneHint": "PDF or image — up to 10MB",
-    "orPasteText": "Or paste the contract text directly",
-    "pasteTextPlaceholder": "Paste the contract text here for real analysis, even without an AI provider...",
+    "orPasteText": "Describe your problem in your own words (optional)",
+    "pasteTextPlaceholder": "e.g. My landlord wants to evict me before the contract ends, without notice...",
+    "contextTitle": "A few details to help us understand your situation",
+    "roleLabel": "Who are you in this situation?",
+    "role": {
+      "none": "Not specified",
+      "tenant": "Tenant",
+      "landlord": "Landlord / Owner",
+      "employee": "Employee",
+      "employer": "Employer",
+      "other": "Other party"
+    },
+    "purposeLabel": "What's your goal with this analysis?",
+    "purpose": {
+      "understand": "Understand my rights and obligations",
+      "beforeSigning": "Before signing this document",
+      "activeDispute": "I currently have an active dispute"
+    },
     "documentType": "Document type",
     "types": {
       "rental": "Rental contract",
@@ -95,9 +111,10 @@
     "uploading": "Uploading document...",
     "extracting": "Extracting text...",
     "identifying": "Identifying clauses...",
-    "comparing": "Comparing against legal knowledge...",
+    "comparing": "Matching your document against Jordanian law...",
     "generating": "Generating explanation...",
-    "done": "Analysis complete"
+    "done": "Analysis complete",
+    "disclaimer": "⚖️ Please note: this analysis is a preliminary automated assessment and is not a legal ruling or a substitute for retaining a lawyer."
   },
   "results": {
     "overview": "Document Overview",
@@ -120,13 +137,19 @@
     "riskOverviewDesc": "An automated AI indicator, not legal advice",
     "askLawyerCta": "Ask a lawyer about this clause",
     "confidence": "Confidence level",
-    "tabClauses": "Clauses",
+    "caseStrengthMeter": "Case Strength Meter",
+    "caseStrengthStrong": "Your position looks relatively strong",
+    "caseStrengthMedium": "Your position needs some attention",
+    "caseStrengthWeak": "Your position needs urgent lawyer review",
+    "tabClauses": "Clause Details",
     "tabSummary": "Summary",
-    "tabRisk": "Risk",
+    "tabRisk": "Your Case Strength",
     "tabAsk": "Ask the Law",
     "tabScenario": "Scenario Simulator",
-    "createCase": "Create a Case",
-    "createCaseDesc": "Turn this analysis into a structured case and send it to a matching lawyer"
+    "createCase": "Escalate to a Lawyer",
+    "createCaseDesc": "Send your case details to a matching lawyer for review",
+    "citizenDescriptionLabel": "Your description of the problem",
+    "aiAssessmentLabel": "AI legal assessment"
   },
   "describeProblem": {
     "title": "Describe Your Legal Problem",

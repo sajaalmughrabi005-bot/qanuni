@@ -33,6 +33,8 @@ export default function NewAnalysisPage() {
   const [file, setFile] = useState<File | null>(null);
   const [pastedText, setPastedText] = useState("");
   const [docType, setDocType] = useState<DocumentType>("rental");
+  const [role, setRole] = useState("none");
+  const [purpose, setPurpose] = useState("understand");
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -46,9 +48,11 @@ export default function NewAnalysisPage() {
 
     const documentId = `doc-${Date.now()}`;
     const fileName = file?.name || (locale === "ar" ? "مستند-ملصق.txt" : "pasted-document.txt");
-    const text =
-      pastedText.trim() ||
-      `Document: ${fileName}\nType: ${docType}\n(No extracted text available — file uploaded in demo mode without OCR. Paste contract text for a fully grounded analysis.)`;
+    const contextLine = `${t("roleLabel")}: ${t(`role.${role}`)} | ${t("purposeLabel")}: ${t(`purpose.${purpose}`)}`;
+    const baseText = pastedText.trim()
+      ? pastedText.trim()
+      : `Document: ${fileName}\nType: ${docType}\n(No extracted text available — file uploaded in demo mode without OCR. Paste contract text for a fully grounded analysis.)`;
+    const text = `${contextLine}\n\n${baseText}`;
 
     for (let i = 0; i < STEPS.length; i++) {
       setStepIndex(i);
@@ -72,6 +76,7 @@ export default function NewAnalysisPage() {
       language: locale as "ar" | "en",
       status: "analyzed",
       createdAt: new Date().toISOString(),
+      citizenDescription: pastedText.trim() || undefined,
     };
 
     addDocument(doc, clauses, analysis);
@@ -124,6 +129,7 @@ export default function NewAnalysisPage() {
           ))}
         </div>
         <Progress value={((stepIndex + 1) / STEPS.length) * 100} className="mt-8" />
+        <p className="mt-8 text-xs leading-relaxed text-foreground-muted">{tProcessing("disclaimer")}</p>
       </div>
     );
   }
@@ -182,7 +188,13 @@ export default function NewAnalysisPage() {
 
           <div className="space-y-1.5">
             <Label>{t("documentType")}</Label>
-            <Select value={docType} onValueChange={(v) => setDocType(v as DocumentType)}>
+            <Select
+              value={docType}
+              onValueChange={(v) => {
+                setDocType(v as DocumentType);
+                setRole("none");
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -194,6 +206,49 @@ export default function NewAnalysisPage() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-4 rounded-2xl bg-surface-muted/60 p-4">
+            <p className="text-sm font-medium">{t("contextTitle")}</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>{t("roleLabel")}</Label>
+                <Select value={role} onValueChange={setRole}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t("role.none")}</SelectItem>
+                    {docType === "rental" && (
+                      <>
+                        <SelectItem value="tenant">{t("role.tenant")}</SelectItem>
+                        <SelectItem value="landlord">{t("role.landlord")}</SelectItem>
+                      </>
+                    )}
+                    {docType === "employment" && (
+                      <>
+                        <SelectItem value="employee">{t("role.employee")}</SelectItem>
+                        <SelectItem value="employer">{t("role.employer")}</SelectItem>
+                      </>
+                    )}
+                    <SelectItem value="other">{t("role.other")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>{t("purposeLabel")}</Label>
+                <Select value={purpose} onValueChange={setPurpose}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="understand">{t("purpose.understand")}</SelectItem>
+                    <SelectItem value="beforeSigning">{t("purpose.beforeSigning")}</SelectItem>
+                    <SelectItem value="activeDispute">{t("purpose.activeDispute")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
 
           <div className="flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-foreground-muted">

@@ -8,24 +8,31 @@ import { cn } from "@/lib/utils";
 
 const levelToPercent = { low: 30, medium: 62, high: 90 };
 const levelToColor = { low: "bg-risk-low", medium: "bg-risk-medium", high: "bg-risk-high" };
+const levelToStrengthKey = {
+  low: "caseStrengthStrong",
+  medium: "caseStrengthMedium",
+  high: "caseStrengthWeak",
+} as const;
 
 export function RiskOverview({ analysis }: { analysis: Analysis }) {
   const t = useTranslations("citizen.results");
   const tCategory = useTranslations("common.riskCategory");
   const locale = useLocale();
+  const strengthPercent = 100 - levelToPercent[analysis.overallRisk];
 
   return (
     <div className="space-y-5">
       <Card className="bg-navy text-white">
         <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
-          <p className="text-sm text-white/70">{t("riskOverview")}</p>
-          <RiskBadge level={analysis.overallRisk} className="text-sm" />
-          <div className="mt-2 h-2 w-full max-w-xs overflow-hidden rounded-full bg-white/15">
+          <p className="text-sm text-white/70">{t("caseStrengthMeter")}</p>
+          <div className="mt-1 h-2 w-full max-w-xs overflow-hidden rounded-full bg-white/15">
             <div
               className={cn("h-full transition-all", levelToColor[analysis.overallRisk])}
-              style={{ width: `${levelToPercent[analysis.overallRisk]}%` }}
+              style={{ width: `${strengthPercent}%` }}
             />
           </div>
+          <p className="text-sm font-medium">{t(levelToStrengthKey[analysis.overallRisk])}</p>
+          <RiskBadge level={analysis.overallRisk} className="text-sm" />
           <p className="text-xs text-white/50">{t("riskOverviewDesc")}</p>
         </CardContent>
       </Card>

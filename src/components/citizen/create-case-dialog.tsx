@@ -106,7 +106,17 @@ export function CreateCaseDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          <p className="text-sm text-foreground-muted">{locale === "ar" ? analysis.summaryAr : analysis.summaryEn}</p>
+          {document.citizenDescription && (
+            <div className="rounded-xl border border-border bg-surface-muted p-4">
+              <p className="mb-1.5 text-xs font-semibold text-foreground-muted">{t("citizenDescriptionLabel")}</p>
+              <p className="text-sm">{document.citizenDescription}</p>
+            </div>
+          )}
+
+          <div className="rounded-xl border border-gold/30 bg-gold/5 p-4">
+            <p className="mb-1.5 text-xs font-semibold text-foreground-muted">{t("aiAssessmentLabel")}</p>
+            <p className="text-sm">{locale === "ar" ? analysis.summaryAr : analysis.summaryEn}</p>
+          </div>
 
           <div>
             <p className="mb-2 text-sm font-medium">{tFind("matchTitle")}</p>

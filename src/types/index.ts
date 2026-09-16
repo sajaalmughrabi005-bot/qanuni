@@ -108,6 +108,7 @@ export interface LegalDocument {
   effectiveDate?: string;
   durationMonths?: number;
   keyAmounts?: { labelAr: string; labelEn: string; amount: number }[];
+  citizenDescription?: string;
 }
 
 export interface RiskCategory {
