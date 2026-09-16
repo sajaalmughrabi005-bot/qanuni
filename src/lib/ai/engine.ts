@@ -513,12 +513,13 @@ export function heuristicTransformDraft(params: {
     return `${opening}${text}${closing}\n\n${disclaimer}`;
   }
 
-  // translate: no real translation engine offline — swap to the other locale's
-  // template voice while preserving the original as reference, and say so clearly.
-  const targetLocale: Locale = params.locale === "ar" ? "en" : "ar";
+  // translate: no real offline translation engine — the body stays in its
+  // original language, so the notice explaining that must stay in the
+  // CURRENT UI locale too (not the untranslated target locale), otherwise
+  // the result reads as broken, mismatched text.
   const note =
-    targetLocale === "en"
-      ? "(Demo mode: no offline translation engine available. Showing the original text for lawyer translation/review.)"
-      : "(وضع الديمو: لا يوجد محرك ترجمة محلي متاح. عرض النص الأصلي لمراجعته وترجمته من قبل المحامي.)";
-  return `${note}\n\n${body}\n\n${targetLocale === "ar" ? DISCLAIMER_AR : DISCLAIMER_EN}`;
+    params.locale === "ar"
+      ? "(وضع الديمو: لا يوجد محرك ترجمة محلي متاح بدون مزود ذكاء اصطناعي خارجي. النص أدناه هو النص الأصلي — يحتاج ترجمة يدوية من المحامي.)"
+      : "(Demo mode: no offline translation engine is available without an external AI provider. The text below is the original — it needs manual translation by the lawyer.)";
+  return `${note}\n\n${body}\n\n${disclaimer}`;
 }

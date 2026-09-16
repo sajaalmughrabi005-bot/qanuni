@@ -1,22 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { ShieldCheck, Star, Briefcase, MapPin, Pencil, Check, X } from "lucide-react";
+import { ShieldCheck, Star, Briefcase, MapPin, Pencil, Check, X, Camera } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSession } from "@/lib/auth/use-session";
 import { useLawyer } from "@/lib/auth/use-lawyer";
 import { useAppStore } from "@/lib/store/app-store";
-import { initials } from "@/lib/utils";
-import type { Lawyer } from "@/types";
+import { initials, cn } from "@/lib/utils";
+import type { Lawyer, LawyerSpecialty } from "@/types";
+
+const ALL_SPECIALTIES: LawyerSpecialty[] = [
+  "rental",
+  "employment",
+  "commercial",
+  "family",
+  "criminal",
+  "real_estate",
+  "corporate",
+  "civil",
+];
 
 export default function LawyerProfileSettingsPage() {
   const t = useTranslations("lawyer.profile");
@@ -25,6 +36,7 @@ export default function LawyerProfileSettingsPage() {
   const { session } = useSession();
   const lawyer = useLawyer(session?.userId);
   const updateLawyerProfile = useAppStore((s) => s.updateLawyerProfile);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<Partial<Lawyer>>({});
@@ -38,6 +50,8 @@ export default function LawyerProfileSettingsPage() {
       consultationPrice: lawyer.consultationPrice,
       yearsExperience: lawyer.yearsExperience,
       availabilityStatus: lawyer.availabilityStatus,
+      specialties: [...lawyer.specialties],
+      avatarUrl: lawyer.avatarUrl,
     });
     setEditing(true);
   };
@@ -47,6 +61,27 @@ export default function LawyerProfileSettingsPage() {
     setEditing(false);
     toast.success(t("saved"));
   };
+
+  const toggleSpecialty = (s: LawyerSpecialty) => {
+    setForm((f) => {
+      const current = f.specialties || [];
+      return {
+        ...f,
+        specialties: current.includes(s) ? current.filter((x) => x !== s) : [...current, s],
+      };
+    });
+  };
+
+  const onPickPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setForm((f) => ({ ...f, avatarUrl: reader.result as string }));
+    reader.readAsDataURL(file);
+  };
+
+  const displayedAvatar = editing ? form.avatarUrl : lawyer.avatarUrl;
+  const displayedSpecialties = editing ? form.specialties || [] : lawyer.specialties;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -62,9 +97,23 @@ export default function LawyerProfileSettingsPage() {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16 text-lg">
-              <AvatarFallback>{initials(lawyer.fullName)}</AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-16 w-16 text-lg">
+                {displayedAvatar && <AvatarImage src={displayedAvatar} alt={lawyer.fullName} />}
+                <AvatarFallback>{initials(lawyer.fullName)}</AvatarFallback>
+              </Avatar>
+              {editing && (
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="absolute -end-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-navy shadow-sm hover:bg-gold-light"
+                  aria-label={t("changePhoto")}
+                  type="button"
+                >
+                  <Camera className="h-3.5 w-3.5" />
+                </button>
+              )}
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickPhoto} />
+            </div>
             <div>
               <p className="text-lg font-semibold">{lawyer.fullName}</p>
               {editing ? (
@@ -83,11 +132,30 @@ export default function LawyerProfileSettingsPage() {
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            {lawyer.specialties.map((s) => (
-              <Badge key={s} variant="subtle">
-                {tSpec(s)}
-              </Badge>
-            ))}
+            {editing
+              ? ALL_SPECIALTIES.map((s) => {
+                  const active = displayedSpecialties.includes(s);
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => toggleSpecialty(s)}
+                      className={cn(
+                        "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                        active
+                          ? "border-gold bg-gold/15 text-gold"
+                          : "border-border bg-transparent text-foreground-muted hover:bg-surface-muted"
+                      )}
+                    >
+                      {tSpec(s)}
+                    </button>
+                  );
+                })
+              : displayedSpecialties.map((s) => (
+                  <Badge key={s} variant="subtle">
+                    {tSpec(s)}
+                  </Badge>
+                ))}
           </div>
 
           {editing ? (

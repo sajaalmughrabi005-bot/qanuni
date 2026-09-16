@@ -11,11 +11,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { extractCaseDataAction } from "@/lib/ai/actions";
+import { useRouter } from "@/i18n/navigation";
+import { useSession } from "@/lib/auth/use-session";
+import { useAppStore } from "@/lib/store/app-store";
 import { ExtractedCaseData } from "@/types";
 
 export default function LawyerDocumentsPage() {
   const t = useTranslations("lawyer.dataEntry");
   const locale = useLocale();
+  const router = useRouter();
+  const { session } = useSession();
+  const createCase = useAppStore((s) => s.createCase);
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [text, setText] = useState("");
@@ -33,6 +39,38 @@ export default function LawyerDocumentsPage() {
     const res = await extractCaseDataAction(content);
     setData(res);
     setLoading(false);
+  };
+
+  const confirmSave = () => {
+    if (!data || !session) return;
+    const name = data.clientName || (locale === "ar" ? "عميل بدون اسم" : "Unnamed client");
+    const newCase = createCase({
+      clientId: `extracted-${Date.now()}`,
+      clientName: name,
+      lawyerId: session.userId,
+      title:
+        locale === "ar"
+          ? `قضية مستخرجة${data.caseNumber ? ` — رقم ${data.caseNumber}` : ""}`
+          : `Extracted case${data.caseNumber ? ` — No. ${data.caseNumber}` : ""}`,
+      category: "civil",
+      status: "new",
+      priority: "medium",
+      summaryAr: `تم استخراج بيانات القضية من مستند: ${name}${data.opposingParty ? ` ضد ${data.opposingParty}` : ""}${data.court ? ` — ${data.court}` : ""}.`,
+      summaryEn: `Case data extracted from a document: ${name}${data.opposingParty ? ` vs. ${data.opposingParty}` : ""}${data.court ? ` — ${data.court}` : ""}.`,
+      clientStoryAr: text.trim(),
+      clientStoryEn: text.trim(),
+      opposingParty: data.opposingParty,
+      relevantClauseIds: [],
+      documentIds: [],
+      keyDatesAr: data.importantDates || [],
+      keyDatesEn: data.importantDates || [],
+      questionsAr: [],
+      questionsEn: [],
+      suggestedSpecialty: "civil",
+      deadline: data.deadline,
+    });
+    toast.success(t("confirmSave"));
+    router.push(`/lawyer/cases/${newCase.id}`);
   };
 
   return (
@@ -87,7 +125,7 @@ export default function LawyerDocumentsPage() {
               <Field label={t("fields.importantDates")} value={data.importantDates?.join(", ")} onChange={() => {}} />
               <Field label={t("fields.amounts")} value={data.amounts?.join(", ")} onChange={() => {}} />
             </div>
-            <Button variant="gold" className="w-full" onClick={() => toast.success(t("confirmSave"))}>
+            <Button variant="gold" className="w-full" onClick={confirmSave}>
               <Check className="h-4 w-4" />
               {t("confirmSave")}
             </Button>
