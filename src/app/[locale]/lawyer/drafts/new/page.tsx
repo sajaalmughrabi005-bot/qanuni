@@ -76,6 +76,18 @@ function DrafterInner() {
     toast.success(t("copy"));
   };
 
+  const exportDraft = () => {
+    const blob = new Blob([draft], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeName = (instructions.slice(0, 40) || "draft").trim().replace(/[\\/:*?"<>|]/g, "-");
+    a.download = `${safeName}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(t("export"));
+  };
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
@@ -132,7 +144,7 @@ function DrafterInner() {
                 <Save className="h-3.5 w-3.5" />
                 {t("saveDraft")}
               </Button>
-              <Button size="sm" variant="ghost" disabled={!draft} onClick={() => toast.info(t("export"))}>
+              <Button size="sm" variant="ghost" disabled={!draft} onClick={exportDraft}>
                 <Download className="h-3.5 w-3.5" />
                 {t("export")}
               </Button>
