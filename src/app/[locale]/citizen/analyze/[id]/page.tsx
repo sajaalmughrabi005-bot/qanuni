@@ -35,6 +35,9 @@ export default function AnalysisResultsPage() {
     return <EmptyState icon={FileQuestion} title={t("overview")} className="mx-auto mt-12 max-w-lg" />;
   }
 
+  const riskOrder = { high: 0, medium: 1, low: 2 };
+  const sortedClauses = [...clauses].sort((a, b) => riskOrder[a.riskLevel] - riskOrder[b.riskLevel]);
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <DocumentOverview document={document} />
@@ -44,13 +47,16 @@ export default function AnalysisResultsPage() {
         <TabsList className="flex-wrap">
           <TabsTrigger value="risk">{t("tabRisk")}</TabsTrigger>
           <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
-          <TabsTrigger value="clauses">{t("tabClauses")}</TabsTrigger>
           <TabsTrigger value="ask">{t("tabAsk")}</TabsTrigger>
           <TabsTrigger value="scenario">{t("tabScenario")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="risk" className="space-y-6">
           <RiskOverview analysis={analysis} />
+          <div>
+            <h2 className="mb-3 text-base font-semibold">{t("clauseMap")}</h2>
+            <ClauseMap clauses={sortedClauses} />
+          </div>
           <div className="rounded-2xl border border-gold/30 bg-gold/5 p-6 text-center">
             <p className="font-semibold">{t("createCase")}</p>
             <p className="mt-1 text-sm text-foreground-muted">{t("createCaseDesc")}</p>
@@ -63,9 +69,6 @@ export default function AnalysisResultsPage() {
         <TabsContent value="summary" className="space-y-4">
           <CaseUnderstanding analysis={analysis} />
           <TermSimplifierCard />
-        </TabsContent>
-        <TabsContent value="clauses">
-          <ClauseMap clauses={clauses} />
         </TabsContent>
         <TabsContent value="ask">
           <AskTheLawPanel documentId={document.id} clauses={clauses} />

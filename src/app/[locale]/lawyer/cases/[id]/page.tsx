@@ -11,6 +11,8 @@ import {
   FileEdit,
   Send,
   MessageCircle,
+  Phone,
+  Mail,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,10 +46,14 @@ export default function LawyerCaseDetailPage() {
   const updateCase = useAppStore((s) => s.updateCase);
   const addMessage = useAppStore((s) => s.addMessage);
 
+  const registeredUsers = useAppStore((s) => s.registeredUsers);
+
   const item = cases.find((c) => c.id === params.id);
   const relevantClauses = allClauses.filter((c) => item?.relevantClauseIds.includes(c.id));
   const caseMessages = allMessages.filter((m) => m.caseId === params.id);
-  const clientProfile = item ? demoProfiles[item.clientId] : undefined;
+  const clientProfile = item
+    ? demoProfiles[item.clientId] || Object.values(registeredUsers).find((u) => u.profile.id === item.clientId)?.profile
+    : undefined;
 
   if (!item) {
     return <EmptyState icon={FileSearch} title="Not found" className="mx-auto mt-16 max-w-lg" />;
@@ -75,8 +81,20 @@ export default function LawyerCaseDetailPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{item.title}</h1>
-          <div className="mt-1 flex items-center gap-3">
+          <div className="mt-1.5 flex flex-wrap items-center gap-3">
             <p className="text-foreground-muted">{item.clientName}</p>
+            {clientProfile?.phone && (
+              <a href={`tel:${clientProfile.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5 text-sm text-foreground-muted hover:text-foreground">
+                <Phone className="h-3.5 w-3.5" />
+                {clientProfile.phone}
+              </a>
+            )}
+            {clientProfile?.email && (
+              <a href={`mailto:${clientProfile.email}`} className="flex items-center gap-1.5 text-sm text-foreground-muted hover:text-foreground">
+                <Mail className="h-3.5 w-3.5" />
+                {clientProfile.email}
+              </a>
+            )}
             {whatsappHref && (
               <a
                 href={whatsappHref}
