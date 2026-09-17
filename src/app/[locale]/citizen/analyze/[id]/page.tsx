@@ -17,17 +17,22 @@ import { ScenarioSimulatorPanel } from "@/components/citizen/scenario-simulator-
 import { TermSimplifierCard } from "@/components/citizen/term-simplifier-card";
 import { CreateCaseDialog } from "@/components/citizen/create-case-dialog";
 import { useAppStore } from "@/lib/store/app-store";
+import { useSession } from "@/lib/auth/use-session";
+import { DEMO_DOCUMENT_ID } from "@/lib/mock-data";
 
 export default function AnalysisResultsPage() {
   const params = useParams<{ id: string }>();
   const t = useTranslations("citizen.results");
   const [caseDialogOpen, setCaseDialogOpen] = useState(false);
+  const { session } = useSession();
 
   const documents = useAppStore((s) => s.documents);
   const allClauses = useAppStore((s) => s.clauses);
   const analyses = useAppStore((s) => s.analyses);
 
-  const document = documents.find((d) => d.id === params.id);
+  const document = documents.find(
+    (d) => d.id === params.id && (d.id === DEMO_DOCUMENT_ID || d.userId === session?.userId)
+  );
   const clauses = allClauses.filter((c) => c.documentId === params.id);
   const analysis = analyses.find((a) => a.documentId === params.id);
 

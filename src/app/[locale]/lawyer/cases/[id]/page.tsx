@@ -48,7 +48,7 @@ export default function LawyerCaseDetailPage() {
 
   const registeredUsers = useAppStore((s) => s.registeredUsers);
 
-  const item = cases.find((c) => c.id === params.id);
+  const item = cases.find((c) => c.id === params.id && c.lawyerId === session?.userId);
   const relevantClauses = allClauses.filter((c) => item?.relevantClauseIds.includes(c.id));
   const caseMessages = allMessages.filter((m) => m.caseId === params.id);
   const clientProfile = item
