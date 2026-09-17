@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Star, MapPin, Clock, Briefcase, Languages as LanguagesIcon, ShieldCheck } from "lucide-react";
@@ -11,10 +11,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/shared/empty-state";
 import { RequestConsultationDialog } from "@/components/citizen/request-consultation-dialog";
 import { WriteReviewForm } from "@/components/citizen/write-review-form";
-import { reviews as allReviews } from "@/lib/mock-data";
 import { useLawyer } from "@/lib/auth/use-lawyer";
-import { useAppStore } from "@/lib/store/app-store";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { mapReview } from "@/lib/supabase/mappers";
 import { initials, formatDate } from "@/lib/utils";
+import type { Review } from "@/types";
 
 export default function LawyerProfilePage() {
   const params = useParams<{ id: string }>();
@@ -25,10 +26,21 @@ export default function LawyerProfilePage() {
   const tTypes = useTranslations("lawyer.calendar.types");
   const locale = useLocale();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsVersion, setReviewsVersion] = useState(0);
 
   const lawyer = useLawyer(params.id);
-  const customReviews = useAppStore((s) => s.customReviews);
-  const reviews = [...customReviews, ...allReviews].filter((r) => r.lawyerId === params.id);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase || !params.id) return;
+    supabase
+      .from("reviews")
+      .select("*")
+      .eq("lawyer_id", params.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setReviews((data || []).map(mapReview)));
+  }, [params.id, reviewsVersion]);
 
   if (!lawyer) {
     return <EmptyState icon={Briefcase} title="Not found" className="mx-auto mt-16 max-w-lg" />;
@@ -128,7 +140,7 @@ export default function LawyerProfilePage() {
           <span className="text-xs text-foreground-muted">{t("demoReviewNotice")}</span>
         </div>
         <div className="space-y-3">
-          <WriteReviewForm lawyerId={lawyer.id} />
+          <WriteReviewForm lawyerId={lawyer.id} onSubmitted={() => setReviewsVersion((v) => v + 1)} />
           {reviews.map((r) => (
             <Card key={r.id}>
               <CardContent className="p-4">

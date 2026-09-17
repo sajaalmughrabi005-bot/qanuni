@@ -13,8 +13,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSession } from "@/lib/auth/use-session";
-import { useLawyer } from "@/lib/auth/use-lawyer";
-import { useAppStore } from "@/lib/store/app-store";
+import { useLawyerByProfileId } from "@/lib/auth/use-lawyer";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { initials, cn } from "@/lib/utils";
 import type { Lawyer, LawyerSpecialty } from "@/types";
 
@@ -34,9 +34,7 @@ export default function LawyerProfileSettingsPage() {
   const tSpec = useTranslations("marketplace.specialties");
   const tAvail = useTranslations("marketplace.availability");
   const { session } = useSession();
-  const lawyer = useLawyer(session?.userId);
-  const updateLawyerProfile = useAppStore((s) => s.updateLawyerProfile);
-  const updateProfile = useAppStore((s) => s.updateProfile);
+  const lawyer = useLawyerByProfileId(session?.userId);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [editing, setEditing] = useState(false);
@@ -57,11 +55,26 @@ export default function LawyerProfileSettingsPage() {
     setEditing(true);
   };
 
-  const save = () => {
-    updateLawyerProfile(lawyer.id, form);
-    if (session) updateProfile(session.userId, { avatarUrl: form.avatarUrl, city: form.city });
-    setEditing(false);
+  const save = async () => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    await supabase
+      .from("lawyers")
+      .update({
+        bio: form.bio,
+        city: form.city,
+        consultation_price: form.consultationPrice,
+        years_experience: form.yearsExperience,
+        availability_status: form.availabilityStatus,
+        specialties: form.specialties,
+        avatar_url: form.avatarUrl,
+      })
+      .eq("id", lawyer.id);
+    if (session) {
+      await supabase.from("profiles").update({ avatar_url: form.avatarUrl, city: form.city }).eq("id", session.userId);
+    }
     toast.success(t("saved"));
+    window.location.reload();
   };
 
   const toggleSpecialty = (s: LawyerSpecialty) => {

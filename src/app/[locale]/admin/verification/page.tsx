@@ -8,16 +8,23 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
-import { useAppStore } from "@/lib/store/app-store";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { initials } from "@/lib/utils";
+import type { Lawyer } from "@/types";
 
 export default function AdminVerificationPage() {
   const t = useTranslations("admin.verification");
   const tSpec = useTranslations("marketplace.specialties");
   const lawyers = useLawyersWithOverrides();
-  const setLawyerVerification = useAppStore((s) => s.setLawyerVerification);
 
   const pending = lawyers.filter((l) => l.verificationStatus === "pending");
+
+  const setVerification = async (lawyerId: string, status: Lawyer["verificationStatus"]) => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    await supabase.from("lawyers").update({ verification_status: status }).eq("id", lawyerId);
+    window.location.reload();
+  };
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -40,10 +47,10 @@ export default function AdminVerificationPage() {
                 </div>
                 <Badge variant="subtle">{t("pendingBadge")}</Badge>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="gold" onClick={() => setLawyerVerification(l.id, "demo_verified")}>
+                  <Button size="sm" variant="gold" onClick={() => setVerification(l.id, "demo_verified")}>
                     {t("approve")}
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setLawyerVerification(l.id, "unverified")}>
+                  <Button size="sm" variant="outline" onClick={() => setVerification(l.id, "unverified")}>
                     {t("reject")}
                   </Button>
                 </div>

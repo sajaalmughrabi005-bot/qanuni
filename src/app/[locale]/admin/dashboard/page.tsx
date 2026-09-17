@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Users,
@@ -30,7 +31,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { AiStatusIndicator } from "@/components/shared/ai-status-indicator";
 import { useAppStore } from "@/lib/store/app-store";
 import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
-import { demoProfiles } from "@/lib/mock-data";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { initials } from "@/lib/utils";
 import type { CaseStatus } from "@/types";
 
@@ -64,12 +65,19 @@ export default function AdminDashboardPage() {
   const documents = useAppStore((s) => s.documents);
   const analyses = useAppStore((s) => s.analyses);
   const appointments = useAppStore((s) => s.appointments);
-  const registeredUsers = useAppStore((s) => s.registeredUsers);
   const lawyers = useLawyersWithOverrides();
 
-  const totalCitizens =
-    Object.values(demoProfiles).filter((p) => p.role === "citizen").length +
-    Object.values(registeredUsers).filter((u) => u.profile.role === "citizen").length;
+  const [totalCitizens, setTotalCitizens] = useState(0);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("role", "citizen")
+      .then(({ count }) => setTotalCitizens(count || 0));
+  }, []);
 
   const casesByStatus = (["new", "contacted", "reviewing", "in_progress", "court", "closed"] as CaseStatus[]).map(
     (status) => ({

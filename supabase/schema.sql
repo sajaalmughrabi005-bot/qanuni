@@ -408,3 +408,19 @@ create policy "notifications_owner_all" on notifications for all using (user_id 
 -- reviews: public read; any authenticated citizen can post their own.
 create policy "reviews_public_read" on reviews for select using (true);
 create policy "reviews_self_insert" on reviews for insert with check (client_id = auth.uid());
+
+-- Keep lawyers.rating / review_count correct atomically at the database
+-- level (avoids a client-side read-then-write race between two reviewers).
+create or replace function recompute_lawyer_rating() returns trigger as $$
+begin
+  update lawyers set
+    review_count = (select count(*) from reviews where lawyer_id = new.lawyer_id),
+    rating = (select round(avg(rating)::numeric, 1) from reviews where lawyer_id = new.lawyer_id)
+  where id = new.lawyer_id;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists reviews_recompute_rating on reviews;
+create trigger reviews_recompute_rating after insert on reviews
+  for each row execute function recompute_lawyer_rating();

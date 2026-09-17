@@ -5,6 +5,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { StoreHydration } from "@/components/providers/store-hydration";
+import { SessionProvider } from "@/components/providers/session-provider";
 import { ThemeSync } from "@/components/providers/theme-sync";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
@@ -90,14 +91,16 @@ export default async function LocaleLayout({
       </head>
       <body className={`${manrope.variable} ${plexArabic.variable} antialiased`}>
         <NextIntlClientProvider>
-          <StoreHydration>
-            <ThemeSync />
-            <TooltipProvider delayDuration={200}>
-              {children}
-              <AiAssistantWidget />
-              <Toaster position={dir === "rtl" ? "bottom-left" : "bottom-right"} dir={dir} />
-            </TooltipProvider>
-          </StoreHydration>
+          <SessionProvider>
+            <StoreHydration>
+              <ThemeSync />
+              <TooltipProvider delayDuration={200}>
+                {children}
+                <AiAssistantWidget />
+                <Toaster position={dir === "rtl" ? "bottom-left" : "bottom-right"} dir={dir} />
+              </TooltipProvider>
+            </StoreHydration>
+          </SessionProvider>
         </NextIntlClientProvider>
       </body>
     </html>

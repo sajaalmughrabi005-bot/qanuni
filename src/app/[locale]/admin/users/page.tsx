@@ -1,29 +1,52 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { demoProfiles } from "@/lib/mock-data/users";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { mapProfile } from "@/lib/supabase/mappers";
 import { initials } from "@/lib/utils";
-import { useAppStore } from "@/lib/store/app-store";
+import type { Profile } from "@/types";
 
 export default function AdminUsersPage() {
   const t = useTranslations("admin.nav");
   const tUsers = useTranslations("admin.users");
   const tRoles = useTranslations("common.roles");
-  const registeredUsers = useAppStore((s) => s.registeredUsers);
-  const setAccountStatus = useAppStore((s) => s.setAccountStatus);
+  const [users, setUsers] = useState<Profile[]>([]);
 
-  const demoList = Object.values(demoProfiles);
-  const registeredList = Object.values(registeredUsers).map((u) => u.profile);
+  const load = async () => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+    setUsers((data || []).map(mapProfile));
+  };
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    supabase
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setUsers((data || []).map(mapProfile)));
+  }, []);
+
+  const toggleStatus = async (p: Profile) => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    const nextStatus = p.accountStatus === "disabled" ? "active" : "disabled";
+    await supabase.from("profiles").update({ account_status: nextStatus }).eq("id", p.id);
+    load();
+  };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <h1 className="text-2xl font-semibold">{t("users")}</h1>
       <div className="space-y-3">
-        {demoList.map((p) => (
+        {users.map((p) => (
           <Card key={p.id}>
             <CardContent className="flex items-center gap-3 p-4">
               <Avatar>
@@ -34,33 +57,16 @@ export default function AdminUsersPage() {
                 <p className="text-xs text-foreground-muted">{p.email}</p>
               </div>
               <Badge variant="outline">{tRoles(p.role)}</Badge>
-              <Badge variant="subtle">{tUsers("demoBadge")}</Badge>
-            </CardContent>
-          </Card>
-        ))}
-        {registeredList.map((p) => (
-          <Card key={p.id}>
-            <CardContent className="flex items-center gap-3 p-4">
-              <Avatar>
-                <AvatarFallback>{initials(p.fullName)}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <p className="font-medium">{p.fullName}</p>
-                <p className="text-xs text-foreground-muted">{p.email}</p>
-              </div>
-              <Badge variant="outline">{tRoles(p.role)}</Badge>
-              <Badge variant={p.accountStatus === "disabled" ? "high" : "low"}>
-                {p.accountStatus === "disabled" ? tUsers("statusDisabled") : tUsers("statusActive")}
-              </Badge>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() =>
-                  setAccountStatus(p.id, p.accountStatus === "disabled" ? "active" : "disabled")
-                }
-              >
-                {p.accountStatus === "disabled" ? tUsers("activate") : tUsers("deactivate")}
-              </Button>
+              {p.role !== "admin" && (
+                <>
+                  <Badge variant={p.accountStatus === "disabled" ? "high" : "low"}>
+                    {p.accountStatus === "disabled" ? tUsers("statusDisabled") : tUsers("statusActive")}
+                  </Badge>
+                  <Button size="sm" variant="outline" onClick={() => toggleStatus(p)}>
+                    {p.accountStatus === "disabled" ? tUsers("activate") : tUsers("deactivate")}
+                  </Button>
+                </>
+              )}
             </CardContent>
           </Card>
         ))}

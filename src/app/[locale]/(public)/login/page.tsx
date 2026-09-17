@@ -11,13 +11,12 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { DemoEntryButtons } from "@/components/shared/demo-entry-buttons";
 import { toast } from "sonner";
-import { useAppStore } from "@/lib/store/app-store";
+import { loginAction } from "@/lib/auth/actions";
 
 export default function LoginPage() {
   const t = useTranslations("auth.login");
   const tc = useTranslations("common");
   const router = useRouter();
-  const login = useAppStore((s) => s.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -26,14 +25,15 @@ export default function LoginPage() {
     e.preventDefault();
     if (submitting) return;
     setSubmitting(true);
-    const result = await login(email, password);
+    const result = await loginAction(email, password);
     setSubmitting(false);
     if (!result.ok) {
       toast.error(result.error === "account_disabled" ? t("accountDisabled") : t("invalidCredentials"));
       return;
     }
     toast.success(t("success"));
-    router.push(`/${result.session.role}/dashboard`);
+    router.push(`/${result.role}/dashboard`);
+    router.refresh();
   };
 
   return (

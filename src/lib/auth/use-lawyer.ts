@@ -1,19 +1,58 @@
 "use client";
 
-import { useAppStore } from "@/lib/store/app-store";
-import { lawyers } from "@/lib/mock-data";
+import { useEffect, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { mapLawyer } from "@/lib/supabase/mappers";
 import type { Lawyer } from "@/types";
 
 export function useLawyer(id: string | undefined): Lawyer | undefined {
-  const overrides = useAppStore((s) => (id ? s.lawyerOverrides[id] : undefined));
-  const customLawyers = useAppStore((s) => s.customLawyers);
-  const base = lawyers.find((l) => l.id === id) || customLawyers.find((l) => l.id === id);
-  if (!base) return undefined;
-  return overrides ? { ...base, ...overrides } : base;
+  const [lawyer, setLawyer] = useState<Lawyer | undefined>(undefined);
+
+  useEffect(() => {
+    if (!id) return;
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    supabase
+      .from("lawyers")
+      .select("*")
+      .eq("id", id)
+      .single()
+      .then(({ data }) => setLawyer(data ? mapLawyer(data) : undefined));
+  }, [id]);
+
+  return lawyer;
+}
+
+export function useLawyerByProfileId(profileId: string | undefined): Lawyer | undefined {
+  const [lawyer, setLawyer] = useState<Lawyer | undefined>(undefined);
+
+  useEffect(() => {
+    if (!profileId) return;
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    supabase
+      .from("lawyers")
+      .select("*")
+      .eq("profile_id", profileId)
+      .single()
+      .then(({ data }) => setLawyer(data ? mapLawyer(data) : undefined));
+  }, [profileId]);
+
+  return lawyer;
 }
 
 export function useLawyersWithOverrides(): Lawyer[] {
-  const overrides = useAppStore((s) => s.lawyerOverrides);
-  const customLawyers = useAppStore((s) => s.customLawyers);
-  return [...lawyers, ...customLawyers].map((l) => (overrides[l.id] ? { ...l, ...overrides[l.id] } : l));
+  const [lawyers, setLawyers] = useState<Lawyer[]>([]);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    supabase
+      .from("lawyers")
+      .select("*")
+      .order("rating", { ascending: false })
+      .then(({ data }) => setLawyers((data || []).map(mapLawyer)));
+  }, []);
+
+  return lawyers;
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { Scale } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
+import { Scale, MailCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAppStore } from "@/lib/store/app-store";
+import { signUpAction } from "@/lib/auth/actions";
 import type { LawyerSpecialty } from "@/types";
 
 const specialties: LawyerSpecialty[] = [
@@ -28,8 +28,8 @@ export default function SignUpPage() {
   const t = useTranslations("auth.signup");
   const tc = useTranslations("common");
   const tSpec = useTranslations("marketplace.specialties");
+  const locale = useLocale() as "ar" | "en";
   const router = useRouter();
-  const signUp = useAppStore((s) => s.signUp);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,6 +38,7 @@ export default function SignUpPage() {
   const [barNumber, setBarNumber] = useState("");
   const [specialty, setSpecialty] = useState<LawyerSpecialty>("rental");
   const [submitting, setSubmitting] = useState(false);
+  const [checkEmail, setCheckEmail] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,24 +48,46 @@ export default function SignUpPage() {
       return;
     }
     setSubmitting(true);
-    const result = await signUp({
+    const result = await signUpAction({
       fullName,
       email,
       password,
       role,
       barNumber: role === "lawyer" ? barNumber : undefined,
       specialty: role === "lawyer" ? specialty : undefined,
+      language: locale,
     });
     setSubmitting(false);
 
     if (!result.ok) {
-      toast.error(t("emailTaken"));
+      toast.error(result.error.includes("already registered") ? t("emailTaken") : result.error);
+      return;
+    }
+
+    if (!result.session) {
+      setCheckEmail(true);
       return;
     }
 
     toast.success(t("success"));
-    router.push(`/${result.session.role}/dashboard`);
+    router.push(`/${result.role}/dashboard`);
+    router.refresh();
   };
+
+  if (checkEmail) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface-muted/40 px-4 py-16">
+        <div className="w-full max-w-md text-center">
+          <MailCheck className="mx-auto h-12 w-12 text-gold" />
+          <h1 className="mt-4 text-xl font-semibold">{t("checkEmailTitle")}</h1>
+          <p className="mt-2 text-sm text-foreground-muted">{t("checkEmailDesc", { email })}</p>
+          <Link href="/login" className="mt-6 inline-block text-sm font-medium text-navy hover:underline dark:text-gold">
+            {t("login")}
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-muted/40 px-4 py-16">

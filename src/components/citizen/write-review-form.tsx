@@ -10,16 +10,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Link } from "@/i18n/navigation";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
-export function WriteReviewForm({ lawyerId }: { lawyerId: string }) {
+export function WriteReviewForm({ lawyerId, onSubmitted }: { lawyerId: string; onSubmitted?: () => void }) {
   const t = useTranslations("marketplace.profile");
   const { session, profile } = useSession();
-  const addReview = useAppStore((s) => s.addReview);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   if (!session || !profile) {
@@ -43,11 +43,25 @@ export function WriteReviewForm({ lawyerId }: { lawyerId: string }) {
     );
   }
 
-  const submit = () => {
-    if (!rating) return;
-    addReview({ lawyerId, clientName: profile.fullName, rating, review: comment.trim() });
+  const submit = async () => {
+    if (!rating || submitting) return;
+    setSubmitting(true);
+    const supabase = createSupabaseBrowserClient();
+    const { error } = await supabase!.from("reviews").insert({
+      lawyer_id: lawyerId,
+      client_id: session.userId,
+      client_name: profile.fullName,
+      rating,
+      review: comment.trim(),
+    });
+    setSubmitting(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success(t("reviewSubmitted"));
     setSubmitted(true);
+    onSubmitted?.();
   };
 
   return (
@@ -80,7 +94,7 @@ export function WriteReviewForm({ lawyerId }: { lawyerId: string }) {
           <Label className="text-xs">{t("yourReview")}</Label>
           <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder={t("yourReviewPlaceholder")} />
         </div>
-        <Button variant="gold" size="sm" onClick={submit} disabled={!rating}>
+        <Button variant="gold" size="sm" onClick={submit} disabled={!rating || submitting}>
           {t("submitReview")}
         </Button>
       </CardContent>

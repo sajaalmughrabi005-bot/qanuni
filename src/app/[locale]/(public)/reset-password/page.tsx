@@ -1,7 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CheckCircle2, Scale } from "lucide-react";
@@ -10,36 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { EmptyState } from "@/components/shared/empty-state";
-import { useAppStore } from "@/lib/store/app-store";
+import { useSession } from "@/lib/auth/use-session";
+import { updatePasswordAction } from "@/lib/auth/actions";
+import { Skeleton } from "@/components/ui/skeleton";
 
-function ResetPasswordInner() {
+export default function ResetPasswordPage() {
   const t = useTranslations("auth.resetPassword");
   const tc = useTranslations("common");
-  const params = useSearchParams();
-  const token = params.get("token");
-  const resetPassword = useAppStore((s) => s.resetPassword);
+  const { session, loading } = useSession();
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [tokenError, setTokenError] = useState<"invalid_token" | "expired_token" | "used_token" | null>(null);
-
-  if (!token) {
-    return (
-      <EmptyState
-        icon={Scale}
-        title={t("missingToken")}
-        className="mx-auto mt-16 max-w-lg"
-        action={
-          <Link href="/forgot-password" className="text-sm text-navy hover:underline dark:text-gold">
-            {t("requestNewLink")}
-          </Link>
-        }
-      />
-    );
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,10 +35,10 @@ function ResetPasswordInner() {
       return;
     }
     setSubmitting(true);
-    const result = await resetPassword(token, password);
+    const result = await updatePasswordAction(password);
     setSubmitting(false);
     if (!result.ok) {
-      setTokenError(result.error);
+      toast.error(result.error);
       return;
     }
     setSuccess(true);
@@ -74,7 +56,13 @@ function ResetPasswordInner() {
 
         <Card>
           <CardContent className="p-8">
-            {success ? (
+            {loading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : success ? (
               <div className="flex flex-col items-center gap-3 text-center">
                 <CheckCircle2 className="h-10 w-10 text-risk-low" />
                 <p className="text-sm">{t("success")}</p>
@@ -82,17 +70,9 @@ function ResetPasswordInner() {
                   <Link href="/login">{t("goToLogin")}</Link>
                 </Button>
               </div>
-            ) : tokenError ? (
+            ) : !session ? (
               <div className="flex flex-col items-center gap-3 text-center">
-                <p className="text-sm text-risk-high">
-                  {t(
-                    tokenError === "invalid_token"
-                      ? "invalidToken"
-                      : tokenError === "expired_token"
-                        ? "expiredToken"
-                        : "usedToken"
-                  )}
-                </p>
+                <p className="text-sm text-risk-high">{t("invalidToken")}</p>
                 <Button asChild variant="outline" className="mt-2 w-full">
                   <Link href="/forgot-password">{t("requestNewLink")}</Link>
                 </Button>
@@ -136,13 +116,5 @@ function ResetPasswordInner() {
         </Card>
       </div>
     </div>
-  );
-}
-
-export default function ResetPasswordPage() {
-  return (
-    <Suspense>
-      <ResetPasswordInner />
-    </Suspense>
   );
 }
