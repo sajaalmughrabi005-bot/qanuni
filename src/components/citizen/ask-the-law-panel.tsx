@@ -30,6 +30,7 @@ export function AskTheLawPanel({ documentId, clauses }: { documentId: string; cl
   }, [messages, thinking]);
 
   const send = async () => {
+    if (thinking) return;
     const question = input.trim();
     if (!question) return;
     setInput("");

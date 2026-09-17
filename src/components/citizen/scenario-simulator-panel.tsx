@@ -30,6 +30,7 @@ export function ScenarioSimulatorPanel({ clauses }: { clauses: DocumentClause[] 
   const presets = ["leaveEarly", "notPay", "damage"] as const;
 
   const run = async (question: string) => {
+    if (loading) return;
     setLoading(true);
     setResult(null);
     const res = await simulateScenarioAction({
@@ -54,7 +55,13 @@ export function ScenarioSimulatorPanel({ clauses }: { clauses: DocumentClause[] 
 
       <div className="grid gap-2 sm:grid-cols-3">
         {presets.map((key) => (
-          <Button key={key} variant="outline" className="h-auto justify-start whitespace-normal py-3 text-start" onClick={() => run(t(`presets.${key}`))}>
+          <Button
+            key={key}
+            variant="outline"
+            className="h-auto justify-start whitespace-normal py-3 text-start"
+            onClick={() => run(t(`presets.${key}`))}
+            disabled={loading}
+          >
             <FlaskConical className="h-4 w-4 shrink-0 text-gold" />
             {t(`presets.${key}`)}
           </Button>

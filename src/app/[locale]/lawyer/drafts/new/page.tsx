@@ -42,6 +42,7 @@ function DrafterInner() {
   }, [draftId]);
 
   const generate = async (mode: "generate" | "shorten" | "formal" | "translate" = "generate") => {
+    if (loading) return;
     if (mode === "generate" && !instructions.trim()) return;
     setLoading(true);
     const res = await generateDraftAction({

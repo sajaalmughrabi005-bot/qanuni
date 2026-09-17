@@ -29,6 +29,7 @@ export function AiAssistantWidget() {
   }, [messages, thinking]);
 
   const send = async () => {
+    if (thinking) return;
     const message = input.trim();
     if (!message) return;
     setInput("");
