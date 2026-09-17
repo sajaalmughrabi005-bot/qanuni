@@ -28,13 +28,46 @@ const THEME_INIT_SCRIPT = `
 })();
 `;
 
-export const metadata: Metadata = {
-  title: "قانوني QANUNI",
-  description: "افهم حقك قبل ما توقّع. Understand your rights before you sign.",
-};
+const SITE_URL = "https://qanuni.site";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const isAr = locale === "ar";
+  const title = "قانوني QANUNI";
+  const description = isAr
+    ? "افهم حقك قبل ما توقّع. حلّل عقدك، افهم البنود، واكتشف البنود التي تحتاج تنتبه لها — بالذكاء الاصطناعي وبسياق القانون الأردني."
+    : "Understand your rights before you sign. Analyze your contract, understand its clauses, and spot the ones worth your attention — with AI grounded in Jordanian law.";
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: { default: title, template: `%s | ${title}` },
+    description,
+    alternates: {
+      canonical: `/${locale}`,
+      languages: { ar: "/ar", en: "/en" },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/${locale}`,
+      siteName: title,
+      locale: isAr ? "ar_JO" : "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+  };
 }
 
 export default async function LocaleLayout({
