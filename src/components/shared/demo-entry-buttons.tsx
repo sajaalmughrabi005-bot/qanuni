@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
-import { useRouter } from "@/i18n/navigation";
 import { User, Briefcase, ShieldCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,20 +18,24 @@ const roles: { role: UserRole; icon: typeof User; key: "citizen" | "lawyer" | "a
 
 export function DemoEntryButtons({ variant = "landing" }: { variant?: "landing" | "login" }) {
   const t = useTranslations(variant === "landing" ? "landing.demoEntry" : "auth.login");
-  const router = useRouter();
+  const locale = useLocale();
   const [entering, setEntering] = useState<UserRole | null>(null);
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (redirectTo) window.location.href = redirectTo;
+  }, [redirectTo]);
 
   const enter = async (role: UserRole) => {
     if (entering) return;
     setEntering(role);
     const result = await loginAction(DEMO_EMAILS[role], DEMO_PASSWORD);
-    setEntering(null);
     if (!result.ok) {
+      setEntering(null);
       toast.error("Demo account unavailable right now.");
       return;
     }
-    router.push(`/${role}/dashboard`);
-    router.refresh();
+    setRedirectTo(`/${locale}/${role}/dashboard`);
   };
 
   if (variant === "login") {

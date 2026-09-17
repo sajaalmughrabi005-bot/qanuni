@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Scale } from "lucide-react";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,7 @@ import { loginAction } from "@/lib/auth/actions";
 export default function LoginPage() {
   const t = useTranslations("auth.login");
   const tc = useTranslations("common");
-  const router = useRouter();
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -32,8 +32,7 @@ export default function LoginPage() {
       return;
     }
     toast.success(t("success"));
-    router.push(`/${result.role}/dashboard`);
-    router.refresh();
+    window.location.href = `/${locale}/${result.role}/dashboard`;
   };
 
   return (

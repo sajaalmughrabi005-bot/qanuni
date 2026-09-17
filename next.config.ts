@@ -5,6 +5,12 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const isDev = process.env.NODE_ENV !== "production";
 
+// The app talks to Supabase (Auth + PostgREST) directly from the browser,
+// so its origin must be allowed in connect-src alongside 'self'.
+const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
+  : "";
+
 // The app has no third-party scripts, trackers, or remote image hosts (fonts
 // are self-hosted via next/font, the only outbound link is a plain <a
 // href="https://wa.me/..."> navigation). This lets the CSP stay tight.
@@ -16,7 +22,7 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
-  "connect-src 'self'" + (isDev ? " ws:" : ""),
+  `connect-src 'self' ${supabaseOrigin}`.trim() + (isDev ? " ws:" : ""),
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

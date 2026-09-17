@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Scale, Menu, Bell, LogOut, UserCircle } from "lucide-react";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { LucideIcon } from "lucide-react";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSession } from "@/lib/auth/use-session";
 import { useAppStore } from "@/lib/store/app-store";
+import { logoutAction } from "@/lib/auth/actions";
 import { initials, cn } from "@/lib/utils";
 
 export interface NavItem {
@@ -35,17 +36,16 @@ export function DashboardShell({
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("common");
   const tProfile = useTranslations("common.profile");
   const { profile, session } = useSession();
-  const logout = useAppStore((s) => s.logout);
   const notifications = useAppStore((s) => s.notifications);
   const unread = session ? notifications.filter((n) => n.userId === session.userId && !n.read).length : 0;
 
-  const handleLogout = () => {
-    logout();
-    router.push("/");
+  const handleLogout = async () => {
+    await logoutAction();
+    window.location.href = `/${locale}`;
   };
 
   const SidebarContent = (

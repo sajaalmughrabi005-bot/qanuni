@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth/use-session";
@@ -19,6 +20,7 @@ export function StartAnalysisButton({
   className?: string;
 }) {
   const router = useRouter();
+  const locale = useLocale();
   const { session } = useSession();
   const [loading, setLoading] = useState(false);
 
@@ -27,8 +29,8 @@ export function StartAnalysisButton({
     if (!session) {
       setLoading(true);
       await loginAction(DEMO_EMAILS.citizen, DEMO_PASSWORD);
-      setLoading(false);
-      router.refresh();
+      window.location.href = `/${locale}/citizen/analyze/new`;
+      return;
     }
     router.push("/citizen/analyze/new");
   };

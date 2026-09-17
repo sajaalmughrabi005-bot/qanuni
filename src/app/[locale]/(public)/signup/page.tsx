@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Scale, MailCheck } from "lucide-react";
 import { toast } from "sonner";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +29,6 @@ export default function SignUpPage() {
   const tc = useTranslations("common");
   const tSpec = useTranslations("marketplace.specialties");
   const locale = useLocale() as "ar" | "en";
-  const router = useRouter();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -70,8 +69,7 @@ export default function SignUpPage() {
     }
 
     toast.success(t("success"));
-    router.push(`/${result.role}/dashboard`);
-    router.refresh();
+    window.location.href = `/${locale}/${result.role}/dashboard`;
   };
 
   if (checkEmail) {
