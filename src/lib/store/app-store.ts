@@ -31,7 +31,7 @@ import {
   DEMO_USER_ID,
   ADMIN_USER_ID,
 } from "@/lib/mock-data";
-import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { hashPassword, verifyPassword, hashToken, randomToken } from "@/lib/auth/password";
 
 export interface Session {
   userId: string;
@@ -93,6 +93,13 @@ interface AppState {
   setAccountStatus: (userId: string, status: "active" | "disabled") => void;
   setLawyerVerification: (lawyerId: string, status: Lawyer["verificationStatus"]) => void;
 
+  passwordResetTokens: Record<string, { email: string; expiresAt: number; used: boolean }>;
+  requestPasswordReset: (email: string) => Promise<{ resetToken: string }>;
+  resetPassword: (
+    token: string,
+    newPassword: string
+  ) => Promise<{ ok: true } | { ok: false; error: "invalid_token" | "expired_token" | "used_token" }>;
+
   addDocument: (doc: LegalDocument, clauses: DocumentClause[], analysis: Analysis) => void;
   createCase: (data: Omit<CaseRecord, "id" | "createdAt" | "updatedAt">) => CaseRecord;
   updateCaseStatus: (id: string, status: CaseRecord["status"]) => void;
@@ -135,6 +142,7 @@ export const useAppStore = create<AppState>()(
       registeredUsers: {},
       customLawyers: [],
       customReviews: [],
+      passwordResetTokens: {},
 
       toggleSavedLawyer: (lawyerId) =>
         set((s) => ({
@@ -283,6 +291,50 @@ export const useAppStore = create<AppState>()(
             ? s.lawyerOverrides
             : { ...s.lawyerOverrides, [lawyerId]: { ...s.lawyerOverrides[lawyerId], verificationStatus: status } },
         }));
+      },
+
+      requestPasswordReset: async (email) => {
+        const key = email.trim().toLowerCase();
+        const token = randomToken();
+        const exists = !!get().registeredUsers[key];
+        // Only a real registered email gets a token that will actually
+        // validate later; a non-existent email still gets a token shape back
+        // so the UI response is identical either way (never reveal which
+        // emails are registered).
+        if (exists) {
+          const tokenHash = await hashToken(token);
+          set((s) => ({
+            passwordResetTokens: {
+              ...s.passwordResetTokens,
+              [tokenHash]: { email: key, expiresAt: Date.now() + 15 * 60 * 1000, used: false },
+            },
+          }));
+        }
+        return { resetToken: token };
+      },
+
+      resetPassword: async (token, newPassword) => {
+        const tokenHash = await hashToken(token);
+        const entry = get().passwordResetTokens[tokenHash];
+        if (!entry) return { ok: false, error: "invalid_token" };
+        if (entry.used) return { ok: false, error: "used_token" };
+        if (Date.now() > entry.expiresAt) return { ok: false, error: "expired_token" };
+
+        const passwordHash = await hashPassword(newPassword);
+        set((s) => {
+          const registered = s.registeredUsers[entry.email];
+          if (!registered) return {};
+          return {
+            registeredUsers: { ...s.registeredUsers, [entry.email]: { ...registered, passwordHash } },
+            passwordResetTokens: {
+              ...s.passwordResetTokens,
+              [tokenHash]: { ...entry, used: true },
+            },
+            // Invalidate any active session for this account in this browser.
+            session: s.session?.userId === registered?.profile.id ? null : s.session,
+          };
+        });
+        return { ok: true };
       },
 
       addDocument: (doc, clauses, analysis) =>

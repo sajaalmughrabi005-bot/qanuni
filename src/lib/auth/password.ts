@@ -41,3 +41,16 @@ export async function verifyPassword(password: string, stored: string): Promise<
   const check = await sha256Hex(salt + password);
   return check === hash;
 }
+
+/** A random, URL-safe, single-use token (e.g. for password reset links). */
+export function randomToken(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(24));
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Password-reset tokens are stored as this hash, never in plaintext, so a leaked store snapshot can't be replayed as a valid reset link. */
+export async function hashToken(token: string): Promise<string> {
+  return sha256Hex(token);
+}
