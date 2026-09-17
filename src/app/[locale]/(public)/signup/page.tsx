@@ -39,11 +39,15 @@ export default function SignUpPage() {
   const [specialty, setSpecialty] = useState<LawyerSpecialty>("rental");
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !email || !password) return;
+    if (submitting || !fullName || !email || !password) return;
+    if (password.length < 8) {
+      toast.error(t("passwordTooShort"));
+      return;
+    }
     setSubmitting(true);
-    const result = signUp({
+    const result = await signUp({
       fullName,
       email,
       password,
@@ -101,6 +105,7 @@ export default function SignUpPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  minLength={8}
                   required
                 />
               </div>

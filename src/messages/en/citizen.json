@@ -105,7 +105,9 @@
     },
     "useDemo": "Or try the ready-made demo rental contract",
     "analyzeButton": "Start Analysis",
-    "privacyNotice": "Legal documents may contain sensitive information. Upload only documents you are authorized to share."
+    "privacyNotice": "Legal documents may contain sensitive information. Upload only documents you are authorized to share.",
+    "fileTooLarge": "This file is larger than the 10MB limit.",
+    "fileTypeNotSupported": "Unsupported file type. Allowed: PDF, JPG, PNG, or TXT."
   },
   "processing": {
     "uploading": "Uploading document...",

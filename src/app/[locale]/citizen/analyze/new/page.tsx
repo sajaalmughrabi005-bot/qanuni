@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { Upload, FileText, Sparkles, Check, ShieldAlert } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +19,8 @@ import { DEMO_DOCUMENT_ID } from "@/lib/mock-data";
 import type { DocumentType, LegalDocument } from "@/types";
 
 const STEPS = ["uploading", "extracting", "identifying", "comparing", "generating"] as const;
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB, matches the UI copy
+const ACCEPTED_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg", ".txt"];
 
 export default function NewAnalysisPage() {
   const t = useTranslations("citizen.upload");
@@ -42,6 +45,19 @@ export default function NewAnalysisPage() {
     router.push(`/citizen/analyze/${DEMO_DOCUMENT_ID}`);
   };
 
+  const acceptFile = (f: File) => {
+    const ext = "." + (f.name.split(".").pop() || "").toLowerCase();
+    if (!ACCEPTED_EXTENSIONS.includes(ext)) {
+      toast.error(t("fileTypeNotSupported"));
+      return;
+    }
+    if (f.size > MAX_FILE_SIZE_BYTES) {
+      toast.error(t("fileTooLarge"));
+      return;
+    }
+    setFile(f);
+  };
+
   const runAnalysis = async () => {
     if (!session) return;
     setPhase("processing");
@@ -59,7 +75,7 @@ export default function NewAnalysisPage() {
       await new Promise((r) => setTimeout(r, 650));
     }
 
-    const { clauses, analysis } = await analyzeDocumentAction({
+    const result = await analyzeDocumentAction({
       text,
       fileName,
       documentId,
@@ -67,6 +83,12 @@ export default function NewAnalysisPage() {
       documentType: docType,
       locale: locale as "ar" | "en",
     });
+
+    if (result.status !== "ok") {
+      setPhase("form");
+      toast.error(locale === "ar" ? result.reasonAr : result.reasonEn);
+      return;
+    }
 
     const doc: LegalDocument = {
       id: documentId,
@@ -79,7 +101,7 @@ export default function NewAnalysisPage() {
       citizenDescription: pastedText.trim() || undefined,
     };
 
-    addDocument(doc, clauses, analysis);
+    addDocument(doc, result.clauses, result.analysis);
     addNotification({
       userId: session.userId,
       type: "analysis_ready",
@@ -99,7 +121,7 @@ export default function NewAnalysisPage() {
     e.preventDefault();
     setDragOver(false);
     const f = e.dataTransfer.files?.[0];
-    if (f) setFile(f);
+    if (f) acceptFile(f);
   };
 
   if (phase === "processing") {
@@ -160,7 +182,10 @@ export default function NewAnalysisPage() {
               type="file"
               accept=".pdf,.png,.jpg,.jpeg,.txt"
               className="hidden"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) acceptFile(f);
+              }}
             />
             {file ? (
               <>

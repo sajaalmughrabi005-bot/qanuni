@@ -29,6 +29,52 @@ const RISK_KEYWORDS: { pattern: RegExp; risk: RiskLevel; category: DocumentClaus
 
 const NO_OCR_MARKER = "No extracted text available";
 
+// Weak legal-content signals used only when no AI provider is configured
+// (the heuristic engine has no real language understanding, so this is a
+// conservative keyword/pattern gate, not a real classifier).
+const LEGAL_SIGNAL_PATTERN =
+  /بند|عقد|الطرف|المستأجر|المؤجر|موظف|صاحب العمل|التزام|شرط|مادة|إيجار|أجرة|الأتعاب|إخلاء|إنهاء|فسخ|تعويض|clause|agreement|contract\b|party|tenant|landlord|employee|employer|obligation|shall\b|hereby|whereas|terminat|lease|salary|wage/i;
+const AMOUNT_OR_DATE_PATTERN =
+  /\d{2,6}\s*(دينار|jod|jd|\$|usd)|\d{4}[/-]\d{1,2}[/-]\d{1,2}|\d{1,2}[/-]\d{1,2}[/-]\d{4}/i;
+
+export type DocumentPlausibility =
+  | { recognized: true }
+  | { recognized: false; reasonAr: string; reasonEn: string };
+
+/**
+ * Server-side gate that runs BEFORE any AI or heuristic analysis. Prevents
+ * fabricating a legal analysis for content that clearly isn't a document at
+ * all (no extracted text, e.g. an unreadable image with no OCR) or that is
+ * trivially too short to be a contract. This is intentionally cheap and
+ * conservative — it only catches the obvious cases; real semantic
+ * classification of "is this actually a legal document" happens separately
+ * via the AI's own isLegalDocument field when an AI provider is configured.
+ */
+export function checkDocumentPlausibility(text: string): DocumentPlausibility {
+  if (text.includes(NO_OCR_MARKER)) {
+    return {
+      recognized: false,
+      reasonAr:
+        "لم نتمكن من قراءة أي نص من الملف المرفوع (لا يوجد OCR في وضع الديمو). يرجى لصق نص العقد الفعلي أو رفع مستند يحتوي على نص واضح.",
+      reasonEn:
+        "We couldn't read any text from the uploaded file (no OCR in demo mode). Please paste the actual contract text or upload a document with clear text.",
+    };
+  }
+  if (text.trim().length < 80) {
+    return {
+      recognized: false,
+      reasonAr: "النص المتوفر قصير جداً ليكون مستنداً قانونياً قابلاً للتحليل.",
+      reasonEn: "The available text is too short to be an analyzable legal document.",
+    };
+  }
+  return { recognized: true };
+}
+
+/** Weak keyword/pattern check used only by the non-AI heuristic engine to avoid confidently "analyzing" clearly non-legal pasted text (e.g. a casual message or song lyrics). */
+export function looksLegallyPlausible(text: string): boolean {
+  return LEGAL_SIGNAL_PATTERN.test(text) || AMOUNT_OR_DATE_PATTERN.test(text);
+}
+
 function splitIntoClauses(text: string): string[] {
   return text
     .split(/\n+|(?<=[.؟!])\s+(?=[A-Zأ-ي])/)

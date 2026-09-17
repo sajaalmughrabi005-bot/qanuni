@@ -31,6 +31,7 @@ import {
   DEMO_USER_ID,
   ADMIN_USER_ID,
 } from "@/lib/mock-data";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
 
 export interface Session {
   userId: string;
@@ -39,7 +40,8 @@ export interface Session {
 
 export interface RegisteredUser {
   profile: Profile;
-  password: string;
+  /** salt:hash — see lib/auth/password.ts. Never the raw password. */
+  passwordHash: string;
   lawyerId?: string;
 }
 
@@ -86,8 +88,8 @@ interface AppState {
   setHydrated: () => void;
   loginDemo: (role: UserRole) => Session;
   logout: () => void;
-  signUp: (input: SignUpInput) => SignUpResult;
-  login: (email: string, password: string) => LoginResult;
+  signUp: (input: SignUpInput) => Promise<SignUpResult>;
+  login: (email: string, password: string) => Promise<LoginResult>;
   setAccountStatus: (userId: string, status: "active" | "disabled") => void;
   setLawyerVerification: (lawyerId: string, status: Lawyer["verificationStatus"]) => void;
 
@@ -193,7 +195,7 @@ export const useAppStore = create<AppState>()(
 
       logout: () => set({ session: null }),
 
-      signUp: (input) => {
+      signUp: async (input) => {
         const email = input.email.trim().toLowerCase();
         const existing = get().registeredUsers[email];
         if (existing) return { ok: false, error: "email_taken" };
@@ -233,7 +235,8 @@ export const useAppStore = create<AppState>()(
           set((s) => ({ customLawyers: [...s.customLawyers, newLawyer] }));
         }
 
-        const registered: RegisteredUser = { profile, password: input.password, lawyerId };
+        const passwordHash = await hashPassword(input.password);
+        const registered: RegisteredUser = { profile, passwordHash, lawyerId };
         set((s) => ({
           registeredUsers: { ...s.registeredUsers, [email]: registered },
         }));
@@ -243,10 +246,10 @@ export const useAppStore = create<AppState>()(
         return { ok: true, session };
       },
 
-      login: (email, password) => {
+      login: async (email, password) => {
         const key = email.trim().toLowerCase();
         const registered = get().registeredUsers[key];
-        if (!registered || registered.password !== password) {
+        if (!registered || !(await verifyPassword(password, registered.passwordHash))) {
           return { ok: false, error: "invalid_credentials" };
         }
         if (registered.profile.accountStatus === "disabled") {

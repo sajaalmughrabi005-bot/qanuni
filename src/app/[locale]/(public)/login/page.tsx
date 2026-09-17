@@ -20,10 +20,14 @@ export default function LoginPage() {
   const login = useAppStore((s) => s.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = login(email, password);
+    if (submitting) return;
+    setSubmitting(true);
+    const result = await login(email, password);
+    setSubmitting(false);
     if (!result.ok) {
       toast.error(result.error === "account_disabled" ? t("accountDisabled") : t("invalidCredentials"));
       return;
@@ -56,7 +60,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">{t("password")}</Label>
                 <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={submitting}>
                 {t("submit")}
               </Button>
             </form>
