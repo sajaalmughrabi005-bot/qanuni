@@ -89,6 +89,14 @@
     "thinking": "Thinking...",
     "disclaimer": "Automated support assistant — not legal advice."
   },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundDesc": "The link you followed doesn't exist or has been moved.",
+    "backHome": "Back to home",
+    "errorTitle": "Something went wrong",
+    "errorDesc": "Sorry, a technical error occurred. Try reloading the page — if it keeps happening, get in touch with us.",
+    "tryAgain": "Try again"
+  },
   "disclaimer": {
     "notLegalAdvice": "This analysis is AI-generated and is not binding legal advice. A licensed lawyer should review this before you rely on it.",
     "aiGenerated": "AI-generated content",

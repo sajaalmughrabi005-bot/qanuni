@@ -27,8 +27,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { StatCard } from "@/components/shared/stat-card";
+import { AiStatusIndicator } from "@/components/shared/ai-status-indicator";
 import { useAppStore } from "@/lib/store/app-store";
 import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
+import { demoProfiles } from "@/lib/mock-data";
 import { initials } from "@/lib/utils";
 import type { CaseStatus } from "@/types";
 
@@ -62,7 +64,12 @@ export default function AdminDashboardPage() {
   const documents = useAppStore((s) => s.documents);
   const analyses = useAppStore((s) => s.analyses);
   const appointments = useAppStore((s) => s.appointments);
+  const registeredUsers = useAppStore((s) => s.registeredUsers);
   const lawyers = useLawyersWithOverrides();
+
+  const totalCitizens =
+    Object.values(demoProfiles).filter((p) => p.role === "citizen").length +
+    Object.values(registeredUsers).filter((u) => u.profile.role === "citizen").length;
 
   const casesByStatus = (["new", "contacted", "reviewing", "in_progress", "court", "closed"] as CaseStatus[]).map(
     (status) => ({
@@ -83,13 +90,16 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <p className="mt-1 text-foreground-muted">{t("subtitle")}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">{t("title")}</h1>
+          <p className="mt-1 text-foreground-muted">{t("subtitle")}</p>
+        </div>
+        <AiStatusIndicator />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard icon={Users} label={t("totalCitizens")} value="1,248" />
+        <StatCard icon={Users} label={t("totalCitizens")} value={totalCitizens} />
         <StatCard icon={Briefcase} label={t("registeredLawyers")} value={lawyers.length} accent="gold" />
         <StatCard icon={Briefcase} label={t("activeCases")} value={cases.filter((c) => c.status !== "closed").length} />
         <StatCard icon={FileText} label={t("documentsAnalyzed")} value={documents.length} />
