@@ -103,7 +103,7 @@ export default function LawyerDocumentsPage() {
           />
           <Button className="w-full" onClick={extract} disabled={loading}>
             <Sparkles className="h-4 w-4" />
-            {loading ? t("extracting") : t("upload")}
+            {loading ? t("extracting") : t("extractAction")}
           </Button>
           {loading && <Progress value={70} />}
         </CardContent>
