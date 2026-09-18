@@ -4,7 +4,7 @@
 
 A bilingual (Arabic/English) Jordanian LegalTech platform that connects citizens to AI-powered document understanding and licensed lawyers, and gives lawyers an AI-assisted case management workspace.
 
-> This is a hackathon build. It runs **fully in demo mode** out of the box — no Supabase project or OpenAI key required — while including the real architecture (Supabase schema, RLS policies, server-side AI service layer) needed to become a production product.
+> This is a hackathon build with a real backend: Supabase Auth, Postgres with Row Level Security, and real accounts/data — not a localStorage demo. AI features fall back to a local heuristic engine if no `OPENAI_API_KEY` is set, so the app still runs without external AI credentials, but the database and auth are real.
 
 ---
 
@@ -59,8 +59,8 @@ A citizen uploads a contract → AI explains it and flags risky clauses → the 
 - **Framer Motion** for premium, restrained animation
 - **Recharts** for admin analytics
 - **@dnd-kit** for the Kanban board
-- **Zustand** (persisted to `localStorage`) as the demo data layer — seeded from `src/lib/mock-data`
-- **Supabase** (`@supabase/supabase-js`, `@supabase/ssr`) client/server wrappers — used automatically when env vars are present
+- **Supabase** — real Auth (email/password, PKCE email links), Postgres, and Row Level Security. `@supabase/supabase-js` / `@supabase/ssr` client/server wrappers; every documents/cases/appointments/drafts/notifications/messages read and write goes through `lib/data/hooks.ts` and `lib/data/actions.ts`
+- **Zustand** (persisted to `localStorage`) — only the per-browser "saved lawyers" bookmark list now; everything else lives in Postgres
 - **OpenAI**-compatible server-side AI calls, with a **local heuristic AI engine** fallback so every AI feature works with zero external credentials
 
 ## Architecture
@@ -73,7 +73,7 @@ src/
     layout/                Navbar, footer, dashboard shell (sidebar + topbar)
     shared/                Cross-role components (lawyer card, risk badge, empty state, ...)
     citizen/  lawyer/       Feature components specific to each portal
-    providers/              RoleGuard, StoreHydration
+    providers/              RoleGuard, SessionProvider, StoreHydration
   lib/
     ai/
       engine.ts             Local heuristic "AI" — clause risk scoring, Q&A, scenario
@@ -83,13 +83,28 @@ src/
                              else fall back to engine.ts. This is the single AI service
                              layer the UI talks to.
       glossary.ts             Legal Language Simplifier terms
-    mock-data/               Seeded demo dataset (contract, clauses, lawyers, cases, ...)
-    store/app-store.ts        Zustand store — the "database" for demo mode
-    supabase/                 Browser/server Supabase clients (no-op without env vars)
+    auth/
+      actions.ts             'use server' Supabase Auth (signup/login/logout/password reset)
+      use-session.ts         Client hook backed by SessionProvider
+      use-lawyer.ts           Fetches a lawyer's own row by id or by profile_id
+    data/
+      hooks.ts                RLS-scoped "fetch what's visible to me" reads (cases,
+                              documents, appointments, drafts, notifications, messages)
+      actions.ts               Client-side Supabase writes (create/update case, appointment,
+                              draft, message, notification)
+      server-actions.ts        'use server' — the one write that needs to cross RLS
+                              (a lawyer's payment reminder to their client)
+    mock-data/               Only the "try demo" static rental contract + legal_sources seed
+    store/app-store.ts        Zustand — just the per-browser saved-lawyers bookmark list
+    supabase/
+      client.ts / server.ts    Browser/server Supabase clients (no-op without env vars)
+      admin.ts                 Service-role client — server-only, bypasses RLS
+      mappers.ts                snake_case DB rows <-> camelCase app types
   i18n/                      next-intl routing/request/navigation config
   messages/{ar,en}/          Translation namespaces
   types/                     Shared TypeScript types (mirrors the DB schema)
-supabase/schema.sql          Full Postgres schema + Row Level Security policies
+supabase/schema.sql          Full Postgres schema + Row Level Security policies + triggers
+scripts/                     One-off setup: seed-supabase.mjs, migration-*.sql follow-ups
 ```
 
 ### AI service layer
@@ -101,24 +116,31 @@ server-side (key never reaches the client), otherwise it falls back to the deter
 logic in `lib/ai/engine.ts`. The UI never knows or cares which path served the response — swapping providers
 means editing `provider.ts`, not the app.
 
-### Demo data layer
+### Data layer
 
-Without Supabase credentials, `lib/store/app-store.ts` (Zustand + `localStorage` persistence) acts as the
-database: documents, analyses, cases, appointments, drafts, notifications, messages. It's seeded from
-`lib/mock-data` on first load, so the "Try Demo" flow works immediately and stays consistent across a
-session/browser. The Supabase schema (`supabase/schema.sql`) mirrors this exact shape, so wiring a real
-project mainly means swapping the store's read/write calls for Supabase queries.
+All business data (profiles, lawyers, documents, clauses, analyses, cases, appointments, drafts,
+notifications, messages, reviews) lives in Postgres, read through `lib/data/hooks.ts` and written through
+`lib/data/actions.ts`. Every table has Row Level Security, so a single unfiltered `select` from any role
+already returns only what that user is allowed to see — a citizen's own rows, a lawyer's assigned
+cases/clients, or everything for an admin. Three Postgres triggers (`supabase/schema.sql`) create
+notifications server-side for actions that cross between two different users' rows (a new case, an
+appointment, a message), since RLS otherwise blocks a client-side insert into someone else's `notifications`.
 
 ## Database schema (Supabase)
 
 See [`supabase/schema.sql`](supabase/schema.sql) for the full DDL: `profiles`, `lawyers`, `legal_sources`,
-`documents`, `document_clauses`, `analyses`, `cases`, `case_documents`, `appointments`, `messages`, `drafts`,
-`notifications`, `reviews` — with foreign keys and Row Level Security policies scoping every table to its
-owner (citizen) or participant (lawyer + client on a case).
+`documents`, `document_clauses`, `analyses`, `cases`, `appointments`, `messages`, `drafts`,
+`notifications`, `reviews` — with foreign keys, Row Level Security policies scoping every table to its
+owner (citizen), participant (lawyer + client on a case), or admin, plus triggers for auto-creating a
+profile (and lawyer row) on signup, keeping a lawyer's rating in sync with their reviews, and the
+cross-user notifications above. `scripts/seed-supabase.mjs` seeds demo accounts and lawyer/review data
+via the Supabase Admin API (bypasses email confirmation) — see that file for the demo account list.
 
 ## Environment variables
 
-Copy `.env.example` to `.env.local`. **Everything is optional** — the app runs fully in demo mode with none of these set.
+Copy `.env.example` to `.env.local` and fill in a Supabase project's values. The Supabase variables are
+required — real auth, database, and RLS depend on them (see `supabase/schema.sql`). `OPENAI_API_KEY` is
+optional; without it, AI features run through the local heuristic engine instead.
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=
@@ -127,6 +149,9 @@ SUPABASE_SERVICE_ROLE_KEY=
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4o-mini
 ```
+
+Setting up a fresh Supabase project: run `supabase/schema.sql` in the SQL Editor, then
+`node scripts/seed-supabase.mjs` (reads `.env.local`) to create demo accounts and lawyer/review data.
 
 ## Installation & running locally
 
@@ -141,11 +166,13 @@ Open [http://localhost:3000](http://localhost:3000) — it redirects to `/ar` by
 
 No sign-up needed. On the landing page or `/login`, use:
 
-- **جرّب كمواطن / Try Citizen Demo** — lands in the citizen dashboard with a pre-analyzed rental contract
-- **جرّب كمحامٍ / Try Lawyer Demo** — lands in the lawyer dashboard with a seeded case pipeline
-- **جرّب كمدير / Try Admin Demo** — lands in the admin analytics dashboard
+- **جرّب كمواطن / Try Citizen Demo** — lands in the citizen dashboard; `/citizen/analyze/new` also has a
+  one-click "use the demo rental contract" shortcut with a pre-written analysis
+- **جرّب كمحامٍ / Try Lawyer Demo** — lands in the lawyer dashboard, seeded with real case/lawyer data
+- **جرّب كمدير / Try Admin Demo** — lands in the admin analytics dashboard, showing real aggregate stats
 
-Each button signs you in instantly (`useAppStore.loginDemo(role)`) — no password, no backend call.
+Each button is a real Supabase Auth sign-in (`loginAction` with a fixed seeded password), not a mock
+session — see `lib/auth/demo-accounts.ts` and `scripts/seed-supabase.mjs` for the account list/password.
 
 ## AI configuration
 
@@ -163,15 +190,14 @@ Each button signs you in instantly (`useAppStore.loginDemo(role)`) — no passwo
   needs either pasted text or the seeded demo contract. This is flagged in the UI and is an explicit,
   labeled limitation rather than a silent gap.
 - Voice-to-Action is a simulated mic (no real speech-to-text) — clearly labeled as such in the UI.
-- Lawyer verification, WhatsApp notifications, and payments are simulated/demo-labeled, per the "mock vs.
-  real" distinction the product intentionally makes.
-- The demo data layer (Zustand + `localStorage`) is per-browser; it is not a shared multi-user backend
-  until Supabase is wired in.
+- WhatsApp notifications and payments are simulated/demo-labeled; lawyer verification is a real
+  pending/approve workflow (admin dashboard) but has no external Bar Association integration.
 - `legal_sources` is a clearly labeled demo dataset, not verified Jordanian legislation.
+- The lawyer "settings" page (notification/availability toggles) is a UI stub not yet wired to the
+  database — availability is edited for real from the lawyer's own profile page instead.
 
 ## Future improvements
 
-- Wire `lib/supabase/{client,server}.ts` into `lib/store/app-store.ts` behind `isSupabaseConfigured()`
 - Real OCR (e.g. an LLM vision call) for uploaded PDFs/images
 - pgvector-backed RAG over a verified Jordanian legal source corpus
 - Real WhatsApp Business API integration for notifications
