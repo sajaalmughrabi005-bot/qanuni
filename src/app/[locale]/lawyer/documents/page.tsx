@@ -13,7 +13,8 @@ import { Progress } from "@/components/ui/progress";
 import { extractCaseDataAction } from "@/lib/ai/actions";
 import { useRouter } from "@/i18n/navigation";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useLawyerByProfileId } from "@/lib/auth/use-lawyer";
+import { createCase } from "@/lib/data/actions";
 import { ExtractedCaseData } from "@/types";
 
 export default function LawyerDocumentsPage() {
@@ -21,7 +22,7 @@ export default function LawyerDocumentsPage() {
   const locale = useLocale();
   const router = useRouter();
   const { session } = useSession();
-  const createCase = useAppStore((s) => s.createCase);
+  const lawyer = useLawyerByProfileId(session?.userId);
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [text, setText] = useState("");
@@ -41,13 +42,17 @@ export default function LawyerDocumentsPage() {
     setLoading(false);
   };
 
-  const confirmSave = () => {
-    if (!data || !session) return;
+  const confirmSave = async () => {
+    if (!data || !session || !lawyer) return;
     const name = data.clientName || (locale === "ar" ? "عميل بدون اسم" : "Unnamed client");
-    const newCase = createCase({
-      clientId: `extracted-${Date.now()}`,
+    // No real citizen account exists for a case extracted from a paper
+    // document — cases.client_id is a required FK, so it's set to the
+    // lawyer's own profile id as a placeholder; clientName carries the
+    // actual display name.
+    const newCase = await createCase({
+      clientId: session.userId,
       clientName: name,
-      lawyerId: session.userId,
+      lawyerId: lawyer.id,
       title:
         locale === "ar"
           ? `قضية مستخرجة${data.caseNumber ? ` — رقم ${data.caseNumber}` : ""}`
@@ -69,6 +74,10 @@ export default function LawyerDocumentsPage() {
       suggestedSpecialty: "civil",
       deadline: data.deadline,
     });
+    if (!newCase) {
+      toast.error(locale === "ar" ? "تعذر حفظ القضية" : "Couldn't save the case");
+      return;
+    }
     toast.success(t("confirmSave"));
     router.push(`/lawyer/cases/${newCase.id}`);
   };

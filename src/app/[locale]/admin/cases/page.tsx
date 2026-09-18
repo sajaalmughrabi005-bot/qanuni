@@ -7,7 +7,7 @@ import { LayoutGrid, List as ListIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useAppStore } from "@/lib/store/app-store";
+import { useCases } from "@/lib/data/hooks";
 import { CaseRecord, CaseStatus } from "@/types";
 import { formatDate, cn } from "@/lib/utils";
 
@@ -55,7 +55,7 @@ function AdminCasesInner() {
   const locale = useLocale();
   const params = useSearchParams();
   const statusFilter = params.get("status") as CaseStatus | null;
-  const allCases = useAppStore((s) => s.cases);
+  const { data: allCases } = useCases();
   const [view, setView] = useState<"list" | "kanban">(statusFilter ? "list" : "kanban");
 
   const cases = useMemo(

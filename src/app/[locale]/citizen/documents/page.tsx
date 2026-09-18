@@ -7,17 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useDocuments } from "@/lib/data/hooks";
 import { formatDate } from "@/lib/utils";
 
 export default function DocumentsPage() {
   const t = useTranslations("citizen.documents");
   const tTypes = useTranslations("citizen.upload.types");
   const locale = useLocale();
-  const { session } = useSession();
-  const allDocuments = useAppStore((s) => s.documents);
-  const documents = allDocuments.filter((d) => d.userId === session?.userId);
+  const { data: documents } = useDocuments();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">

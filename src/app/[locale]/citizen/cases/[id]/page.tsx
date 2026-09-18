@@ -9,9 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/shared/empty-state";
 import { RiskBadge } from "@/components/shared/risk-badge";
-import { useAppStore } from "@/lib/store/app-store";
-import { useSession } from "@/lib/auth/use-session";
-import { lawyers } from "@/lib/mock-data";
+import { useCases, useAppointments, useClausesByIds } from "@/lib/data/hooks";
+import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
 import { initials, formatDate, formatDateTime } from "@/lib/utils";
 
 export default function CitizenCaseDetailPage() {
@@ -21,21 +20,20 @@ export default function CitizenCaseDetailPage() {
   const tCaseDetail = useTranslations("lawyer.caseDetail");
   const tAppointments = useTranslations("citizen.appointments");
   const locale = useLocale();
-  const { session } = useSession();
   const ar = locale === "ar";
 
-  const cases = useAppStore((s) => s.cases);
-  const allClauses = useAppStore((s) => s.clauses);
-  const allAppointments = useAppStore((s) => s.appointments);
+  const { data: cases } = useCases();
+  const { data: allAppointments } = useAppointments();
+  const lawyers = useLawyersWithOverrides();
 
-  const item = cases.find((c) => c.id === params.id && c.clientId === session?.userId);
+  const item = cases.find((c) => c.id === params.id);
+  const { data: relevantClauses } = useClausesByIds(item?.relevantClauseIds || []);
 
   if (!item) {
     return <EmptyState icon={FileSearch} title={t("empty")} className="mx-auto mt-16 max-w-lg" />;
   }
 
   const lawyer = lawyers.find((l) => l.id === item.lawyerId);
-  const relevantClauses = allClauses.filter((c) => item.relevantClauseIds.includes(c.id));
   const relatedAppointments = allAppointments
     .filter((a) => a.caseId === item.id)
     .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());

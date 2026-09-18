@@ -29,7 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { StatCard } from "@/components/shared/stat-card";
 import { AiStatusIndicator } from "@/components/shared/ai-status-indicator";
-import { useAppStore } from "@/lib/store/app-store";
+import { useAppointments, useCases, useDocuments, useAnalyses } from "@/lib/data/hooks";
 import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { initials } from "@/lib/utils";
@@ -61,10 +61,10 @@ export default function AdminDashboardPage() {
   const tSpec = useTranslations("marketplace.specialties");
   const router = useRouter();
 
-  const cases = useAppStore((s) => s.cases);
-  const documents = useAppStore((s) => s.documents);
-  const analyses = useAppStore((s) => s.analyses);
-  const appointments = useAppStore((s) => s.appointments);
+  const { data: cases } = useCases();
+  const { data: documents } = useDocuments();
+  const { data: analyses } = useAnalyses();
+  const { data: appointments } = useAppointments();
   const lawyers = useLawyersWithOverrides();
 
   const [totalCitizens, setTotalCitizens] = useState(0);

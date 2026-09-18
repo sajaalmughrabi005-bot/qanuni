@@ -13,10 +13,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { addOwnNotification, createDraftDocument, deleteDocument, finalizeDocumentAnalysis } from "@/lib/data/actions";
 import { analyzeDocumentAction } from "@/lib/ai/actions";
 import { DEMO_DOCUMENT_ID } from "@/lib/mock-data";
-import type { DocumentType, LegalDocument } from "@/types";
+import type { DocumentType } from "@/types";
 
 const STEPS = ["uploading", "extracting", "identifying", "comparing", "generating"] as const;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB, matches the UI copy
@@ -28,8 +28,6 @@ export default function NewAnalysisPage() {
   const locale = useLocale();
   const router = useRouter();
   const { session } = useSession();
-  const addDocument = useAppStore((s) => s.addDocument);
-  const addNotification = useAppStore((s) => s.addNotification);
 
   const [phase, setPhase] = useState<"form" | "processing">("form");
   const [stepIndex, setStepIndex] = useState(0);
@@ -62,13 +60,25 @@ export default function NewAnalysisPage() {
     if (!session) return;
     setPhase("processing");
 
-    const documentId = `doc-${Date.now()}`;
     const fileName = file?.name || (locale === "ar" ? "مستند-ملصق.txt" : "pasted-document.txt");
     const contextLine = `${t("roleLabel")}: ${t(`role.${role}`)} | ${t("purposeLabel")}: ${t(`purpose.${purpose}`)}`;
     const baseText = pastedText.trim()
       ? pastedText.trim()
       : `Document: ${fileName}\nType: ${docType}\n(No extracted text available — file uploaded in demo mode without OCR. Paste contract text for a fully grounded analysis.)`;
     const text = `${contextLine}\n\n${baseText}`;
+
+    const documentId = await createDraftDocument({
+      userId: session.userId,
+      fileName,
+      documentType: docType,
+      language: locale as "ar" | "en",
+      citizenDescription: pastedText.trim() || undefined,
+    });
+    if (!documentId) {
+      setPhase("form");
+      toast.error(locale === "ar" ? "تعذر حفظ المستند. حاول مرة أخرى." : "Couldn't save the document. Please try again.");
+      return;
+    }
 
     for (let i = 0; i < STEPS.length; i++) {
       setStepIndex(i);
@@ -85,24 +95,21 @@ export default function NewAnalysisPage() {
     });
 
     if (result.status !== "ok") {
+      await deleteDocument(documentId);
       setPhase("form");
       toast.error(locale === "ar" ? result.reasonAr : result.reasonEn);
       return;
     }
 
-    const doc: LegalDocument = {
-      id: documentId,
-      userId: session.userId,
-      fileName,
-      documentType: docType,
-      language: locale as "ar" | "en",
-      status: "analyzed",
-      createdAt: new Date().toISOString(),
-      citizenDescription: pastedText.trim() || undefined,
-    };
+    const saved = await finalizeDocumentAnalysis(documentId, session.userId, result.clauses, result.analysis);
+    if (!saved) {
+      await deleteDocument(documentId);
+      setPhase("form");
+      toast.error(locale === "ar" ? "تعذر حفظ نتيجة التحليل. حاول مرة أخرى." : "Couldn't save the analysis. Please try again.");
+      return;
+    }
 
-    addDocument(doc, result.clauses, result.analysis);
-    addNotification({
+    await addOwnNotification({
       userId: session.userId,
       type: "analysis_ready",
       titleAr: "تحليل العقد جاهز",

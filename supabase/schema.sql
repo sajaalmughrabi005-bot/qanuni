@@ -321,9 +321,16 @@ alter table drafts enable row level security;
 alter table notifications enable row level security;
 alter table reviews enable row level security;
 
--- profiles: self read/update; admins read/update all.
+-- profiles: self read/update; admins read/update all; a lawyer can read the
+-- profile (name/phone/email) of a client on one of their assigned cases.
 create policy "profiles_self_or_admin_select" on profiles for select
   using (auth.uid() = id or is_admin());
+create policy "profiles_case_lawyer_read" on profiles for select using (
+  exists (
+    select 1 from cases c
+    where c.lawyer_id = current_lawyer_id() and c.client_id = profiles.id
+  )
+);
 create policy "profiles_self_update" on profiles for update
   using (auth.uid() = id);
 create policy "profiles_admin_update" on profiles for update
@@ -337,9 +344,16 @@ create policy "lawyers_public_read" on lawyers for select using (true);
 create policy "lawyers_self_update" on lawyers for update using (profile_id = auth.uid());
 create policy "lawyers_admin_update" on lawyers for update using (is_admin());
 
--- documents: owner-only, admin can read all.
+-- documents: owner-only, admin can read all, and the assigned case lawyer.
 create policy "documents_owner_all" on documents for all using (user_id = auth.uid());
 create policy "documents_admin_read" on documents for select using (is_admin());
+create policy "documents_case_lawyer_read" on documents for select using (
+  exists (
+    select 1 from cases c
+    where c.lawyer_id = current_lawyer_id()
+      and id = any(c.document_ids)
+  )
+);
 
 -- document_clauses: readable if the parent document belongs to the caller,
 -- or the caller is the lawyer on a case that references this document.
@@ -424,3 +438,105 @@ $$ language plpgsql security definer;
 drop trigger if exists reviews_recompute_rating on reviews;
 create trigger reviews_recompute_rating after insert on reviews
   for each row execute function recompute_lawyer_rating();
+
+-- ========================================================================
+-- CROSS-USER NOTIFICATION TRIGGERS — notifications are owner-only (RLS:
+-- user_id = auth.uid()), so a citizen creating a case can't insert a
+-- notification row for the lawyer directly. These run server-side instead.
+-- ========================================================================
+create or replace function notify_case_lawyer() returns trigger as $$
+declare
+  v_profile_id uuid;
+begin
+  if new.lawyer_id is null then
+    return new;
+  end if;
+  select profile_id into v_profile_id from lawyers where id = new.lawyer_id;
+  if v_profile_id is not null then
+    insert into notifications (user_id, type, title_ar, title_en, body_ar, body_en, href)
+    values (
+      v_profile_id,
+      'case_update',
+      'قضية جديدة بانتظارك',
+      'A new case is waiting',
+      'وصلتك قضية جديدة: ' || new.title,
+      'A new case arrived: ' || new.title,
+      '/lawyer/cases'
+    );
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists cases_notify_lawyer on cases;
+create trigger cases_notify_lawyer after insert on cases
+  for each row execute function notify_case_lawyer();
+
+create or replace function notify_appointment_participants() returns trigger as $$
+declare
+  v_lawyer_profile_id uuid;
+begin
+  select profile_id into v_lawyer_profile_id from lawyers where id = new.lawyer_id;
+
+  if auth.uid() = new.client_id and v_lawyer_profile_id is not null then
+    insert into notifications (user_id, type, title_ar, title_en, body_ar, body_en, href)
+    values (
+      v_lawyer_profile_id,
+      'appointment',
+      'موعد جديد',
+      'New appointment request',
+      new.client_name || ' طلب موعداً: ' || new.title,
+      new.client_name || ' requested an appointment: ' || new.title,
+      '/lawyer/calendar'
+    );
+  elsif auth.uid() = v_lawyer_profile_id then
+    insert into notifications (user_id, type, title_ar, title_en, body_ar, body_en, href)
+    values (
+      new.client_id,
+      'appointment',
+      'تم تحديد موعدك',
+      'Your appointment is scheduled',
+      'تم تحديد موعد: ' || new.title,
+      'An appointment was scheduled: ' || new.title,
+      '/citizen/appointments'
+    );
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists appointments_notify on appointments;
+create trigger appointments_notify after insert on appointments
+  for each row execute function notify_appointment_participants();
+
+create or replace function notify_message_recipient() returns trigger as $$
+declare
+  v_client_id uuid;
+  v_lawyer_profile_id uuid;
+  v_recipient uuid;
+begin
+  select client_id, (select profile_id from lawyers where id = c.lawyer_id)
+    into v_client_id, v_lawyer_profile_id
+  from cases c where c.id = new.case_id;
+
+  v_recipient := case when new.sender_id = v_client_id then v_lawyer_profile_id else v_client_id end;
+
+  if v_recipient is not null then
+    insert into notifications (user_id, type, title_ar, title_en, body_ar, body_en, href)
+    values (
+      v_recipient,
+      'message',
+      'رسالة جديدة',
+      'New message',
+      new.sender_name || ': ' || left(new.message, 80),
+      new.sender_name || ': ' || left(new.message, 80),
+      case when new.sender_id = v_client_id then '/lawyer/messages' else '/citizen/cases/' || new.case_id end
+    );
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists messages_notify on messages;
+create trigger messages_notify after insert on messages
+  for each row execute function notify_message_recipient();

@@ -23,12 +23,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/shared/empty-state";
 import { RiskBadge } from "@/components/shared/risk-badge";
 import { CaseFinancialTracker } from "@/components/lawyer/case-financial-tracker";
-import { useAppStore } from "@/lib/store/app-store";
+import { useCases, useClausesByIds, useMessages } from "@/lib/data/hooks";
+import { addMessage, updateCase } from "@/lib/data/actions";
 import { useSession } from "@/lib/auth/use-session";
-import { legalSources, demoProfiles } from "@/lib/mock-data";
-import { CaseStatus, CasePriority } from "@/types";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { mapProfile } from "@/lib/supabase/mappers";
+import { legalSources } from "@/lib/mock-data";
+import { CaseStatus, CasePriority, type Profile } from "@/types";
 import { formatDate } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function LawyerCaseDetailPage() {
   const params = useParams<{ id: string }>();
@@ -39,21 +42,24 @@ export default function LawyerCaseDetailPage() {
   const locale = useLocale();
   const { session, profile } = useSession();
   const [messageInput, setMessageInput] = useState("");
+  const [clientProfile, setClientProfile] = useState<Profile | undefined>(undefined);
 
-  const cases = useAppStore((s) => s.cases);
-  const allClauses = useAppStore((s) => s.clauses);
-  const allMessages = useAppStore((s) => s.messages);
-  const updateCase = useAppStore((s) => s.updateCase);
-  const addMessage = useAppStore((s) => s.addMessage);
+  const { data: cases, refetch: refetchCases } = useCases();
+  const item = cases.find((c) => c.id === params.id);
+  const { data: relevantClauses } = useClausesByIds(item?.relevantClauseIds || []);
+  const { data: caseMessages, refetch: refetchMessages } = useMessages(params.id);
 
-  const registeredUsers = useAppStore((s) => s.registeredUsers);
-
-  const item = cases.find((c) => c.id === params.id && c.lawyerId === session?.userId);
-  const relevantClauses = allClauses.filter((c) => item?.relevantClauseIds.includes(c.id));
-  const caseMessages = allMessages.filter((m) => m.caseId === params.id);
-  const clientProfile = item
-    ? demoProfiles[item.clientId] || Object.values(registeredUsers).find((u) => u.profile.id === item.clientId)?.profile
-    : undefined;
+  useEffect(() => {
+    if (!item) return;
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", item.clientId)
+      .single()
+      .then(({ data }) => setClientProfile(data ? mapProfile(data) : undefined));
+  }, [item]);
 
   if (!item) {
     return <EmptyState icon={FileSearch} title="Not found" className="mx-auto mt-16 max-w-lg" />;
@@ -64,9 +70,9 @@ export default function LawyerCaseDetailPage() {
     ? `https://wa.me/${clientProfile.phone.replace(/\D/g, "")}`
     : undefined;
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!messageInput.trim() || !session || !profile) return;
-    addMessage({
+    await addMessage({
       caseId: item.id,
       senderId: session.userId,
       senderName: profile.fullName,
@@ -74,6 +80,7 @@ export default function LawyerCaseDetailPage() {
       message: messageInput.trim(),
     });
     setMessageInput("");
+    refetchMessages();
   };
 
   return (
@@ -109,7 +116,13 @@ export default function LawyerCaseDetailPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Select value={item.status} onValueChange={(v) => updateCase(item.id, { status: v as CaseStatus })}>
+          <Select
+            value={item.status}
+            onValueChange={async (v) => {
+              await updateCase(item.id, { status: v as CaseStatus });
+              refetchCases();
+            }}
+          >
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
@@ -121,7 +134,13 @@ export default function LawyerCaseDetailPage() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={item.priority} onValueChange={(v) => updateCase(item.id, { priority: v as CasePriority })}>
+          <Select
+            value={item.priority}
+            onValueChange={async (v) => {
+              await updateCase(item.id, { priority: v as CasePriority });
+              refetchCases();
+            }}
+          >
             <SelectTrigger className="w-36">
               <SelectValue />
             </SelectTrigger>
@@ -233,7 +252,7 @@ export default function LawyerCaseDetailPage() {
         </CardContent>
       </Card>
 
-      <CaseFinancialTracker item={item} />
+      <CaseFinancialTracker item={item} onChanged={refetchCases} />
 
       <div className="flex gap-3">
         <Button asChild variant="gold">

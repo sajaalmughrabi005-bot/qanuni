@@ -8,10 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
-import { demoProfiles } from "@/lib/mock-data";
+import { useCases } from "@/lib/data/hooks";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { mapDocument, mapProfile } from "@/lib/supabase/mappers";
 import { initials, formatDate } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import type { LegalDocument, Profile } from "@/types";
 
 export default function ClientFilePage() {
   const params = useParams<{ id: string }>();
@@ -19,19 +21,37 @@ export default function ClientFilePage() {
   const tCol = useTranslations("lawyer.cases.columns");
   const tDocStatus = useTranslations("citizen.documents.status");
   const locale = useLocale();
-  const { session } = useSession();
 
-  const allCases = useAppStore((s) => s.cases);
-  const allDocuments = useAppStore((s) => s.documents);
-  const registeredUsers = useAppStore((s) => s.registeredUsers);
+  const { data: allCases } = useCases();
+  const [clientProfile, setClientProfile] = useState<Profile | undefined>(undefined);
+  const [clientDocuments, setClientDocuments] = useState<LegalDocument[]>([]);
 
-  const clientCases = allCases.filter((c) => c.clientId === params.id && c.lawyerId === session?.userId);
-  const registered = Object.values(registeredUsers).find((u) => u.profile.id === params.id);
-  const clientProfile = demoProfiles[params.id] || registered?.profile;
+  const clientCases = allCases.filter((c) => c.clientId === params.id);
   const clientName = clientProfile?.fullName || clientCases[0]?.clientName;
+  const documentIds = Array.from(new Set(clientCases.flatMap((c) => c.documentIds)));
 
-  const documentIds = new Set(clientCases.flatMap((c) => c.documentIds));
-  const clientDocuments = allDocuments.filter((d) => documentIds.has(d.id) || d.userId === params.id);
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase || !params.id) return;
+    supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", params.id)
+      .single()
+      .then(({ data }) => setClientProfile(data ? mapProfile(data) : undefined));
+  }, [params.id]);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase || documentIds.length === 0) return;
+    supabase
+      .from("documents")
+      .select("*")
+      .in("id", documentIds)
+      .then(({ data }) => setClientDocuments((data || []).map(mapDocument)));
+    // documentIds is derived fresh each render from clientCases; join it into a stable key instead.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documentIds.join(",")]);
 
   if (!clientName) {
     return <EmptyState icon={Briefcase} title="Not found" className="mx-auto mt-16 max-w-lg" />;

@@ -9,23 +9,22 @@ import { StatCard } from "@/components/shared/stat-card";
 import { QuickActionsBar } from "@/components/lawyer/quick-actions-bar";
 import { VoiceCommandWidget } from "@/components/lawyer/voice-command-widget";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useAppointments, useCases } from "@/lib/data/hooks";
 import { formatDateTime } from "@/lib/utils";
 
 export default function LawyerDashboardPage() {
   const t = useTranslations("lawyer.dashboard");
   const tStatus = useTranslations("lawyer.cases.columns");
   const locale = useLocale();
-  const { session, profile } = useSession();
+  const { profile } = useSession();
 
-  const allCases = useAppStore((s) => s.cases);
-  const allAppointments = useAppStore((s) => s.appointments);
+  const { data: myCases } = useCases();
+  const { data: allAppointments } = useAppointments();
 
-  const myCases = allCases.filter((c) => c.lawyerId === session?.userId);
   const newCases = myCases.filter((c) => c.status === "new");
   const activeCases = myCases.filter((c) => !["new", "closed"].includes(c.status));
   const upcoming = allAppointments
-    .filter((a) => a.lawyerId === session?.userId && new Date(a.startTime) > new Date())
+    .filter((a) => new Date(a.startTime) > new Date())
     .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
   return (

@@ -15,7 +15,7 @@ export default function DescribeProblemPage() {
         <p className="mt-1 text-foreground-muted">{t("subtitle")}</p>
       </div>
 
-      <AskTheLawPanel documentId="general" clauses={[]} />
+      <AskTheLawPanel clauses={[]} />
 
       <Link
         href="/citizen/analyze/new"

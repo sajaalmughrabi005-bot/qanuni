@@ -17,9 +17,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "@/i18n/navigation";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
+import { createCase } from "@/lib/data/actions";
 import { matchLawyersToCase } from "@/lib/ai/engine";
-import { lawyers } from "@/lib/mock-data";
 import { Analysis, DocumentClause, LegalDocument, LawyerSpecialty } from "@/types";
 import { initials, cn } from "@/lib/utils";
 
@@ -51,23 +51,23 @@ export function CreateCaseDialog({
   const locale = useLocale();
   const router = useRouter();
   const { session, profile } = useSession();
-  const createCase = useAppStore((s) => s.createCase);
+  const lawyers = useLawyersWithOverrides();
   const [selectedLawyerId, setSelectedLawyerId] = useState<string | null>(null);
 
   const specialty = typeToSpecialty[document.documentType] || "civil";
 
   const matches = useMemo(
     () => matchLawyersToCase(lawyers, specialty, profile?.city, locale).slice(0, 3),
-    [specialty, profile?.city, locale]
+    [lawyers, specialty, profile?.city, locale]
   );
 
   const topLawyerId = selectedLawyerId || matches[0]?.lawyer.id;
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!session || !profile) return;
     const match = matches.find((m) => m.lawyer.id === topLawyerId) || matches[0];
 
-    createCase({
+    await createCase({
       clientId: session.userId,
       clientName: profile.fullName,
       lawyerId: match?.lawyer.id,

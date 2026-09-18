@@ -7,15 +7,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useCases } from "@/lib/data/hooks";
 import { initials } from "@/lib/utils";
 
 export default function ClientsPage() {
   const t = useTranslations("lawyer.clients");
-  const { session } = useSession();
-  const allCases = useAppStore((s) => s.cases);
-  const myCases = allCases.filter((c) => c.lawyerId === session?.userId);
+  const { data: myCases } = useCases();
 
   const clients = Array.from(
     myCases.reduce((map, c) => {

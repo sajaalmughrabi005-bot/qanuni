@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FileQuestion, Briefcase } from "lucide-react";
@@ -16,25 +16,38 @@ import { AskTheLawPanel } from "@/components/citizen/ask-the-law-panel";
 import { ScenarioSimulatorPanel } from "@/components/citizen/scenario-simulator-panel";
 import { TermSimplifierCard } from "@/components/citizen/term-simplifier-card";
 import { CreateCaseDialog } from "@/components/citizen/create-case-dialog";
-import { useAppStore } from "@/lib/store/app-store";
-import { useSession } from "@/lib/auth/use-session";
-import { DEMO_DOCUMENT_ID } from "@/lib/mock-data";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { mapAnalysis, mapClause, mapDocument } from "@/lib/supabase/mappers";
+import { demoAnalysis, demoClauses, demoDocument, DEMO_DOCUMENT_ID } from "@/lib/mock-data";
+import type { Analysis, DocumentClause, LegalDocument } from "@/types";
 
 export default function AnalysisResultsPage() {
   const params = useParams<{ id: string }>();
   const t = useTranslations("citizen.results");
   const [caseDialogOpen, setCaseDialogOpen] = useState(false);
-  const { session } = useSession();
+  const isDemo = params.id === DEMO_DOCUMENT_ID;
+  const [supabase] = useState(() => createSupabaseBrowserClient());
 
-  const documents = useAppStore((s) => s.documents);
-  const allClauses = useAppStore((s) => s.clauses);
-  const analyses = useAppStore((s) => s.analyses);
+  const [document, setDocument] = useState<LegalDocument | undefined>(isDemo ? demoDocument : undefined);
+  const [clauses, setClauses] = useState<DocumentClause[]>(isDemo ? demoClauses : []);
+  const [analysis, setAnalysis] = useState<Analysis | undefined>(isDemo ? demoAnalysis : undefined);
+  const [loading, setLoading] = useState(!isDemo && !!supabase);
 
-  const document = documents.find(
-    (d) => d.id === params.id && (d.id === DEMO_DOCUMENT_ID || d.userId === session?.userId)
-  );
-  const clauses = allClauses.filter((c) => c.documentId === params.id);
-  const analysis = analyses.find((a) => a.documentId === params.id);
+  useEffect(() => {
+    if (isDemo || !params.id || !supabase) return;
+    Promise.all([
+      supabase.from("documents").select("*").eq("id", params.id).single(),
+      supabase.from("document_clauses").select("*").eq("document_id", params.id),
+      supabase.from("analyses").select("*").eq("document_id", params.id).single(),
+    ]).then(([docRes, clausesRes, analysisRes]) => {
+      setDocument(docRes.data ? mapDocument(docRes.data) : undefined);
+      setClauses((clausesRes.data || []).map(mapClause));
+      setAnalysis(analysisRes.data ? mapAnalysis(analysisRes.data) : undefined);
+      setLoading(false);
+    });
+  }, [params.id, isDemo, supabase]);
+
+  if (loading) return null;
 
   if (!document || !analysis) {
     return <EmptyState icon={FileQuestion} title={t("overview")} className="mx-auto mt-12 max-w-lg" />;
@@ -76,7 +89,7 @@ export default function AnalysisResultsPage() {
           <TermSimplifierCard />
         </TabsContent>
         <TabsContent value="ask">
-          <AskTheLawPanel documentId={document.id} clauses={clauses} />
+          <AskTheLawPanel clauses={clauses} />
         </TabsContent>
         <TabsContent value="scenario">
           <ScenarioSimulatorPanel clauses={clauses} />

@@ -7,16 +7,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useDrafts } from "@/lib/data/hooks";
 import { formatDateTime } from "@/lib/utils";
 
 export default function DraftsListPage() {
   const t = useTranslations("lawyer.drafter");
   const locale = useLocale();
-  const { session } = useSession();
-  const allDrafts = useAppStore((s) => s.drafts);
-  const drafts = allDrafts.filter((d) => d.lawyerId === session?.userId);
+  const { data: drafts } = useDrafts();
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">

@@ -18,9 +18,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
-import { lawyers } from "@/lib/mock-data";
+import { useAppointments } from "@/lib/data/hooks";
+import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
 import { cn, formatDateTime, formatMonthYear, formatDayNumber, formatWeekdayShort, formatWeekdayLong } from "@/lib/utils";
 
 const typeIcon = { video: Video, phone: Phone, in_person: MapPin, court: Gavel, deadline: AlarmClock, follow_up: RotateCcw };
@@ -30,13 +29,11 @@ export function CitizenCalendarView() {
   const tAppointments = useTranslations("citizen.appointments");
   const locale = useLocale();
   const router = useRouter();
-  const { session } = useSession();
-  const allAppointments = useAppStore((s) => s.appointments);
+  const { data: events } = useAppointments();
+  const lawyers = useLawyersWithOverrides();
 
   const [month, setMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(new Date());
-
-  const events = allAppointments.filter((a) => a.clientId === session?.userId);
 
   const days = useMemo(() => {
     const start = startOfWeek(startOfMonth(month));

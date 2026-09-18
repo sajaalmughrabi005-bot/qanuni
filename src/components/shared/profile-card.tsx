@@ -10,14 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { initials } from "@/lib/utils";
 import type { Profile } from "@/types";
 
 export function ProfileCard() {
   const t = useTranslations("common.profile");
-  const { profile } = useSession();
-  const updateProfile = useAppStore((s) => s.updateProfile);
+  const { profile, refreshProfile } = useSession();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [editing, setEditing] = useState(false);
@@ -35,8 +34,19 @@ export function ProfileCard() {
     setEditing(true);
   };
 
-  const save = () => {
-    updateProfile(profile.id, form);
+  const save = async () => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    await supabase
+      .from("profiles")
+      .update({
+        full_name: form.fullName,
+        phone: form.phone,
+        city: form.city,
+        avatar_url: form.avatarUrl,
+      })
+      .eq("id", profile.id);
+    await refreshProfile();
     setEditing(false);
     toast.success(t("saved"));
   };

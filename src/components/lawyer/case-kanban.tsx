@@ -15,7 +15,7 @@ import { Link } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CaseRecord, CaseStatus } from "@/types";
-import { useAppStore } from "@/lib/store/app-store";
+import { updateCase } from "@/lib/data/actions";
 import { formatDate, cn } from "@/lib/utils";
 
 const columns: CaseStatus[] = ["new", "contacted", "reviewing", "in_progress", "court", "closed"];
@@ -92,17 +92,17 @@ function Column({ status, items }: { status: CaseStatus; items: CaseRecord[] }) 
   );
 }
 
-export function CaseKanban({ cases }: { cases: CaseRecord[] }) {
-  const updateCaseStatus = useAppStore((s) => s.updateCaseStatus);
+export function CaseKanban({ cases, onChanged }: { cases: CaseRecord[]; onChanged?: () => void }) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
     const newStatus = over.id as CaseStatus;
     const current = cases.find((c) => c.id === active.id);
     if (current && current.status !== newStatus) {
-      updateCaseStatus(active.id as string, newStatus);
+      await updateCase(active.id as string, { status: newStatus });
+      onChanged?.();
     }
   };
 

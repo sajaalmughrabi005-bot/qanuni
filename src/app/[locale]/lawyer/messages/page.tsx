@@ -5,18 +5,15 @@ import { MessageSquare } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
-import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useAllMessages, useCases } from "@/lib/data/hooks";
 import { formatDateTime } from "@/lib/utils";
 
 export default function LawyerMessagesPage() {
   const t = useTranslations("lawyer.messages");
   const locale = useLocale();
-  const { session } = useSession();
-  const allCases = useAppStore((s) => s.cases);
-  const allMessages = useAppStore((s) => s.messages);
+  const { data: myCases } = useCases();
+  const { data: allMessages } = useAllMessages();
 
-  const myCases = allCases.filter((c) => c.lawyerId === session?.userId);
   const threads = myCases
     .map((c) => ({
       case: c,

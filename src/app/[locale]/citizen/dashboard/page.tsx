@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/shared/stat-card";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useAppointments, useCases, useDocuments, useNotifications } from "@/lib/data/hooks";
 import { formatDateTime } from "@/lib/utils";
 
 export default function CitizenDashboardPage() {
@@ -26,19 +26,15 @@ export default function CitizenDashboardPage() {
   const tCasesSection = useTranslations("citizen.cases");
   const tAppointments = useTranslations("citizen.appointments");
   const locale = useLocale();
-  const { session, profile } = useSession();
+  const { profile } = useSession();
 
-  const allDocuments = useAppStore((s) => s.documents);
-  const allCases = useAppStore((s) => s.cases);
-  const allAppointments = useAppStore((s) => s.appointments);
-  const allNotifications = useAppStore((s) => s.notifications);
+  const { data: documents } = useDocuments();
+  const { data: cases } = useCases();
+  const { data: allAppointments } = useAppointments();
+  const { data: allNotifications } = useNotifications();
 
-  const documents = allDocuments.filter((d) => d.userId === session?.userId);
-  const cases = allCases.filter((c) => c.clientId === session?.userId);
-  const appointments = allAppointments.filter(
-    (a) => a.clientId === session?.userId && new Date(a.startTime) > new Date()
-  );
-  const notifications = allNotifications.filter((n) => n.userId === session?.userId && !n.read);
+  const appointments = allAppointments.filter((a) => new Date(a.startTime) > new Date());
+  const notifications = allNotifications.filter((n) => !n.read);
 
   const actions = [
     { href: "/citizen/analyze/new", label: t("analyzeDocument"), icon: FileSearch },

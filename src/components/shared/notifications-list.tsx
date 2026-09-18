@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useNotifications } from "@/lib/data/hooks";
+import { markAllNotificationsRead, markNotificationRead } from "@/lib/data/actions";
 import { formatDateTime, cn } from "@/lib/utils";
 
 export function NotificationsList({ namespace }: { namespace: "citizen" | "lawyer" }) {
@@ -16,19 +17,28 @@ export function NotificationsList({ namespace }: { namespace: "citizen" | "lawye
   const tCommon = useTranslations("common.status");
   const locale = useLocale();
   const { session } = useSession();
-  const allNotifications = useAppStore((s) => s.notifications);
-  const notifications = [...allNotifications]
-    .filter((n) => n.userId === session?.userId)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  const markRead = useAppStore((s) => s.markNotificationRead);
-  const markAllRead = useAppStore((s) => s.markAllNotificationsRead);
+  const { data: allNotifications, refetch } = useNotifications();
+  const notifications = [...allNotifications].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const markRead = async (id: string) => {
+    await markNotificationRead(id);
+    refetch();
+  };
+
+  const markAllRead = async () => {
+    if (!session) return;
+    await markAllNotificationsRead(session.userId);
+    refetch();
+  };
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         {notifications.some((n) => !n.read) && (
-          <Button variant="ghost" size="sm" onClick={() => session && markAllRead(session.userId)}>
+          <Button variant="ghost" size="sm" onClick={markAllRead}>
             <CheckCheck className="h-4 w-4" />
             {t("markAllRead")}
           </Button>

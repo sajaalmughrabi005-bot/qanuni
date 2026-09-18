@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useNotifications } from "@/lib/data/hooks";
 import { logoutAction } from "@/lib/auth/actions";
 import { initials, cn } from "@/lib/utils";
 
@@ -40,8 +40,8 @@ export function DashboardShell({
   const t = useTranslations("common");
   const tProfile = useTranslations("common.profile");
   const { profile, session } = useSession();
-  const notifications = useAppStore((s) => s.notifications);
-  const unread = session ? notifications.filter((n) => n.userId === session.userId && !n.read).length : 0;
+  const { data: notifications } = useNotifications();
+  const unread = session ? notifications.filter((n) => !n.read).length : 0;
 
   const handleLogout = async () => {
     await logoutAction();

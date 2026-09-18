@@ -29,7 +29,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useLawyerByProfileId } from "@/lib/auth/use-lawyer";
+import { useAppointments } from "@/lib/data/hooks";
+import { addAppointment, deleteAppointment as deleteAppointmentAction } from "@/lib/data/actions";
 import { Appointment } from "@/types";
 import { cn, formatDateTime, formatMonthYear, formatDayNumber, formatWeekdayShort, formatWeekdayLong } from "@/lib/utils";
 
@@ -39,16 +41,13 @@ export function CalendarView() {
   const t = useTranslations("lawyer.calendar");
   const locale = useLocale();
   const { session } = useSession();
-  const allAppointments = useAppStore((s) => s.appointments);
-  const addAppointment = useAppStore((s) => s.addAppointment);
-  const deleteAppointment = useAppStore((s) => s.deleteAppointment);
+  const lawyer = useLawyerByProfileId(session?.userId);
+  const { data: events, refetch } = useAppointments();
 
   const [month, setMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ title: "", clientName: "", date: "", time: "10:00", type: "video" });
-
-  const events = allAppointments.filter((a) => a.lawyerId === session?.userId);
 
   const days = useMemo(() => {
     const start = startOfWeek(startOfMonth(month));
@@ -66,14 +65,14 @@ export function CalendarView() {
     setDialogOpen(true);
   };
 
-  const saveEvent = () => {
-    if (!session || !form.title || !form.date) return;
+  const saveEvent = async () => {
+    if (!session || !lawyer || !form.title || !form.date) return;
     const start = new Date(`${form.date}T${form.time}:00`);
     const end = new Date(start.getTime() + 30 * 60000);
-    addAppointment({
-      clientId: "manual-entry",
+    await addAppointment({
+      clientId: session.userId,
       clientName: form.clientName || "—",
-      lawyerId: session.userId,
+      lawyerId: lawyer.id,
       title: form.title,
       startTime: start.toISOString(),
       endTime: end.toISOString(),
@@ -81,6 +80,12 @@ export function CalendarView() {
       status: "confirmed",
     });
     setDialogOpen(false);
+    refetch();
+  };
+
+  const removeEvent = async (id: string) => {
+    await deleteAppointmentAction(id);
+    refetch();
   };
 
   return (
@@ -155,7 +160,7 @@ export function CalendarView() {
                       <Icon className="h-3.5 w-3.5 text-gold" />
                       <p className="text-sm font-medium">{e.title}</p>
                     </div>
-                    <button onClick={() => deleteAppointment(e.id)} aria-label={t("delete")}>
+                    <button onClick={() => removeEvent(e.id)} aria-label={t("delete")}>
                       <Trash2 className="h-3.5 w-3.5 text-foreground-muted hover:text-risk-high" />
                     </button>
                   </div>

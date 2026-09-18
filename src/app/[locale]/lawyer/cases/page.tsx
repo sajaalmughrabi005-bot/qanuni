@@ -5,14 +5,11 @@ import { LayoutGrid, List } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CaseKanban } from "@/components/lawyer/case-kanban";
 import { CaseList } from "@/components/lawyer/case-list";
-import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useCases } from "@/lib/data/hooks";
 
 export default function LawyerCasesPage() {
   const t = useTranslations("lawyer.cases");
-  const { session } = useSession();
-  const allCases = useAppStore((s) => s.cases);
-  const myCases = allCases.filter((c) => c.lawyerId === session?.userId);
+  const { data: myCases, refetch } = useCases();
 
   return (
     <div className="space-y-6">
@@ -32,7 +29,7 @@ export default function LawyerCasesPage() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="kanban">
-          <CaseKanban cases={myCases} />
+          <CaseKanban cases={myCases} onChanged={refetch} />
         </TabsContent>
         <TabsContent value="list">
           <CaseList cases={myCases} />

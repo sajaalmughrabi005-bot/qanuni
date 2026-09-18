@@ -11,34 +11,39 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AiDisclaimer } from "@/components/shared/ai-disclaimer";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useLawyerByProfileId } from "@/lib/auth/use-lawyer";
+import { addDraft, updateDraft } from "@/lib/data/actions";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { mapDraft } from "@/lib/supabase/mappers";
 import { generateDraftAction } from "@/lib/ai/actions";
 
 function DrafterInner() {
   const t = useTranslations("lawyer.drafter");
   const locale = useLocale();
   const { session } = useSession();
+  const lawyer = useLawyerByProfileId(session?.userId);
   const params = useSearchParams();
   const caseId = params.get("caseId") || undefined;
-  const draftId = params.get("draftId") || undefined;
-  const allDrafts = useAppStore((s) => s.drafts);
-  const addDraft = useAppStore((s) => s.addDraft);
-  const updateDraft = useAppStore((s) => s.updateDraft);
 
+  const [draftId, setDraftId] = useState(params.get("draftId") || undefined);
   const [instructions, setInstructions] = useState("");
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!draftId) return;
-    Promise.resolve().then(() => {
-      const existing = allDrafts.find((d) => d.id === draftId);
-      if (existing) {
+    const supabase = createSupabaseBrowserClient();
+    if (!draftId || !supabase) return;
+    supabase
+      .from("drafts")
+      .select("*")
+      .eq("id", draftId)
+      .single()
+      .then(({ data }) => {
+        if (!data) return;
+        const existing = mapDraft(data);
         setInstructions(existing.instructions);
         setDraft(existing.content);
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      });
   }, [draftId]);
 
   const generate = async (mode: "generate" | "shorten" | "formal" | "translate" = "generate") => {
@@ -55,19 +60,20 @@ function DrafterInner() {
     setLoading(false);
   };
 
-  const save = () => {
-    if (!session || !draft.trim()) return;
+  const save = async () => {
+    if (!session || !lawyer || !draft.trim()) return;
     if (draftId) {
-      updateDraft(draftId, { instructions, content: draft });
+      await updateDraft(draftId, { instructions, content: draft });
     } else {
-      addDraft({
+      const created = await addDraft({
         caseId,
-        lawyerId: session.userId,
+        lawyerId: lawyer.id,
         title: instructions.slice(0, 60) || (locale === "ar" ? "مسودة بدون عنوان" : "Untitled draft"),
         instructions,
         content: draft,
         status: "draft",
       });
+      if (created) setDraftId(created.id);
     }
     toast.success(t("savedSuccess"));
   };

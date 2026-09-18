@@ -6,17 +6,14 @@ import { Link } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { RiskBadge } from "@/components/shared/risk-badge";
-import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useAnalyses, useDocuments } from "@/lib/data/hooks";
 import { formatDate } from "@/lib/utils";
 
 export default function AnalysesPage() {
   const t = useTranslations("citizen.analyses");
   const locale = useLocale();
-  const { session } = useSession();
-  const allAnalyses = useAppStore((s) => s.analyses);
-  const analyses = allAnalyses.filter((a) => a.userId === session?.userId);
-  const documents = useAppStore((s) => s.documents);
+  const { data: analyses } = useAnalyses();
+  const { data: documents } = useDocuments();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">

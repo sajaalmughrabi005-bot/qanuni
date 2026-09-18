@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { processVoiceCommandAction } from "@/lib/ai/actions";
 import { VoiceCommandResult } from "@/lib/ai/engine";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useLawyerByProfileId } from "@/lib/auth/use-lawyer";
+import { addAppointment } from "@/lib/data/actions";
 
 const DEMO_TRANSCRIPTS_AR = [
   "ذكرني أتواصل مع أحمد بكرة الساعة 11",
@@ -43,7 +44,7 @@ export function VoiceCommandWidget() {
   const t = useTranslations("lawyer.voice");
   const locale = useLocale();
   const { session } = useSession();
-  const addAppointment = useAppStore((s) => s.addAppointment);
+  const lawyer = useLawyerByProfileId(session?.userId);
 
   const [listening, setListening] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -120,14 +121,14 @@ export function VoiceCommandWidget() {
     setListening(false);
   };
 
-  const confirm = () => {
-    if (!session || !result) return;
+  const confirm = async () => {
+    if (!session || !lawyer || !result) return;
     const start = new Date();
     if (result.date === "tomorrow") start.setDate(start.getDate() + 1);
-    addAppointment({
-      clientId: "voice-entry",
+    await addAppointment({
+      clientId: session.userId,
       clientName: result.clientName || "—",
-      lawyerId: session.userId,
+      lawyerId: lawyer.id,
       title: locale === "ar" ? `تذكير: التواصل مع ${result.clientName || ""}` : `Reminder: follow up with ${result.clientName || ""}`,
       startTime: start.toISOString(),
       endTime: new Date(start.getTime() + 15 * 60000).toISOString(),

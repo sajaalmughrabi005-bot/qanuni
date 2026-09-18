@@ -6,9 +6,8 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
-import { lawyers } from "@/lib/mock-data";
+import { useCases } from "@/lib/data/hooks";
+import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
 import { formatDate } from "@/lib/utils";
 
 export default function CitizenCasesPage() {
@@ -16,9 +15,8 @@ export default function CitizenCasesPage() {
   const tStatus = useTranslations("citizen.cases.status");
   const locale = useLocale();
   const router = useRouter();
-  const { session } = useSession();
-  const allCases = useAppStore((s) => s.cases);
-  const cases = allCases.filter((c) => c.clientId === session?.userId);
+  const { data: cases } = useCases();
+  const lawyers = useLawyersWithOverrides();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">

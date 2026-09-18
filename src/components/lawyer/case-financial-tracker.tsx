@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { Check, BellRing } from "lucide-react";
@@ -7,36 +8,46 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useAppStore } from "@/lib/store/app-store";
+import { updateCase } from "@/lib/data/actions";
+import { sendPaymentReminderAction } from "@/lib/data/server-actions";
 import { CaseRecord, LegalStage } from "@/types";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const STAGES: LegalStage[] = ["initial_review", "negotiation", "legal_notice", "in_court", "closed"];
 
-export function CaseFinancialTracker({ item }: { item: CaseRecord }) {
+export function CaseFinancialTracker({ item, onChanged }: { item: CaseRecord; onChanged?: () => void }) {
   const t = useTranslations("lawyer.caseDetail");
   const locale = useLocale();
-  const updateCase = useAppStore((s) => s.updateCase);
-  const addNotification = useAppStore((s) => s.addNotification);
 
   const currentStage = item.legalStage || "initial_review";
   const currentIndex = STAGES.indexOf(currentStage);
-  const totalFees = item.totalFees || 0;
-  const paymentsReceived = item.paymentsReceived || 0;
+  const [totalFeesInput, setTotalFeesInput] = useState(String(item.totalFees || 0));
+  const [paymentsInput, setPaymentsInput] = useState(String(item.paymentsReceived || 0));
+  const totalFees = Number(totalFeesInput) || 0;
+  const paymentsReceived = Number(paymentsInput) || 0;
   const remaining = Math.max(totalFees - paymentsReceived, 0);
 
-  const sendReminder = () => {
-    addNotification({
-      userId: item.clientId,
-      type: "system",
-      titleAr: "تذكير بدفع الأتعاب",
-      titleEn: "Payment reminder",
-      bodyAr: `تذكير بدفع المبلغ المتبقي (${remaining} دينار) لقضية "${item.title}"`,
-      bodyEn: `Reminder to pay the remaining balance (${remaining} JOD) for case "${item.title}"`,
-      read: false,
-      isDemo: true,
-      href: "/citizen/cases",
-    });
+  const setStage = async (stage: LegalStage) => {
+    await updateCase(item.id, { legalStage: stage });
+    onChanged?.();
+  };
+
+  const commitTotalFees = async () => {
+    await updateCase(item.id, { totalFees });
+    onChanged?.();
+  };
+
+  const commitPaymentsReceived = async () => {
+    await updateCase(item.id, { paymentsReceived });
+    onChanged?.();
+  };
+
+  const sendReminder = async () => {
+    const result = await sendPaymentReminderAction(item.id, remaining, item.title);
+    if (!result.ok) {
+      toast.error(locale === "ar" ? "تعذر إرسال التذكير" : "Couldn't send the reminder");
+      return;
+    }
     toast.success(t("paymentReminderSent"));
   };
 
@@ -51,7 +62,7 @@ export function CaseFinancialTracker({ item }: { item: CaseRecord }) {
             <button
               key={stage}
               type="button"
-              onClick={() => updateCase(item.id, { legalStage: stage })}
+              onClick={() => setStage(stage)}
               className="group flex flex-1 flex-col items-center gap-1.5"
             >
               <span
@@ -86,16 +97,18 @@ export function CaseFinancialTracker({ item }: { item: CaseRecord }) {
               <Label className="text-xs">{t("totalFees")}</Label>
               <Input
                 type="number"
-                value={totalFees}
-                onChange={(e) => updateCase(item.id, { totalFees: Number(e.target.value) || 0 })}
+                value={totalFeesInput}
+                onChange={(e) => setTotalFeesInput(e.target.value)}
+                onBlur={commitTotalFees}
               />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">{t("paymentsReceived")}</Label>
               <Input
                 type="number"
-                value={paymentsReceived}
-                onChange={(e) => updateCase(item.id, { paymentsReceived: Number(e.target.value) || 0 })}
+                value={paymentsInput}
+                onChange={(e) => setPaymentsInput(e.target.value)}
+                onBlur={commitPaymentsReceived}
               />
             </div>
           </div>

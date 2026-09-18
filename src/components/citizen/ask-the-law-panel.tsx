@@ -7,20 +7,15 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AiDisclaimer } from "@/components/shared/ai-disclaimer";
-import { useAppStore } from "@/lib/store/app-store";
 import { askTheLawTurn } from "@/lib/ai/actions";
 import { legalSources } from "@/lib/mock-data";
-import { DocumentClause } from "@/types";
+import { ChatMessage, DocumentClause } from "@/types";
 import { cn } from "@/lib/utils";
 
-const EMPTY_MESSAGES: never[] = [];
-
-export function AskTheLawPanel({ documentId, clauses }: { documentId: string; clauses: DocumentClause[] }) {
+export function AskTheLawPanel({ clauses }: { clauses: DocumentClause[] }) {
   const t = useTranslations("citizen.askTheLaw");
   const locale = useLocale();
-  const scenarioChats = useAppStore((s) => s.scenarioChats);
-  const messages = scenarioChats[documentId] || EMPTY_MESSAGES;
-  const appendScenarioChat = useAppStore((s) => s.appendScenarioChat);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -34,12 +29,13 @@ export function AskTheLawPanel({ documentId, clauses }: { documentId: string; cl
     const question = input.trim();
     if (!question) return;
     setInput("");
-    appendScenarioChat(documentId, {
+    const userMessage: ChatMessage = {
       id: `u-${Date.now()}`,
       role: "user",
       content: question,
       createdAt: new Date().toISOString(),
-    });
+    };
+    setMessages((m) => [...m, userMessage]);
     setThinking(true);
     const reply = await askTheLawTurn({
       history: messages,
@@ -48,7 +44,7 @@ export function AskTheLawPanel({ documentId, clauses }: { documentId: string; cl
       sources: legalSources,
       locale: locale as "ar" | "en",
     });
-    appendScenarioChat(documentId, reply);
+    setMessages((m) => [...m, reply]);
     setThinking(false);
   };
 

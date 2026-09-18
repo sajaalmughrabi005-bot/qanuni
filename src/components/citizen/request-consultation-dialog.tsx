@@ -16,7 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "@/i18n/navigation";
 import { useSession } from "@/lib/auth/use-session";
-import { useAppStore } from "@/lib/store/app-store";
+import { useCases } from "@/lib/data/hooks";
+import { addAppointment } from "@/lib/data/actions";
 import { Lawyer, ConsultationType } from "@/types";
 
 export function RequestConsultationDialog({
@@ -32,23 +33,19 @@ export function RequestConsultationDialog({
   const tTypes = useTranslations("lawyer.calendar.types");
   const locale = useLocale();
   const { session, profile } = useSession();
-  const addAppointment = useAppStore((s) => s.addAppointment);
-  const addNotification = useAppStore((s) => s.addNotification);
-  const cases = useAppStore((s) => s.cases);
+  const { data: myCases } = useCases();
   const [type, setType] = useState<ConsultationType>(lawyer.consultationTypes[0] || "video");
   const [message, setMessage] = useState("");
   const [caseId, setCaseId] = useState<string>("none");
 
-  const myCases = session ? cases.filter((c) => c.clientId === session.userId) : [];
-
-  const submit = () => {
+  const submit = async () => {
     if (!session || !profile) return;
     const start = new Date();
     start.setDate(start.getDate() + 1);
     start.setHours(11, 0, 0, 0);
     const end = new Date(start.getTime() + 30 * 60000);
 
-    addAppointment({
+    await addAppointment({
       clientId: session.userId,
       clientName: profile.fullName,
       lawyerId: lawyer.id,
@@ -59,18 +56,6 @@ export function RequestConsultationDialog({
       type,
       status: "pending",
       notes: message,
-    });
-
-    addNotification({
-      userId: lawyer.id,
-      type: "appointment",
-      titleAr: "طلب استشارة جديد",
-      titleEn: "New consultation request",
-      bodyAr: `طلب ${profile.fullName} استشارة جديدة`,
-      bodyEn: `${profile.fullName} requested a new consultation`,
-      read: false,
-      isDemo: true,
-      href: "/lawyer/calendar",
     });
 
     toast.success(t("successDemo"));
