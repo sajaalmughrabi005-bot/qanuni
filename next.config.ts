@@ -11,6 +11,9 @@ const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
   : "";
 
+console.log("[next.config] NEXT_PUBLIC_SUPABASE_URL =", JSON.stringify(process.env.NEXT_PUBLIC_SUPABASE_URL));
+console.log("[next.config] supabaseOrigin =", JSON.stringify(supabaseOrigin));
+
 // The app has no third-party scripts, trackers, or remote image hosts (fonts
 // are self-hosted via next/font, the only outbound link is a plain <a
 // href="https://wa.me/..."> navigation). This lets the CSP stay tight.
