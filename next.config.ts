@@ -5,27 +5,28 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const isDev = process.env.NODE_ENV !== "production";
 
-// The app talks to Supabase (Auth + PostgREST) directly from the browser,
-// so its origin must be allowed in connect-src alongside 'self'.
-const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
-  : "";
-
-console.log("[next.config] NEXT_PUBLIC_SUPABASE_URL =", JSON.stringify(process.env.NEXT_PUBLIC_SUPABASE_URL));
-console.log("[next.config] supabaseOrigin =", JSON.stringify(supabaseOrigin));
-
 // The app has no third-party scripts, trackers, or remote image hosts (fonts
 // are self-hosted via next/font, the only outbound link is a plain <a
 // href="https://wa.me/..."> navigation). This lets the CSP stay tight.
 // 'unsafe-eval' is only allowed in development because Next.js's dev
 // bundler/fast-refresh needs it; production never gets it.
+//
+// connect-src allows *.supabase.co by a static wildcard rather than reading
+// NEXT_PUBLIC_SUPABASE_URL at build time: on Vercel that variable is synced
+// via the Supabase integration as a "Config"-type value, which build logs
+// (and apparently this header) redact/mangle, so interpolating it here
+// produced a connect-src silently missing the origin in production even
+// though the exact same variable resolves correctly in the client bundle.
+// The project ref isn't a secret — it's already visible in every request
+// the browser makes — so a wildcard is no less secure and isn't sensitive
+// to how that particular env var gets resolved at config-load time.
 const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
-  `connect-src 'self' ${supabaseOrigin}`.trim() + (isDev ? " ws:" : ""),
+  `connect-src 'self' https://*.supabase.co${isDev ? " ws:" : ""}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
