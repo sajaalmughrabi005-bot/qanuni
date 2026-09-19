@@ -12,6 +12,8 @@ import {
   Bell,
   UserCircle,
   Settings,
+  Inbox,
+  ShieldCheck,
 } from "lucide-react";
 import { RoleGuard } from "@/components/providers/role-guard";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
@@ -21,6 +23,7 @@ export default function LawyerLayout({ children }: { children: React.ReactNode }
 
   const navItems = [
     { href: "/lawyer/dashboard", label: t("dashboard"), icon: LayoutDashboard },
+    { href: "/lawyer/requests", label: t("requests"), icon: Inbox },
     { href: "/lawyer/cases", label: t("cases"), icon: Briefcase },
     { href: "/lawyer/clients", label: t("clients"), icon: Users },
     { href: "/lawyer/documents", label: t("documents"), icon: FileText },
@@ -29,6 +32,7 @@ export default function LawyerLayout({ children }: { children: React.ReactNode }
     { href: "/lawyer/messages", label: t("messages"), icon: MessageSquare },
     { href: "/lawyer/notifications", label: t("notifications"), icon: Bell },
     { href: "/lawyer/profile", label: t("profile"), icon: UserCircle },
+    { href: "/lawyer/verification", label: t("verification"), icon: ShieldCheck },
     { href: "/lawyer/settings", label: t("settings"), icon: Settings },
   ];
 

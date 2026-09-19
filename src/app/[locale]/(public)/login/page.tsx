@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Scale } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -12,28 +13,46 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DemoEntryButtons } from "@/components/shared/demo-entry-buttons";
 import { toast } from "sonner";
 import { loginAction } from "@/lib/auth/actions";
+import { safeNextPath } from "@/lib/auth/next-path";
+import { clearDemoCookie } from "@/lib/demo/mode";
 
-export default function LoginPage() {
+function LoginForm() {
   const t = useTranslations("auth.login");
   const tc = useTranslations("common");
   const locale = useLocale();
+  const params = useSearchParams();
+  const next = safeNextPath(params.get("next"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (params.get("error") === "account_disabled") toast.error(t("accountDisabledNotice"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (redirectTo) window.location.href = redirectTo;
+  }, [redirectTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
     setSubmitting(true);
     const result = await loginAction(email, password);
-    setSubmitting(false);
     if (!result.ok) {
+      setSubmitting(false);
       toast.error(result.error === "account_disabled" ? t("accountDisabled") : t("invalidCredentials"));
       return;
     }
+    // A real login always leaves the sample-data demo behind.
+    clearDemoCookie();
     toast.success(t("success"));
-    window.location.href = `/${locale}/${result.role}/dashboard`;
+    setRedirectTo(next ?? `/${locale}/${result.role}/dashboard`);
   };
+
+  const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-muted/40 px-4 py-16">
@@ -48,12 +67,12 @@ export default function LoginPage() {
         <Card>
           <CardContent className="p-8">
             <h1 className="text-xl font-semibold">{t("title")}</h1>
-            <p className="mt-1 text-sm text-foreground-muted">{t("subtitle")}</p>
+            <p className="mt-1 text-sm text-foreground-muted">{next ? t("signInToContinue") : t("subtitle")}</p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="email">{t("email")}</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
@@ -62,7 +81,7 @@ export default function LoginPage() {
                     {t("forgotPassword")}
                   </Link>
                 </div>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
               </div>
               <Button type="submit" className="w-full" disabled={submitting}>
                 {t("submit")}
@@ -71,7 +90,7 @@ export default function LoginPage() {
 
             <p className="mt-4 text-center text-sm text-foreground-muted">
               {t("noAccount")}{" "}
-              <Link href="/signup" className="font-medium text-navy hover:underline dark:text-gold">
+              <Link href={signupHref} className="font-medium text-navy hover:underline dark:text-gold">
                 {t("signup")}
               </Link>
             </p>
@@ -88,5 +107,13 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

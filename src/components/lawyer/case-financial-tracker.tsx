@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { updateCase } from "@/lib/data/actions";
+import { updateCaseFields } from "@/lib/data/actions";
+import { isDemoActive } from "@/lib/demo/mode";
 import { sendPaymentReminderAction } from "@/lib/data/server-actions";
 import { CaseRecord, LegalStage } from "@/types";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -28,21 +29,23 @@ export function CaseFinancialTracker({ item, onChanged }: { item: CaseRecord; on
   const remaining = Math.max(totalFees - paymentsReceived, 0);
 
   const setStage = async (stage: LegalStage) => {
-    await updateCase(item.id, { legalStage: stage });
+    await updateCaseFields(item.id, { legalStage: stage });
     onChanged?.();
   };
 
   const commitTotalFees = async () => {
-    await updateCase(item.id, { totalFees });
+    await updateCaseFields(item.id, { totalFees });
     onChanged?.();
   };
 
   const commitPaymentsReceived = async () => {
-    await updateCase(item.id, { paymentsReceived });
+    await updateCaseFields(item.id, { paymentsReceived });
     onChanged?.();
   };
 
   const sendReminder = async () => {
+    // Demo sessions have no server identity; nothing is actually sent.
+    if (isDemoActive()) return toast.success(t("paymentReminderSent"));
     const result = await sendPaymentReminderAction(item.id, remaining, item.title);
     if (!result.ok) {
       toast.error(locale === "ar" ? "تعذر إرسال التذكير" : "Couldn't send the reminder");

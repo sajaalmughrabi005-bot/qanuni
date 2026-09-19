@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RiskBadge } from "@/components/shared/risk-badge";
 import { simulateScenarioAction } from "@/lib/ai/actions";
+import { useSession } from "@/lib/auth/use-session";
+import { useAiHistory } from "@/lib/data/hooks";
+import { saveAiHistory } from "@/lib/data/actions";
 import { legalSources } from "@/lib/mock-data";
 import { DocumentClause } from "@/types";
 
@@ -19,13 +22,25 @@ interface ScenarioOutcome {
   questions: string[];
 }
 
-export function ScenarioSimulatorPanel({ clauses }: { clauses: DocumentClause[] }) {
+export function ScenarioSimulatorPanel({ clauses, documentId }: { clauses: DocumentClause[]; documentId?: string }) {
   const t = useTranslations("citizen.scenario");
   const tAsk = useTranslations("citizen.askTheLaw");
   const locale = useLocale();
   const [custom, setCustom] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ScenarioOutcome | null>(null);
+  const { session } = useSession();
+  const { data: history, refetch: refetchHistory } = useAiHistory("scenario", documentId);
+
+  const showSaved = (h: (typeof history)[number]) => {
+    const a = h.answer as { consequence?: string; affectedClauseId?: string; questions?: string[] };
+    setResult({
+      question: h.prompt,
+      consequence: a.consequence ?? "",
+      affectedClause: clauses.find((c) => c.id === a.affectedClauseId),
+      questions: a.questions ?? [],
+    });
+  };
 
   const presets = ["leaveEarly", "notPay", "damage"] as const;
 
@@ -39,14 +54,24 @@ export function ScenarioSimulatorPanel({ clauses }: { clauses: DocumentClause[] 
       sources: legalSources,
       locale: locale as "ar" | "en",
     });
-    await new Promise((r) => setTimeout(r, 500));
-    setResult({
+    const outcome: ScenarioOutcome = {
       question,
       consequence: locale === "ar" ? res.consequenceAr : res.consequenceEn,
       affectedClause: clauses.find((c) => c.id === res.affectedClauseId),
       questions: locale === "ar" ? res.questionsAr : res.questionsEn,
-    });
+    };
+    setResult(outcome);
     setLoading(false);
+    if (session) {
+      await saveAiHistory({
+        userId: session.userId,
+        kind: "scenario",
+        documentId,
+        prompt: question,
+        answer: { consequence: outcome.consequence, affectedClauseId: res.affectedClauseId ?? null, questions: outcome.questions },
+      });
+      await refetchHistory();
+    }
   };
 
   return (
@@ -74,6 +99,24 @@ export function ScenarioSimulatorPanel({ clauses }: { clauses: DocumentClause[] 
           {t("run")}
         </Button>
       </div>
+
+      {history.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-foreground-muted">{t("history")}</p>
+          <div className="flex flex-wrap gap-2">
+            {history.slice(0, 6).map((h) => (
+              <button
+                key={h.id}
+                type="button"
+                onClick={() => showSaved(h)}
+                className="max-w-full truncate rounded-full border border-border px-3 py-1 text-xs text-foreground-muted hover:bg-surface-muted"
+              >
+                {h.prompt}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading && (
         <div className="flex items-center gap-2 text-sm text-foreground-muted">

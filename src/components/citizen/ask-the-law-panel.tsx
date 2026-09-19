@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Send, MessageCircleQuestion, Sparkles } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -8,14 +8,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AiDisclaimer } from "@/components/shared/ai-disclaimer";
 import { askTheLawTurn } from "@/lib/ai/actions";
+import { useSession } from "@/lib/auth/use-session";
+import { useAiHistory } from "@/lib/data/hooks";
+import { saveAiHistory } from "@/lib/data/actions";
 import { legalSources } from "@/lib/mock-data";
 import { ChatMessage, DocumentClause } from "@/types";
 import { cn } from "@/lib/utils";
 
-export function AskTheLawPanel({ clauses }: { clauses: DocumentClause[] }) {
+export function AskTheLawPanel({ clauses, documentId }: { clauses: DocumentClause[]; documentId?: string }) {
   const t = useTranslations("citizen.askTheLaw");
   const locale = useLocale();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const { session } = useSession();
+  const { data: history } = useAiHistory("ask", documentId);
+  const [fresh, setFresh] = useState<ChatMessage[]>([]);
+  // Earlier exchanges come from the user's private history in the database.
+  const saved = useMemo<ChatMessage[]>(
+    () =>
+      [...history].reverse().flatMap((h) => [
+        { id: `hu-${h.id}`, role: "user" as const, content: h.prompt, createdAt: h.createdAt },
+        {
+          id: `ha-${h.id}`,
+          role: "assistant" as const,
+          content: String(h.answer.content ?? ""),
+          showLawyerCta: Boolean(h.answer.showLawyerCta),
+          createdAt: h.createdAt,
+        },
+      ]),
+    [history]
+  );
+  const messages = useMemo(() => [...saved, ...fresh], [saved, fresh]);
+  const setMessages = setFresh;
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -46,6 +68,15 @@ export function AskTheLawPanel({ clauses }: { clauses: DocumentClause[] }) {
     });
     setMessages((m) => [...m, reply]);
     setThinking(false);
+    if (session) {
+      await saveAiHistory({
+        userId: session.userId,
+        kind: "ask",
+        documentId,
+        prompt: question,
+        answer: { content: reply.content, showLawyerCta: Boolean(reply.showLawyerCta) },
+      });
+    }
   };
 
   return (

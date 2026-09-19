@@ -29,7 +29,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSession } from "@/lib/auth/use-session";
-import { useLawyerByProfileId } from "@/lib/auth/use-lawyer";
+import { toast } from "sonner";
+import { useMyLawyer } from "@/lib/auth/use-lawyer";
 import { useAppointments } from "@/lib/data/hooks";
 import { addAppointment, deleteAppointment as deleteAppointmentAction } from "@/lib/data/actions";
 import { Appointment } from "@/types";
@@ -41,7 +42,7 @@ export function CalendarView() {
   const t = useTranslations("lawyer.calendar");
   const locale = useLocale();
   const { session } = useSession();
-  const lawyer = useLawyerByProfileId(session?.userId);
+  const { lawyer } = useMyLawyer();
   const { data: events, refetch } = useAppointments();
 
   const [month, setMonth] = useState(new Date());
@@ -69,7 +70,7 @@ export function CalendarView() {
     if (!session || !lawyer || !form.title || !form.date) return;
     const start = new Date(`${form.date}T${form.time}:00`);
     const end = new Date(start.getTime() + 30 * 60000);
-    await addAppointment({
+    const res = await addAppointment({
       clientId: session.userId,
       clientName: form.clientName || "—",
       lawyerId: lawyer.id,
@@ -79,6 +80,7 @@ export function CalendarView() {
       type: form.type as Appointment["type"],
       status: "confirmed",
     });
+    if (!res.ok) return toast.error(t("saveFailed"));
     setDialogOpen(false);
     refetch();
   };

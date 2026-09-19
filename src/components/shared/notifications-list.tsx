@@ -12,7 +12,7 @@ import { useNotifications } from "@/lib/data/hooks";
 import { markAllNotificationsRead, markNotificationRead } from "@/lib/data/actions";
 import { formatDateTime, cn } from "@/lib/utils";
 
-export function NotificationsList({ namespace }: { namespace: "citizen" | "lawyer" }) {
+export function NotificationsList({ namespace }: { namespace: "citizen" | "lawyer" | "admin" }) {
   const t = useTranslations(`${namespace}.notifications`);
   const tCommon = useTranslations("common.status");
   const locale = useLocale();

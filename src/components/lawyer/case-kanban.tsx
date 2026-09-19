@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
+import { toast } from "sonner";
 import {
   DndContext,
   useDraggable,
@@ -15,10 +16,12 @@ import { Link } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CaseRecord, CaseStatus } from "@/types";
-import { updateCase } from "@/lib/data/actions";
+import { transitionCase } from "@/lib/data/actions";
+import { errorKey } from "@/lib/data/error-key";
+import { allowedTransitions, LAWYER_BOARD_STATUSES } from "@/lib/cases/lifecycle";
 import { formatDate, cn } from "@/lib/utils";
 
-const columns: CaseStatus[] = ["new", "contacted", "reviewing", "in_progress", "court", "closed"];
+const columns: CaseStatus[] = LAWYER_BOARD_STATUSES;
 
 const priorityColor: Record<CaseRecord["priority"], string> = {
   low: "text-foreground-muted",
@@ -68,7 +71,7 @@ function CaseCard({ item }: { item: CaseRecord }) {
 }
 
 function Column({ status, items }: { status: CaseStatus; items: CaseRecord[] }) {
-  const t = useTranslations("lawyer.cases.columns");
+  const t = useTranslations("cases.status");
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
@@ -95,15 +98,22 @@ function Column({ status, items }: { status: CaseStatus; items: CaseRecord[] }) 
 export function CaseKanban({ cases, onChanged }: { cases: CaseRecord[]; onChanged?: () => void }) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
+  const tCase = useTranslations("cases");
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
     const newStatus = over.id as CaseStatus;
     const current = cases.find((c) => c.id === active.id);
-    if (current && current.status !== newStatus) {
-      await updateCase(active.id as string, { status: newStatus });
-      onChanged?.();
+    if (!current || current.status === newStatus) return;
+    // The database enforces the lifecycle; this only avoids a pointless round-trip.
+    if (!allowedTransitions("lawyer", current.status).includes(newStatus)) {
+      toast.error(tCase("errors.invalid_transition"));
+      return;
     }
+    const res = await transitionCase(current.id, newStatus, "lawyer");
+    if (!res.ok) toast.error(tCase(`errors.${errorKey(res.error)}` as "errors.unknown"));
+    onChanged?.();
   };
 
   return (

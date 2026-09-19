@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { toast } from "sonner";
 import { User, Briefcase, ShieldCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { loginAction } from "@/lib/auth/actions";
-import { DEMO_EMAILS, DEMO_PASSWORD } from "@/lib/auth/demo-accounts";
+import { logoutAction } from "@/lib/auth/actions";
+import { setDemoCookie } from "@/lib/demo/mode";
+import { useDemoStore } from "@/lib/demo/store";
 import type { UserRole } from "@/types";
 
 const roles: { role: UserRole; icon: typeof User; key: "citizen" | "lawyer" | "admin" }[] = [
@@ -16,6 +16,11 @@ const roles: { role: UserRole; icon: typeof User; key: "citizen" | "lawyer" | "a
   { role: "admin", icon: ShieldCheck, key: "admin" },
 ];
 
+/**
+ * Enters the isolated demo. This does NOT sign anyone in: it drops any real
+ * session, resets the in-memory sample data, and sets a client-side flag that
+ * switches the UI to fake sample data with the database disabled.
+ */
 export function DemoEntryButtons({ variant = "landing" }: { variant?: "landing" | "login" }) {
   const t = useTranslations(variant === "landing" ? "landing.demoEntry" : "auth.login");
   const locale = useLocale();
@@ -29,12 +34,9 @@ export function DemoEntryButtons({ variant = "landing" }: { variant?: "landing" 
   const enter = async (role: UserRole) => {
     if (entering) return;
     setEntering(role);
-    const result = await loginAction(DEMO_EMAILS[role], DEMO_PASSWORD);
-    if (!result.ok) {
-      setEntering(null);
-      toast.error("Demo account unavailable right now.");
-      return;
-    }
+    await logoutAction();
+    useDemoStore.getState().reset();
+    setDemoCookie(role);
     setRedirectTo(`/${locale}/${role}/dashboard`);
   };
 

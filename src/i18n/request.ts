@@ -10,6 +10,7 @@ const namespaces = [
   "marketplace",
   "lawyer",
   "admin",
+  "cases",
 ] as const;
 
 export default getRequestConfig(async ({ requestLocale }) => {

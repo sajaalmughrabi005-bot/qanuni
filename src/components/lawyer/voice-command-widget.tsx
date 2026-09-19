@@ -11,14 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { processVoiceCommandAction } from "@/lib/ai/actions";
 import { VoiceCommandResult } from "@/lib/ai/engine";
 import { useSession } from "@/lib/auth/use-session";
-import { useLawyerByProfileId } from "@/lib/auth/use-lawyer";
+import { useMyLawyer } from "@/lib/auth/use-lawyer";
 import { addAppointment } from "@/lib/data/actions";
-
-const DEMO_TRANSCRIPTS_AR = [
-  "ذكرني أتواصل مع أحمد بكرة الساعة 11",
-  "ذكرني أتواصل مع سلمى اليوم الساعة 3",
-];
-const DEMO_TRANSCRIPTS_EN = ["Remind me to call Ahmad tomorrow at 11", "Remind me to follow up with Salma today at 3"];
 
 type SpeechRecognitionLike = {
   lang: string;
@@ -44,7 +38,7 @@ export function VoiceCommandWidget() {
   const t = useTranslations("lawyer.voice");
   const locale = useLocale();
   const { session } = useSession();
-  const lawyer = useLawyerByProfileId(session?.userId);
+  const { lawyer } = useMyLawyer();
 
   const [listening, setListening] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -70,14 +64,8 @@ export function VoiceCommandWidget() {
     setResult(null);
     const SpeechRecognitionCtor = getSpeechRecognition();
 
-    if (!SpeechRecognitionCtor) {
-      setListening(true);
-      const demo = locale === "ar" ? DEMO_TRANSCRIPTS_AR : DEMO_TRANSCRIPTS_EN;
-      const pick = demo[Math.floor(Math.random() * demo.length)];
-      await new Promise((r) => setTimeout(r, 1400));
-      await finishTranscript(pick);
-      return;
-    }
+    // No fake transcript: without browser speech recognition the lawyer types the command instead.
+    if (!SpeechRecognitionCtor) return;
 
     try {
       const recognition = new SpeechRecognitionCtor();
@@ -123,9 +111,10 @@ export function VoiceCommandWidget() {
 
   const confirm = async () => {
     if (!session || !lawyer || !result) return;
+    if (!lawyer.id) return;
     const start = new Date();
     if (result.date === "tomorrow") start.setDate(start.getDate() + 1);
-    await addAppointment({
+    const saved = await addAppointment({
       clientId: session.userId,
       clientName: result.clientName || "—",
       lawyerId: lawyer.id,
@@ -136,6 +125,7 @@ export function VoiceCommandWidget() {
       status: "confirmed",
       notes: transcript,
     });
+    if (!saved.ok) return toast.error(t("micError"));
     toast.success(t("create"));
     setResult(null);
     setTranscript("");
@@ -154,8 +144,9 @@ export function VoiceCommandWidget() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={speechSupported && listening ? stopListening : startListening}
-            disabled={processing}
+            onClick={listening ? stopListening : startListening}
+            disabled={processing || !speechSupported}
+            aria-label={t("title")}
             className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition-colors ${
               listening ? "animate-pulse bg-risk-high text-white" : "bg-navy text-gold hover:bg-navy-light"
             }`}
@@ -163,8 +154,17 @@ export function VoiceCommandWidget() {
             <Mic className="h-6 w-6" />
           </button>
           <div className="flex-1">
-            <Input value={transcript} onChange={(e) => setTranscript(e.target.value)} placeholder={t("transcript")} readOnly={listening} />
+            <Input
+              value={transcript}
+              onChange={(e) => setTranscript(e.target.value)}
+              placeholder={t("transcript")}
+              readOnly={listening}
+              maxLength={300}
+            />
           </div>
+          <Button size="sm" variant="outline" disabled={processing || listening || !transcript.trim()} onClick={() => finishTranscript(transcript.trim())}>
+            {t("analyzeText")}
+          </Button>
         </div>
 
         {listening && <p className="text-sm text-foreground-muted">{t("listening")}</p>}

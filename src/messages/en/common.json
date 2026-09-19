@@ -80,7 +80,18 @@
     "city": "City",
     "save": "Save",
     "cancel": "Cancel",
-    "saved": "Changes saved"
+    "saved": "Changes saved",
+    "photoInvalid": "Invalid image. Use JPG, PNG or WebP under 5MB.",
+    "saveFailed": "Couldn't save your changes. Please try again.",
+    "demoNotice": "You're in the demo — changes stay in this browser and aren't saved.",
+    "deleteTitle": "Delete account",
+    "deleteDesc": "Your account and all your data (contracts, analyses, requests, notifications) will be permanently deleted. This can't be undone.",
+    "deleteConfirmLabel": "Type your email to confirm",
+    "deleteButton": "Delete my account permanently",
+    "deleteWorking": "Deleting...",
+    "deleteFailed": "Couldn't delete the account. Check that you typed your email correctly.",
+    "adminCannotDelete": "Admin accounts can't be deleted from here.",
+    "accountTitle": "Account details"
   },
   "assistant": {
     "title": "Legal Assistant — help & technical issues",
@@ -103,5 +114,10 @@
     "verifiedSource": "Verified legal source",
     "demoPlaceholder": "Demo / Placeholder — requires verification",
     "privacyNotice": "Legal documents may contain sensitive information. Upload only documents you are authorized to share."
+  },
+  "demoBanner": {
+    "text": "You're in the demo — all data here is fake, nothing is saved and nothing connects to a real account.",
+    "signup": "Create your real account",
+    "exit": "Exit demo"
   }
 }

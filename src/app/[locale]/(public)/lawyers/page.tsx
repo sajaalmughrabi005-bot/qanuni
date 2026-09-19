@@ -8,7 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LawyerCard } from "@/components/shared/lawyer-card";
-import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useLawyerDirectory } from "@/lib/auth/use-lawyer";
 import type { LawyerSpecialty } from "@/types";
 
 const specialties: LawyerSpecialty[] = [
@@ -28,11 +30,11 @@ export default function LawyerMarketplacePage() {
   const [query, setQuery] = useState("");
   const [city, setCity] = useState<string>("all");
   const [specialty, setSpecialty] = useState<string>("all");
-  const allLawyers = useLawyersWithOverrides();
-  const lawyers = useMemo(
-    () => allLawyers.filter((l) => l.verificationStatus !== "pending" && l.verificationStatus !== "unverified"),
-    [allLawyers]
-  );
+  const [availability, setAvailability] = useState<string>("all");
+  const [acceptingOnly, setAcceptingOnly] = useState(false);
+  // The directory only ever contains approved lawyers (enforced in the database view).
+  const { lawyers } = useLawyerDirectory();
+  const tAvail = useTranslations("marketplace.availability");
 
   const cities = useMemo(
     () => Array.from(new Set(lawyers.map((l) => l.city).filter(Boolean))),
@@ -43,6 +45,8 @@ export default function LawyerMarketplacePage() {
     if (query && !l.fullName.toLowerCase().includes(query.toLowerCase())) return false;
     if (city !== "all" && l.city !== city) return false;
     if (specialty !== "all" && !l.specialties.includes(specialty as LawyerSpecialty)) return false;
+    if (availability !== "all" && l.availabilityStatus !== availability) return false;
+    if (acceptingOnly && !l.acceptingNewCases) return false;
     return true;
   });
 
@@ -89,18 +93,40 @@ export default function LawyerMarketplacePage() {
             ))}
           </SelectContent>
         </Select>
-        {(query || city !== "all" || specialty !== "all") && (
+        <Select value={availability} onValueChange={setAvailability}>
+          <SelectTrigger className="sm:w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("search.allAvailability")}</SelectItem>
+            {(["available_today", "available_this_week", "busy"] as const).map((a) => (
+              <SelectItem key={a} value={a}>
+                {tAvail(a)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {(query || city !== "all" || specialty !== "all" || availability !== "all" || acceptingOnly) && (
           <Button
             variant="ghost"
             onClick={() => {
               setQuery("");
               setCity("all");
               setSpecialty("all");
+              setAvailability("all");
+              setAcceptingOnly(false);
             }}
           >
             {t("search.clearFilters")}
           </Button>
         )}
+      </div>
+
+      <div className="mb-6 flex items-center gap-2">
+        <Switch id="accepting-only" checked={acceptingOnly} onCheckedChange={setAcceptingOnly} />
+        <Label htmlFor="accepting-only" className="text-sm">
+          {t("search.acceptingOnly")}
+        </Label>
       </div>
 
       {filtered.length === 0 ? (

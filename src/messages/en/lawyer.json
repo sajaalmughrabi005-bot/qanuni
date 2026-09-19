@@ -9,7 +9,9 @@
     "messages": "Messages",
     "notifications": "Notifications",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "requests": "New requests",
+    "verification": "Verification"
   },
   "dashboard": {
     "welcome": "Welcome, {name}",
@@ -19,30 +21,12 @@
     "upcomingAppointments": "Upcoming appointments",
     "pendingResponses": "Pending responses",
     "documentsToReview": "Documents to review",
-    "recentActivity": "Recent activity",
-    "quickActions": "Quick actions"
-  },
-  "quickActions": {
-    "requestDocument": "Request missing document",
-    "scheduleConsultation": "Schedule consultation",
-    "sendProposal": "Send consultation proposal",
-    "askClarification": "Ask client for clarification",
-    "sendReminder": "Send payment reminder",
-    "markReviewed": "Mark case as reviewed",
-    "sentDemo": "Sent (demo simulation)"
+    "recentActivity": "Recent activity"
   },
   "cases": {
     "title": "Cases",
     "kanban": "Board view",
     "list": "List view",
-    "columns": {
-      "new": "New",
-      "contacted": "Contacted",
-      "reviewing": "Reviewing",
-      "in_progress": "In Progress",
-      "court": "Court / Proceedings",
-      "closed": "Closed"
-    },
     "priority": {
       "low": "Low",
       "medium": "Medium",
@@ -91,7 +75,7 @@
   },
   "dataEntry": {
     "title": "Extract from Document",
-    "subtitle": "Upload a scanned legal document and extract its data automatically",
+    "subtitle": "Paste the text of a legal document (or upload a .txt file) and extract its data to create a case.",
     "upload": "Upload document to extract",
     "pasteHint": "Or paste the document text here to extract...",
     "extractAction": "Extract Data",
@@ -107,7 +91,9 @@
       "deadline": "Deadline"
     },
     "confidence": "Extraction confidence",
-    "confirmSave": "Confirm & Save"
+    "confirmSave": "Confirm & Save",
+    "textOnly": "Text files (.txt) only — for other documents paste the text.",
+    "tooLarge": "File is too large (limit 200KB)."
   },
   "drafter": {
     "title": "AI Legal Drafter",
@@ -131,7 +117,8 @@
       "draft": "Draft",
       "final": "Final",
       "sent": "Sent"
-    }
+    },
+    "saveFailed": "Couldn't save the draft."
   },
   "calendar": {
     "title": "Calendar",
@@ -152,7 +139,8 @@
     "time": "Time",
     "reminder": "Reminder",
     "save": "Save event",
-    "delete": "Delete event"
+    "delete": "Delete event",
+    "saveFailed": "Couldn't save the appointment."
   },
   "notifications": {
     "title": "Notifications",
@@ -190,12 +178,13 @@
     "client": "Client",
     "when": "When",
     "create": "Create reminder",
-    "simulatedNotice": "Simulated voice demo — your browser doesn't support speech recognition",
+    "simulatedNotice": "Your browser doesn't support speech recognition — type the command and press Analyze",
     "realMicNotice": "Real speech recognition via your browser — speak naturally and we'll turn it into a reminder",
     "micError": "Couldn't access the microphone. Make sure it's allowed.",
     "micPermissionDenied": "The browser blocked microphone access — click the lock icon next to the address bar and allow the microphone for this site.",
     "micNoSpeech": "We didn't hear anything. Make sure your microphone is on and try again.",
-    "notUnderstood": "We couldn't understand a clear command. Try e.g. \"Remind me to call Ahmad tomorrow at 11\"."
+    "notUnderstood": "We couldn't understand a clear command. Try e.g. \"Remind me to call Ahmad tomorrow at 11\".",
+    "analyzeText": "Analyze"
   },
   "profile": {
     "title": "Profile",
@@ -209,12 +198,50 @@
     "availability": "Availability",
     "save": "Save",
     "cancel": "Cancel",
-    "saved": "Changes saved"
+    "saved": "Changes saved",
+    "acceptingNewCases": "Accepting new cases",
+    "acceptingYes": "Accepting new cases",
+    "acceptingNo": "Not accepting new cases",
+    "yearsShort": "years experience",
+    "invalidNumbers": "Check the price and years of experience values.",
+    "specialtiesRequired": "Choose at least one specialty."
   },
   "settings": {
     "title": "Settings",
     "notifications": "Notification settings",
     "language": "Default language",
-    "availability": "Availability status"
+    "availability": "Availability status",
+    "acceptingTitle": "Accepting cases",
+    "acceptingLabel": "I'm accepting new cases",
+    "acceptingHelp": "When off, citizens can't send you new requests and your profile shows as not accepting cases.",
+    "moreInProfile": "To edit the rest of your public details, open your profile page."
+  },
+  "verification": {
+    "title": "Account verification",
+    "subtitle": "Your account is only shown as a verified lawyer in the directory after an admin reviews and approves your details.",
+    "openPage": "Complete verification",
+    "status": {
+      "pending": "Under review",
+      "approved": "Verified",
+      "rejected": "Rejected",
+      "more_info_requested": "More information needed"
+    },
+    "statusText": {
+      "pending": "We received your verification request and an admin is reviewing it. You'll be notified of the decision.",
+      "approved": "Your account is verified and your profile appears in the lawyer directory.",
+      "rejected": "Your verification request was rejected. You can update your details and resubmit.",
+      "more_info_requested": "An admin asked for more information. Update your details below and resubmit."
+    },
+    "adminNote": "Admin note",
+    "barNumber": "Bar association number",
+    "infoLabel": "Verification details",
+    "infoHelp": "Mention your bar registration year, workplace and anything that helps the admin verify you. Don't upload ID numbers or sensitive documents here.",
+    "infoPlaceholder": "e.g. Registered with the Jordan Bar Association since 2016, office in Amman - Shmeisani...",
+    "submit": "Submit for review",
+    "saved": "Your details were submitted for review.",
+    "failed": "Couldn't submit your details. Please try again.",
+    "tooShort": "Write enough information to verify you (at least 20 characters).",
+    "hiddenNotice": "Bar numbers and this information are private: only you and admins can see them.",
+    "banner": "Your verification status: {status}. You won't appear as a verified lawyer in the directory until an admin approves your details."
   }
 }

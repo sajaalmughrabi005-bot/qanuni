@@ -4,13 +4,13 @@ import { useTranslations } from "next-intl";
 import { Heart } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LawyerCard } from "@/components/shared/lawyer-card";
-import { useAppStore } from "@/lib/store/app-store";
-import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
+import { useSavedLawyerIds } from "@/lib/data/hooks";
+import { useLawyerDirectory } from "@/lib/auth/use-lawyer";
 
 export default function SavedLawyersPage() {
   const t = useTranslations("citizen.lawyers");
-  const savedLawyerIds = useAppStore((s) => s.savedLawyerIds);
-  const lawyers = useLawyersWithOverrides();
+  const { ids: savedLawyerIds } = useSavedLawyerIds();
+  const { lawyers } = useLawyerDirectory();
   const saved = lawyers.filter((l) => savedLawyerIds.includes(l.id));
 
   return (

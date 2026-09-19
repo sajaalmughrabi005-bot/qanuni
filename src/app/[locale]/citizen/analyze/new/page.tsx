@@ -13,21 +13,22 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { useSession } from "@/lib/auth/use-session";
-import { addOwnNotification, createDraftDocument, deleteDocument, finalizeDocumentAnalysis } from "@/lib/data/actions";
+import { createDraftDocument, deleteDocument, finalizeDocumentAnalysis } from "@/lib/data/actions";
 import { analyzeDocumentAction } from "@/lib/ai/actions";
 import { DEMO_DOCUMENT_ID } from "@/lib/mock-data";
 import type { DocumentType } from "@/types";
 
 const STEPS = ["uploading", "extracting", "identifying", "comparing", "generating"] as const;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB, matches the UI copy
-const ACCEPTED_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg", ".txt"];
+const READABLE_EXTENSIONS = [".txt"];
+const UNREADABLE_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg"];
 
 export default function NewAnalysisPage() {
   const t = useTranslations("citizen.upload");
   const tProcessing = useTranslations("citizen.processing");
   const locale = useLocale();
   const router = useRouter();
-  const { session } = useSession();
+  const { session, isDemo } = useSession();
 
   const [phase, setPhase] = useState<"form" | "processing">("form");
   const [stepIndex, setStepIndex] = useState(0);
@@ -39,13 +40,18 @@ export default function NewAnalysisPage() {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const useDemo = () => {
+  const openSample = () => {
     router.push(`/citizen/analyze/${DEMO_DOCUMENT_ID}`);
   };
 
-  const acceptFile = (f: File) => {
+  const acceptFile = async (f: File) => {
     const ext = "." + (f.name.split(".").pop() || "").toLowerCase();
-    if (!ACCEPTED_EXTENSIONS.includes(ext)) {
+    if (UNREADABLE_EXTENSIONS.includes(ext)) {
+      // We can't extract text from PDFs/scans yet; be upfront instead of analysing a placeholder.
+      toast.error(t("needsText"));
+      return;
+    }
+    if (!READABLE_EXTENSIONS.includes(ext)) {
       toast.error(t("fileTypeNotSupported"));
       return;
     }
@@ -54,18 +60,21 @@ export default function NewAnalysisPage() {
       return;
     }
     setFile(f);
+    setPastedText((await f.text()).slice(0, 20000));
   };
 
   const runAnalysis = async () => {
+    if (isDemo) {
+      // The demo never analyses real documents; it opens the clearly-labelled sample instead.
+      openSample();
+      return;
+    }
     if (!session) return;
     setPhase("processing");
 
     const fileName = file?.name || (locale === "ar" ? "مستند-ملصق.txt" : "pasted-document.txt");
     const contextLine = `${t("roleLabel")}: ${t(`role.${role}`)} | ${t("purposeLabel")}: ${t(`purpose.${purpose}`)}`;
-    const baseText = pastedText.trim()
-      ? pastedText.trim()
-      : `Document: ${fileName}\nType: ${docType}\n(No extracted text available — file uploaded in demo mode without OCR. Paste contract text for a fully grounded analysis.)`;
-    const text = `${contextLine}\n\n${baseText}`;
+    const text = `${contextLine}\n\n${pastedText.trim()}`;
 
     const documentId = await createDraftDocument({
       userId: session.userId,
@@ -108,18 +117,6 @@ export default function NewAnalysisPage() {
       toast.error(locale === "ar" ? "تعذر حفظ نتيجة التحليل. حاول مرة أخرى." : "Couldn't save the analysis. Please try again.");
       return;
     }
-
-    await addOwnNotification({
-      userId: session.userId,
-      type: "analysis_ready",
-      titleAr: "تحليل العقد جاهز",
-      titleEn: "Contract analysis ready",
-      bodyAr: `انتهينا من تحليل "${fileName}"`,
-      bodyEn: `We finished analyzing "${fileName}"`,
-      read: false,
-      isDemo: true,
-      href: `/citizen/analyze/${documentId}`,
-    });
 
     router.push(`/citizen/analyze/${documentId}`);
   };
@@ -187,7 +184,7 @@ export default function NewAnalysisPage() {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.png,.jpg,.jpeg,.txt"
+              accept=".txt,.pdf,.png,.jpg,.jpeg"
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];
@@ -292,9 +289,11 @@ export default function NewAnalysisPage() {
             <Button className="flex-1" onClick={runAnalysis} disabled={!file && !pastedText.trim()}>
               {t("analyzeButton")}
             </Button>
-            <Button variant="outline" className="flex-1" onClick={useDemo}>
-              {t("useDemo")}
-            </Button>
+            {isDemo && (
+              <Button variant="outline" className="flex-1" onClick={openSample}>
+                {t("useDemo")}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

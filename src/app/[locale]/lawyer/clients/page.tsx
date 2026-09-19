@@ -14,15 +14,18 @@ export default function ClientsPage() {
   const t = useTranslations("lawyer.clients");
   const { data: myCases } = useCases();
 
+  // Only cases the lawyer actually took on count as clients; pending/declined requests are not.
   const clients = Array.from(
-    myCases.reduce((map, c) => {
-      const existing = map.get(c.clientId) || { name: c.clientName, total: 0, active: 0, activeCaseId: undefined as string | undefined };
+    myCases
+      .filter((c) => c.clientId && c.status !== "requested" && c.status !== "rejected")
+      .reduce((map, c) => {
+      const existing = map.get(c.clientId as string) || { name: c.clientName, total: 0, active: 0, activeCaseId: undefined as string | undefined };
       existing.total += 1;
       if (c.status !== "closed") {
         existing.active += 1;
         existing.activeCaseId = existing.activeCaseId || c.id;
       }
-      map.set(c.clientId, existing);
+      map.set(c.clientId as string, existing);
       return map;
     }, new Map<string, { name: string; total: number; active: number; activeCaseId?: string }>())
   );

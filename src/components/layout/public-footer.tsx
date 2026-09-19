@@ -29,8 +29,8 @@ export function PublicFooter() {
           <div>
             <p className="text-sm font-semibold">{t("footer.company")}</p>
             <ul className="mt-3 space-y-2 text-sm text-foreground-muted">
-              <li>{t("footer.privacy")}</li>
-              <li>{t("footer.terms")}</li>
+              <li><Link href="/privacy">{t("footer.privacy")}</Link></li>
+              <li><Link href="/terms">{t("footer.terms")}</Link></li>
             </ul>
           </div>
         </div>

@@ -73,17 +73,19 @@
   },
   "finalCta": {
     "title": "Ready to understand your rights?",
-    "subtitle": "Try the platform now for free — no account required",
-    "cta": "Start Now for Free"
+    "subtitle": "Start free and create your account to save your analyses and contact lawyers.",
+    "cta": "Start free",
+    "demoCta": "Or try the demo version before signing up"
   },
   "demoEntry": {
-    "title": "Try QANUNI now",
-    "subtitle": "Pick a role to explore the platform instantly, no sign-up needed",
+    "title": "Try the demo version",
+    "subtitle": "Explore the platform with sample data — nothing is saved and no real data is shown",
     "citizen": "Try Citizen Demo",
-    "citizenDesc": "Check a ready-made rental contract and see the full analysis",
+    "citizenDesc": "Analyze a sample contract and see lawyer requests",
     "lawyer": "Try Lawyer Demo",
-    "lawyerDesc": "Explore the lawyer dashboard and case pipeline",
+    "lawyerDesc": "Explore incoming requests and the case board",
     "admin": "Try Admin Demo",
-    "adminDesc": "See the full platform analytics"
+    "adminDesc": "See the admin dashboard, verification and statistics",
+    "badge": "Demo — sample data"
   }
 }

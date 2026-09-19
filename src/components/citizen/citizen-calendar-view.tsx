@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAppointments } from "@/lib/data/hooks";
-import { useLawyersWithOverrides } from "@/lib/auth/use-lawyer";
+import { useLawyerDirectory } from "@/lib/auth/use-lawyer";
 import { cn, formatDateTime, formatMonthYear, formatDayNumber, formatWeekdayShort, formatWeekdayLong } from "@/lib/utils";
 
 const typeIcon = { video: Video, phone: Phone, in_person: MapPin, court: Gavel, deadline: AlarmClock, follow_up: RotateCcw };
@@ -30,7 +30,7 @@ export function CitizenCalendarView() {
   const locale = useLocale();
   const router = useRouter();
   const { data: events } = useAppointments();
-  const lawyers = useLawyersWithOverrides();
+  const { lawyers } = useLawyerDirectory();
 
   const [month, setMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(new Date());

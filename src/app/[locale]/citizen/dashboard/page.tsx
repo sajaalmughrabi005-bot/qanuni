@@ -14,7 +14,7 @@ import {
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { CaseStatusBadge } from "@/components/cases/status-badge";
 import { StatCard } from "@/components/shared/stat-card";
 import { useSession } from "@/lib/auth/use-session";
 import { useAppointments, useCases, useDocuments, useNotifications } from "@/lib/data/hooks";
@@ -22,7 +22,6 @@ import { formatDateTime } from "@/lib/utils";
 
 export default function CitizenDashboardPage() {
   const t = useTranslations("citizen.dashboard");
-  const tCases = useTranslations("citizen.cases.status");
   const tCasesSection = useTranslations("citizen.cases");
   const tAppointments = useTranslations("citizen.appointments");
   const locale = useLocale();
@@ -86,7 +85,7 @@ export default function CitizenDashboardPage() {
                 className="flex items-center justify-between rounded-xl border border-border p-3 text-sm hover:bg-surface-muted"
               >
                 <span className="font-medium">{c.title}</span>
-                <Badge variant="outline">{tCases(c.status)}</Badge>
+                <CaseStatusBadge status={c.status} />
               </Link>
             ))}
           </CardContent>

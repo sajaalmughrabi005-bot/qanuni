@@ -1,58 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { mapProfile } from "@/lib/supabase/mappers";
+import { Input } from "@/components/ui/input";
+import { useSession } from "@/lib/auth/use-session";
+import { useAdminUsers } from "@/lib/data/hooks";
+import { adminSetAccountStatus } from "@/lib/data/actions";
+import { errorKey } from "@/lib/data/error-key";
 import { initials } from "@/lib/utils";
-import type { Profile } from "@/types";
+import type { Profile, UserRole } from "@/types";
+
+const ROLE_FILTERS: (UserRole | "all")[] = ["all", "citizen", "lawyer", "admin"];
 
 export default function AdminUsersPage() {
   const t = useTranslations("admin.nav");
   const tUsers = useTranslations("admin.users");
   const tRoles = useTranslations("common.roles");
-  const [users, setUsers] = useState<Profile[]>([]);
+  const tCases = useTranslations("cases");
+  const { profile: me } = useSession();
+  const { data: users, refetch } = useAdminUsers();
+  const [role, setRole] = useState<UserRole | "all">("all");
+  const [query, setQuery] = useState("");
 
-  const load = async () => {
-    const supabase = createSupabaseBrowserClient();
-    if (!supabase) return;
-    const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
-    setUsers((data || []).map(mapProfile));
-  };
-
-  useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
-    if (!supabase) return;
-    supabase
-      .from("profiles")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => setUsers((data || []).map(mapProfile)));
-  }, []);
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return users.filter((u) => (role === "all" || u.role === role) && (!q || u.fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+  }, [users, role, query]);
 
   const toggleStatus = async (p: Profile) => {
-    const supabase = createSupabaseBrowserClient();
-    if (!supabase) return;
-    const nextStatus = p.accountStatus === "disabled" ? "active" : "disabled";
-    await supabase.from("profiles").update({ account_status: nextStatus }).eq("id", p.id);
-    load();
+    const next = p.accountStatus === "disabled" ? "active" : "disabled";
+    const res = await adminSetAccountStatus(p.id, next);
+    if (!res.ok) return toast.error(tCases(`errors.${errorKey(res.error)}` as "errors.unknown"));
+    toast.success(tUsers(next === "active" ? "activated" : "deactivated"));
+    refetch();
   };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <h1 className="text-2xl font-semibold">{t("users")}</h1>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tUsers("search")} className="max-w-xs" />
+        {ROLE_FILTERS.map((r) => (
+          <Button key={r} size="sm" variant={role === r ? "default" : "outline"} onClick={() => setRole(r)}>
+            {r === "all" ? tUsers("all") : tRoles(r)} ({r === "all" ? users.length : users.filter((u) => u.role === r).length})
+          </Button>
+        ))}
+      </div>
+
       <div className="space-y-3">
-        {users.map((p) => (
+        {shown.map((p) => (
           <Card key={p.id}>
-            <CardContent className="flex items-center gap-3 p-4">
+            <CardContent className="flex flex-wrap items-center gap-3 p-4">
               <Avatar>
+                {p.avatarUrl && <AvatarImage src={p.avatarUrl} alt={p.fullName} />}
                 <AvatarFallback>{initials(p.fullName)}</AvatarFallback>
               </Avatar>
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <p className="font-medium">{p.fullName}</p>
                 <p className="text-xs text-foreground-muted">{p.email}</p>
               </div>
@@ -62,9 +71,11 @@ export default function AdminUsersPage() {
                   <Badge variant={p.accountStatus === "disabled" ? "high" : "low"}>
                     {p.accountStatus === "disabled" ? tUsers("statusDisabled") : tUsers("statusActive")}
                   </Badge>
-                  <Button size="sm" variant="outline" onClick={() => toggleStatus(p)}>
-                    {p.accountStatus === "disabled" ? tUsers("activate") : tUsers("deactivate")}
-                  </Button>
+                  {p.id !== me?.id && (
+                    <Button size="sm" variant="outline" onClick={() => toggleStatus(p)}>
+                      {p.accountStatus === "disabled" ? tUsers("activate") : tUsers("deactivate")}
+                    </Button>
+                  )}
                 </>
               )}
             </CardContent>

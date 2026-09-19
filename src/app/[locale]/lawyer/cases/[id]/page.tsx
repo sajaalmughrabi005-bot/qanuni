@@ -1,18 +1,20 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { toast } from "sonner";
 import {
-  MessageSquareQuote,
   FileSearch,
   Scale,
   Sparkles,
   FileEdit,
-  Send,
   MessageCircle,
   Phone,
   Mail,
+  Check,
+  X,
+  Flag,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,86 +25,144 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/shared/empty-state";
 import { RiskBadge } from "@/components/shared/risk-badge";
 import { CaseFinancialTracker } from "@/components/lawyer/case-financial-tracker";
-import { useCases, useClausesByIds, useMessages } from "@/lib/data/hooks";
-import { addMessage, updateCase } from "@/lib/data/actions";
+import { CaseStatusBadge } from "@/components/cases/status-badge";
+import { CaseTimeline } from "@/components/cases/case-timeline";
+import { CaseMessages } from "@/components/cases/case-messages";
+import { CaseDocumentsPanel } from "@/components/cases/case-documents-panel";
+import { CaseStatusActions } from "@/components/cases/status-actions";
+import { RejectDialog } from "@/components/cases/reject-dialog";
+import { ReportDialog } from "@/components/cases/report-dialog";
+import { useCases, useCaseEvents, useCaseNotes, useClausesByIds } from "@/lib/data/hooks";
+import { addCaseNote, markCaseViewed, respondToCase, updateCaseFields } from "@/lib/data/actions";
+import { errorKey } from "@/lib/data/error-key";
 import { useSession } from "@/lib/auth/use-session";
+import { useMyLawyer } from "@/lib/auth/use-lawyer";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { mapProfile } from "@/lib/supabase/mappers";
+import { useDemoStore } from "@/lib/demo/store";
 import { legalSources } from "@/lib/mock-data";
-import { CaseStatus, CasePriority, type Profile } from "@/types";
-import { formatDate } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { formatDate, formatDateTime } from "@/lib/utils";
+import type { CasePriority, Profile, RejectionReason } from "@/types";
 
 export default function LawyerCaseDetailPage() {
   const params = useParams<{ id: string }>();
   const t = useTranslations("lawyer.caseDetail");
-  const tCol = useTranslations("lawyer.cases.columns");
+  const tCase = useTranslations("cases");
   const tPriority = useTranslations("lawyer.cases.priority");
-  const tMessages = useTranslations("lawyer.messages");
+  const tSpec = useTranslations("marketplace.specialties");
   const locale = useLocale();
-  const { session, profile } = useSession();
-  const [messageInput, setMessageInput] = useState("");
-  const [clientProfile, setClientProfile] = useState<Profile | undefined>(undefined);
+  const ar = locale === "ar";
+  const { session, isDemo } = useSession();
+  const { lawyer: me } = useMyLawyer();
+  const demoProfiles = useDemoStore((s) => s.profiles);
 
-  const { data: cases, refetch: refetchCases } = useCases();
+  const { data: cases, loading, refetch } = useCases();
   const item = cases.find((c) => c.id === params.id);
   const { data: relevantClauses } = useClausesByIds(item?.relevantClauseIds || []);
-  const { data: caseMessages, refetch: refetchMessages } = useMessages(params.id);
+  const { data: events, refetch: refetchEvents } = useCaseEvents(item?.id);
+  const { data: notes, refetch: refetchNotes } = useCaseNotes(item?.id);
 
+  const [realClient, setRealClient] = useState<Profile | undefined>(undefined);
+  const [noteText, setNoteText] = useState("");
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const clientProfile = isDemo ? demoProfiles.find((p) => p.id === item?.clientId) : realClient;
+  const contactVisible = !!item && item.status !== "requested" && item.status !== "rejected";
+
+  // Contact details are only readable after acceptance (RLS enforces this too).
   useEffect(() => {
-    if (!item) return;
+    if (!item?.clientId || !contactVisible) return;
     const supabase = createSupabaseBrowserClient();
     if (!supabase) return;
     supabase
       .from("profiles")
       .select("*")
       .eq("id", item.clientId)
-      .single()
-      .then(({ data }) => setClientProfile(data ? mapProfile(data) : undefined));
-  }, [item]);
+      .maybeSingle()
+      .then(({ data }) => setRealClient(data ? mapProfile(data) : undefined));
+  }, [item?.clientId, contactVisible]);
 
-  if (!item) {
-    return <EmptyState icon={FileSearch} title="Not found" className="mx-auto mt-16 max-w-lg" />;
+  // Opening a request is recorded once on the timeline (server-side, idempotent).
+  useEffect(() => {
+    if (item && item.status === "requested" && !item.viewedByLawyerAt) {
+      markCaseViewed(item.id).then(() => refetchEvents());
+    }
+    // only on first load of this case
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item?.id]);
+
+  if (loading) return null;
+  if (!item || !session) {
+    return <EmptyState icon={FileSearch} title={t("notFound")} className="mx-auto mt-16 max-w-lg" />;
   }
 
-  const ar = locale === "ar";
-  const whatsappHref = clientProfile?.phone
-    ? `https://wa.me/${clientProfile.phone.replace(/\D/g, "")}`
-    : undefined;
-
-  const sendMessage = async () => {
-    if (!messageInput.trim() || !session || !profile) return;
-    await addMessage({
-      caseId: item.id,
-      senderId: session.userId,
-      senderName: profile.fullName,
-      senderRole: "lawyer",
-      message: messageInput.trim(),
-    });
-    setMessageInput("");
-    refetchMessages();
+  const refreshAll = () => {
+    refetch();
+    refetchEvents();
   };
+  const whatsappHref = clientProfile?.phone ? `https://wa.me/${clientProfile.phone.replace(/\D/g, "")}` : undefined;
+
+  const accept = async () => {
+    setBusy(true);
+    const res = await respondToCase(item.id, true);
+    setBusy(false);
+    if (!res.ok) return toast.error(tCase(`errors.${errorKey(res.error)}` as "errors.unknown"));
+    toast.success(tCase("requests.accepted"));
+    refreshAll();
+  };
+  const reject = async (reason: RejectionReason, note: string) => {
+    setBusy(true);
+    const res = await respondToCase(item.id, false, reason, note);
+    setBusy(false);
+    if (!res.ok) return toast.error(tCase(`errors.${errorKey(res.error)}` as "errors.unknown"));
+    toast.success(tCase("requests.rejected"));
+    setRejectOpen(false);
+    refreshAll();
+  };
+  const changePriority = async (priority: CasePriority) => {
+    const res = await updateCaseFields(item.id, { priority });
+    if (!res.ok) toast.error(tCase(`errors.${errorKey(res.error)}` as "errors.unknown"));
+    refetch();
+  };
+  const saveNote = async () => {
+    if (!me || !noteText.trim()) return;
+    const res = await addCaseNote(item.id, me.id, noteText);
+    if (!res.ok) return toast.error(tCase(`errors.${errorKey(res.error)}` as "errors.unknown"));
+    setNoteText("");
+    refetchNotes();
+  };
+
+  const workable = item.status !== "requested" && item.status !== "rejected";
+  const hasSummary = !!((ar ? item.summaryAr : item.summaryEn) || item.keyDatesAr.length || item.questionsAr.length);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">{item.title}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-semibold">{item.title}</h1>
+            <CaseStatusBadge status={item.status} />
+          </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-3">
-            <p className="text-foreground-muted">{item.clientName}</p>
-            {clientProfile?.phone && (
+            <p className="text-foreground-muted">
+              {item.clientName}
+              {item.isManual && <span className="ms-2 text-xs">({tCase("client.manual")})</span>}
+            </p>
+            {contactVisible && clientProfile?.phone && (
               <a href={`tel:${clientProfile.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5 text-sm text-foreground-muted hover:text-foreground">
                 <Phone className="h-3.5 w-3.5" />
                 {clientProfile.phone}
               </a>
             )}
-            {clientProfile?.email && (
+            {contactVisible && clientProfile?.email && (
               <a href={`mailto:${clientProfile.email}`} className="flex items-center gap-1.5 text-sm text-foreground-muted hover:text-foreground">
                 <Mail className="h-3.5 w-3.5" />
                 {clientProfile.email}
               </a>
             )}
-            {whatsappHref && (
+            {contactVisible && whatsappHref && (
               <a
                 href={whatsappHref}
                 target="_blank"
@@ -113,34 +173,11 @@ export default function LawyerCaseDetailPage() {
                 {t("whatsappContact")}
               </a>
             )}
+            {!contactVisible && !item.isManual && <p className="text-xs text-foreground-muted">{tCase("client.contactHidden")}</p>}
           </div>
         </div>
-        <div className="flex gap-2">
-          <Select
-            value={item.status}
-            onValueChange={async (v) => {
-              await updateCase(item.id, { status: v as CaseStatus });
-              refetchCases();
-            }}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {(["new", "contacted", "reviewing", "in_progress", "court", "closed"] as CaseStatus[]).map((s) => (
-                <SelectItem key={s} value={s}>
-                  {tCol(s)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={item.priority}
-            onValueChange={async (v) => {
-              await updateCase(item.id, { priority: v as CasePriority });
-              refetchCases();
-            }}
-          >
+        <div className="flex items-center gap-2">
+          <Select value={item.priority} onValueChange={(v) => changePriority(v as CasePriority)} disabled={!workable}>
             <SelectTrigger className="w-36">
               <SelectValue />
             </SelectTrigger>
@@ -152,23 +189,54 @@ export default function LawyerCaseDetailPage() {
               ))}
             </SelectContent>
           </Select>
+          <Button size="sm" variant="ghost" onClick={() => setReportOpen(true)}>
+            <Flag className="h-3.5 w-3.5" />
+            {tCase("actions.report")}
+          </Button>
         </div>
       </div>
 
-      {/* Client Story — shown first */}
-      <Card>
-        <CardHeader className="flex-row items-center gap-2 space-y-0">
-          <MessageSquareQuote className="h-4.5 w-4.5 text-ink" />
-          <CardTitle className="text-base">{t("clientStory")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm italic text-foreground-muted">
-            {(ar ? item.clientStoryAr : item.clientStoryEn) || "—"}
-          </p>
+      <Card className="border-gold/30 bg-gold/5">
+        <CardContent className="space-y-3 p-5">
+          <p className="text-sm">{tCase(`nextAction.lawyer.${item.status}`)}</p>
+          {item.status === "requested" && (
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="gold" disabled={busy} onClick={accept}>
+                <Check className="h-3.5 w-3.5" />
+                {tCase("actions.accept")}
+              </Button>
+              <Button size="sm" variant="outline" disabled={busy} onClick={() => setRejectOpen(true)}>
+                <X className="h-3.5 w-3.5" />
+                {tCase("actions.reject")}
+              </Button>
+            </div>
+          )}
+          <CaseStatusActions caseId={item.id} status={item.status} role="lawyer" onDone={refreshAll} />
+          {item.status === "rejected" && item.rejectionReason && (
+            <p className="text-sm text-foreground-muted">
+              {tCase("rejection.clientView", { reason: tCase(`rejectionReason.${item.rejectionReason}`) })}
+            </p>
+          )}
         </CardContent>
       </Card>
 
-      {/* AI Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{tCase("sections.request")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <p className="whitespace-pre-line text-foreground-muted">{item.requestDescription || (ar ? item.clientStoryAr : item.clientStoryEn) || "—"}</p>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="subtle">{tSpec(item.category)}</Badge>
+            <Badge variant={item.urgency === "urgent" || item.urgency === "high" ? "high" : "outline"}>{tCase(`urgency.${item.urgency}`)}</Badge>
+            <Badge variant="subtle">{formatDateTime(item.requestedAt, locale)}</Badge>
+            {item.acceptedAt && <Badge variant="low">{tCase("timeline.accepted")} · {formatDate(item.acceptedAt, locale)}</Badge>}
+          </div>
+          {item.requestMessage && <p className="rounded-lg bg-surface-muted p-3 text-foreground-muted">{item.requestMessage}</p>}
+        </CardContent>
+      </Card>
+
+      {hasSummary && (
       <Card className="border-gold/30 bg-gold/5">
         <CardHeader className="flex-row items-center gap-2 space-y-0">
           <Sparkles className="h-4.5 w-4.5 text-gold" />
@@ -177,18 +245,22 @@ export default function LawyerCaseDetailPage() {
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div>
             <p className="text-xs font-medium text-foreground-muted">{t("situation")}</p>
-            <p className="mt-1 text-sm">{ar ? item.summaryAr : item.summaryEn}</p>
+            <p className="mt-1 text-sm">{(ar ? item.summaryAr : item.summaryEn) || "—"}</p>
           </div>
           <div>
             <p className="text-xs font-medium text-foreground-muted">{t("importantDates")}</p>
             <ul className="mt-1 text-sm text-foreground-muted">
-              {(ar ? item.keyDatesAr : item.keyDatesEn).map((d, i) => <li key={i}>• {d}</li>)}
+              {(ar ? item.keyDatesAr : item.keyDatesEn).map((d, i) => (
+                <li key={i}>• {d}</li>
+              ))}
             </ul>
           </div>
           <div>
             <p className="text-xs font-medium text-foreground-muted">{t("questionsForReview")}</p>
             <ul className="mt-1 text-sm text-foreground-muted">
-              {(ar ? item.questionsAr : item.questionsEn).map((q, i) => <li key={i}>• {q}</li>)}
+              {(ar ? item.questionsAr : item.questionsEn).map((q, i) => (
+                <li key={i}>• {q}</li>
+              ))}
             </ul>
           </div>
           {item.matchScore !== undefined && (
@@ -201,16 +273,14 @@ export default function LawyerCaseDetailPage() {
           )}
         </CardContent>
       </Card>
+      )}
 
-      {/* Evidence vs. Legal Context comparison table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("evidenceVsLegal")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {relevantClauses.length === 0 ? (
-            <p className="text-sm text-foreground-muted">—</p>
-          ) : (
+      {relevantClauses.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("evidenceVsLegal")}</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border text-sm">
               <div className="flex items-center gap-2 bg-surface-muted p-2.5 font-medium">
                 <FileSearch className="h-3.5 w-3.5 text-ink" />
@@ -248,52 +318,76 @@ export default function LawyerCaseDetailPage() {
                 );
               })}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
-      <CaseFinancialTracker item={item} onChanged={refetchCases} />
+      {workable && <CaseFinancialTracker item={item} onChanged={refetch} />}
 
-      <div className="flex gap-3">
-        <Button asChild variant="gold">
-          <Link href={`/lawyer/drafts/new?caseId=${item.id}`}>
-            <FileEdit className="h-4 w-4" />
-            {t("openDrafter")}
-          </Link>
-        </Button>
-      </div>
+      {workable && (
+        <div className="flex gap-3">
+          <Button asChild variant="gold">
+            <Link href={`/lawyer/drafts/new?caseId=${item.id}`}>
+              <FileEdit className="h-4 w-4" />
+              {t("openDrafter")}
+            </Link>
+          </Button>
+        </div>
+      )}
 
-      {/* Messages */}
+      {item.status !== "rejected" && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{tCase("sections.messages")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CaseMessages caseId={item.id} status={item.status} role="lawyer" myUserId={session.userId} onActivity={refreshAll} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{tCase("sections.documents")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CaseDocumentsPanel caseId={item.id} status={item.status} role="lawyer" onActivity={refreshAll} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-base">{tCase("sections.notes")}</CardTitle>
+              <Badge variant="subtle">{tCase("notes.private")}</Badge>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {notes.length === 0 && <p className="text-sm text-foreground-muted">{tCase("notes.empty")}</p>}
+              {notes.map((n) => (
+                <div key={n.id} className="rounded-lg bg-surface-muted p-3 text-sm">
+                  <p className="whitespace-pre-line">{n.note}</p>
+                  <p className="mt-1 text-xs text-foreground-muted">{formatDateTime(n.createdAt, locale)}</p>
+                </div>
+              ))}
+              <Textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder={tCase("notes.placeholder")} maxLength={5000} />
+              <Button size="sm" variant="outline" onClick={saveNote} disabled={!noteText.trim() || !me}>
+                {tCase("notes.add")}
+              </Button>
+            </CardContent>
+          </Card>
+        </>
+      )}
+
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{tMessages("title")}</CardTitle>
+          <CardTitle className="text-base">{tCase("sections.timeline")}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {caseMessages.length === 0 ? (
-            <p className="text-sm text-foreground-muted">{tMessages("empty")}</p>
-          ) : (
-            caseMessages.map((m) => (
-              <div key={m.id} className="rounded-lg bg-surface-muted p-3 text-sm">
-                <p className="mb-0.5 text-xs font-medium text-foreground-muted">
-                  {m.senderName} · {formatDate(m.createdAt, locale)}
-                </p>
-                {m.message}
-              </div>
-            ))
-          )}
-          <div className="flex gap-2">
-            <Textarea
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              placeholder={tMessages("placeholder")}
-              className="min-h-10"
-            />
-            <Button size="icon" onClick={sendMessage} disabled={!messageInput.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
+        <CardContent>
+          <CaseTimeline events={events} />
         </CardContent>
       </Card>
+
+      <RejectDialog open={rejectOpen} onOpenChange={setRejectOpen} busy={busy} onConfirm={reject} />
+      <ReportDialog targetType="case" targetId={item.id} open={reportOpen} onOpenChange={setReportOpen} />
     </div>
   );
 }

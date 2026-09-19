@@ -15,11 +15,19 @@ export async function sendPaymentReminderAction(
   amount: number,
   caseTitle: string
 ): Promise<{ ok: boolean }> {
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 1_000_000) return { ok: false };
   const supabase = await createSupabaseServerClient();
   if (!supabase) return { ok: false };
+  const { data: userData } = await supabase.auth.getUser();
+  const uid = userData.user?.id;
+  if (!uid) return { ok: false };
 
-  const { data: caseRow } = await supabase.from("cases").select("client_id, title").eq("id", caseId).single();
-  if (!caseRow) return { ok: false };
+  // Only the case's own lawyer may send a reminder. Title comes from the DB, not the caller.
+  const { data: caseRow } = await supabase.from("cases").select("client_id, title, lawyer_id").eq("id", caseId).single();
+  if (!caseRow || !caseRow.client_id || !caseRow.lawyer_id) return { ok: false };
+  const { data: mine } = await supabase.from("lawyers").select("id").eq("profile_id", uid).maybeSingle();
+  if (!mine || mine.id !== caseRow.lawyer_id) return { ok: false };
+  caseTitle = caseRow.title;
 
   const admin = createSupabaseAdminClient();
   if (!admin) return { ok: false };
@@ -31,7 +39,7 @@ export async function sendPaymentReminderAction(
     body_ar: `تذكير بدفع المبلغ المتبقي (${amount} دينار) لقضية "${caseTitle}"`,
     body_en: `Reminder to pay the remaining balance (${amount} JOD) for case "${caseTitle}"`,
     read: false,
-    href: "/citizen/cases",
+    href: `/citizen/cases/${caseId}`,
   });
   return { ok: !error };
 }

@@ -1,4 +1,5 @@
 import "server-only";
+import { logSystemEvent } from "@/lib/system-events";
 
 export function hasOpenAI() {
   return !!process.env.OPENAI_API_KEY;
@@ -69,12 +70,16 @@ export async function completeJSON(params: {
         { role: "user", content: params.user },
       ],
     });
-    if (!res || !res.ok) return null;
+    if (!res || !res.ok) {
+      await logSystemEvent("ai_error", res ? `OpenAI responded with HTTP ${res.status}` : "OpenAI request failed (network/timeout)");
+      return null;
+    }
     const data = await res.json();
     const content = data.choices?.[0]?.message?.content;
     if (!content) return null;
     return JSON.parse(content);
-  } catch {
+  } catch (e) {
+    await logSystemEvent("ai_error", `OpenAI response could not be processed: ${e instanceof Error ? e.name : "error"}`);
     return null;
   }
 }
@@ -94,10 +99,14 @@ export async function completeText(params: {
         { role: "user", content: params.user },
       ],
     });
-    if (!res || !res.ok) return null;
+    if (!res || !res.ok) {
+      await logSystemEvent("ai_error", res ? `OpenAI responded with HTTP ${res.status}` : "OpenAI request failed (network/timeout)");
+      return null;
+    }
     const data = await res.json();
     return data.choices?.[0]?.message?.content ?? null;
-  } catch {
+  } catch (e) {
+    await logSystemEvent("ai_error", `OpenAI response could not be processed: ${e instanceof Error ? e.name : "error"}`);
     return null;
   }
 }

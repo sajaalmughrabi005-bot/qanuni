@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Scale, Menu, Bell, LogOut, UserCircle } from "lucide-react";
+import { Scale, Menu, Bell, LogOut, UserCircle, FlaskConical, ShieldAlert } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LucideIcon } from "lucide-react";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
@@ -19,6 +19,9 @@ import {
 import { useSession } from "@/lib/auth/use-session";
 import { useNotifications } from "@/lib/data/hooks";
 import { logoutAction } from "@/lib/auth/actions";
+import { clearDemoCookie } from "@/lib/demo/mode";
+import { useDemoStore } from "@/lib/demo/store";
+import { Button } from "@/components/ui/button";
 import { initials, cn } from "@/lib/utils";
 
 export interface NavItem {
@@ -39,14 +42,26 @@ export function DashboardShell({
   const locale = useLocale();
   const t = useTranslations("common");
   const tProfile = useTranslations("common.profile");
-  const { profile, session } = useSession();
+  const { profile, session, isDemo, lawyer } = useSession();
+  const tDemo = useTranslations("common.demoBanner");
+  const tVerify = useTranslations("lawyer.verification");
   const { data: notifications } = useNotifications();
   const unread = session ? notifications.filter((n) => !n.read).length : 0;
 
   const handleLogout = async () => {
-    await logoutAction();
+    if (isDemo) {
+      // Leaving the demo never touches a real session: just drop the flag and the sample data.
+      clearDemoCookie();
+      useDemoStore.getState().reset();
+    } else {
+      await logoutAction();
+    }
+    // Hard navigation: drops every in-memory client cache along with the session.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.href = `/${locale}`;
   };
+
+  const showVerificationBanner = !isDemo && session?.role === "lawyer" && !!lawyer && lawyer.verificationStatus !== "approved";
 
   const SidebarContent = (
     <div className="flex h-full flex-col">
@@ -142,6 +157,29 @@ export function DashboardShell({
             </DropdownMenu>
           </div>
         </header>
+        {isDemo && (
+          <div role="status" className="flex flex-wrap items-center gap-3 border-b border-gold/40 bg-gold/15 px-4 py-2 text-sm sm:px-6">
+            <FlaskConical className="h-4 w-4 shrink-0 text-gold" />
+            <span className="min-w-0 flex-1 font-medium">{tDemo("text")}</span>
+            <Button asChild size="sm" variant="gold">
+              <Link href="/signup">{tDemo("signup")}</Link>
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleLogout}>
+              {tDemo("exit")}
+            </Button>
+          </div>
+        )}
+        {showVerificationBanner && lawyer && (
+          <div role="status" className="flex flex-wrap items-center gap-3 border-b border-border bg-surface-muted px-4 py-2 text-sm sm:px-6">
+            <ShieldAlert className="h-4 w-4 shrink-0 text-gold" />
+            <span className="min-w-0 flex-1">
+              {tVerify("banner", { status: tVerify(`status.${lawyer.verificationStatus}`) })}
+            </span>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/lawyer/verification">{tVerify("openPage")}</Link>
+            </Button>
+          </div>
+        )}
         <main className="flex-1 p-4 sm:p-6">{children}</main>
       </div>
     </div>

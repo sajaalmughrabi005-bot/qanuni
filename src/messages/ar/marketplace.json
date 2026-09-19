@@ -11,7 +11,9 @@
     "consultationType": "نوع الاستشارة",
     "allCities": "كل المدن",
     "allSpecialties": "كل التخصصات",
-    "clearFilters": "مسح الفلاتر"
+    "clearFilters": "مسح الفلاتر",
+    "allAvailability": "كل حالات التوفر",
+    "acceptingOnly": "يستقبلون قضايا جديدة فقط"
   },
   "specialties": {
     "rental": "الإيجارات",
@@ -35,8 +37,11 @@
     "perConsultation": "دينار / استشارة",
     "matchPercent": "نسبة التوافق {percent}٪",
     "viewProfile": "عرض الملف",
-    "verifiedDemo": "توثيق تجريبي",
-    "reviewsCount": "{count} تقييم"
+    "verifiedDemo": "موثّق",
+    "reviewsCount": "{count} تقييم",
+    "notAccepting": "لا يستقبل قضايا جديدة",
+    "accepting": "يستقبل قضايا جديدة",
+    "save": "حفظ المحامي"
   },
   "empty": "لم نجد محامين مطابقين لبحثك",
   "profile": {
@@ -57,7 +62,11 @@
     "yourReviewPlaceholder": "شاركنا تجربتك مع هذا المحامي...",
     "submitReview": "إرسال التقييم",
     "reviewSubmitted": "تم إرسال تقييمك، شكراً لك",
-    "loginToReview": "سجّل الدخول لتتمكن من إضافة تقييم"
+    "loginToReview": "سجّل الدخول لتتمكن من إضافة تقييم",
+    "notFound": "المحامي غير موجود أو غير متاح.",
+    "noReviews": "لا توجد تقييمات بعد.",
+    "alreadyReviewed": "لقد قيّمت هذا المحامي من قبل.",
+    "reviewNotAllowed": "يمكنك التقييم فقط بعد حل قضية مع هذا المحامي."
   },
   "matching": {
     "whyMatch": "لماذا يناسبك هذا المحامي",

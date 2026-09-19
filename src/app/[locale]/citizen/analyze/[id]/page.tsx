@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FileQuestion, Briefcase } from "lucide-react";
@@ -15,7 +15,10 @@ import { RiskOverview } from "@/components/citizen/risk-overview";
 import { AskTheLawPanel } from "@/components/citizen/ask-the-law-panel";
 import { ScenarioSimulatorPanel } from "@/components/citizen/scenario-simulator-panel";
 import { TermSimplifierCard } from "@/components/citizen/term-simplifier-card";
-import { CreateCaseDialog } from "@/components/citizen/create-case-dialog";
+import { CaseRequestDialog } from "@/components/cases/case-request-dialog";
+import { useLawyerDirectory } from "@/lib/auth/use-lawyer";
+import { useSession } from "@/lib/auth/use-session";
+import { matchLawyersToCase } from "@/lib/ai/engine";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { mapAnalysis, mapClause, mapDocument } from "@/lib/supabase/mappers";
 import { demoAnalysis, demoClauses, demoDocument, DEMO_DOCUMENT_ID } from "@/lib/mock-data";
@@ -25,7 +28,10 @@ export default function AnalysisResultsPage() {
   const params = useParams<{ id: string }>();
   const t = useTranslations("citizen.results");
   const [caseDialogOpen, setCaseDialogOpen] = useState(false);
-  const isDemo = params.id === DEMO_DOCUMENT_ID;
+  const { isDemo: demoSession, profile } = useSession();
+  const { lawyers } = useLawyerDirectory();
+  // The bundled sample analysis is only reachable from the isolated demo, never from a real account.
+  const isDemo = demoSession && params.id === DEMO_DOCUMENT_ID;
   const [supabase] = useState(() => createSupabaseBrowserClient());
 
   const [document, setDocument] = useState<LegalDocument | undefined>(isDemo ? demoDocument : undefined);
@@ -46,6 +52,12 @@ export default function AnalysisResultsPage() {
       setLoading(false);
     });
   }, [params.id, isDemo, supabase]);
+
+  const suggestions = useMemo(() => {
+    if (!document) return [];
+    const category = ({ rental: "rental", employment: "employment", sale: "commercial", service: "commercial", general: "civil" } as const)[document.documentType];
+    return matchLawyersToCase(lawyers.filter((l) => l.acceptingNewCases), category, profile?.city, "ar").slice(0, 6);
+  }, [lawyers, document, profile?.city]);
 
   if (loading) return null;
 
@@ -89,19 +101,18 @@ export default function AnalysisResultsPage() {
           <TermSimplifierCard />
         </TabsContent>
         <TabsContent value="ask">
-          <AskTheLawPanel clauses={clauses} />
+          <AskTheLawPanel clauses={clauses} documentId={document.id} />
         </TabsContent>
         <TabsContent value="scenario">
-          <ScenarioSimulatorPanel clauses={clauses} />
+          <ScenarioSimulatorPanel clauses={clauses} documentId={document.id} />
         </TabsContent>
       </Tabs>
 
-      <CreateCaseDialog
-        document={document}
-        analysis={analysis}
-        clauses={clauses}
+      <CaseRequestDialog
         open={caseDialogOpen}
         onOpenChange={setCaseDialogOpen}
+        suggestions={suggestions}
+        prefill={{ document, analysis, clauses }}
       />
     </div>
   );

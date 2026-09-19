@@ -47,7 +47,14 @@ export function WriteReviewForm({ lawyerId, onSubmitted }: { lawyerId: string; o
     if (!rating || submitting) return;
     setSubmitting(true);
     const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase!.from("reviews").insert({
+    if (!supabase) {
+      // Isolated demo: nothing is written anywhere.
+      setSubmitting(false);
+      toast.success(t("reviewSubmitted"));
+      setSubmitted(true);
+      return;
+    }
+    const { error } = await supabase.from("reviews").insert({
       lawyer_id: lawyerId,
       client_id: session.userId,
       client_name: profile.fullName,
@@ -56,7 +63,7 @@ export function WriteReviewForm({ lawyerId, onSubmitted }: { lawyerId: string; o
     });
     setSubmitting(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(/duplicate|unique/i.test(error.message) ? t("alreadyReviewed") : t("reviewNotAllowed"));
       return;
     }
     toast.success(t("reviewSubmitted"));

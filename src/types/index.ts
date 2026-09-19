@@ -38,13 +38,21 @@ export interface Lawyer {
   consultationPrice: number;
   availabilityStatus: "available_today" | "available_this_week" | "busy";
   consultationTypes: ConsultationType[];
-  verificationStatus: "demo_verified" | "pending" | "unverified";
+  verificationStatus: VerificationStatus;
   yearsExperience: number;
   rating: number;
   reviewCount: number;
   completedCases: number;
   responseTimeHours: number;
+  acceptingNewCases: boolean;
+  preferredCategories: LawyerSpecialty[];
+  /** Private — only present on the lawyer's own row and for admins. */
+  barNumber?: string;
+  verificationInfo?: string;
+  verificationAdminNote?: string;
 }
+
+export type VerificationStatus = "pending" | "approved" | "rejected" | "more_info_requested";
 
 export interface Review {
   id: string;
@@ -164,12 +172,16 @@ export interface ChatMessage {
 }
 
 export type CaseStatus =
-  | "new"
-  | "contacted"
-  | "reviewing"
-  | "in_progress"
-  | "court"
-  | "closed";
+  | "requested"
+  | "accepted"
+  | "active"
+  | "waiting_for_client"
+  | "waiting_for_lawyer"
+  | "resolved"
+  | "closed"
+  | "rejected";
+
+export type RejectionReason = "out_of_scope" | "no_capacity" | "conflict_of_interest" | "other";
 
 export type CasePriority = "low" | "medium" | "high" | "urgent";
 
@@ -182,7 +194,8 @@ export type LegalStage =
 
 export interface CaseRecord {
   id: string;
-  clientId: string;
+  /** null for a case a lawyer entered manually (client has no account). */
+  clientId?: string;
   clientName: string;
   lawyerId?: string;
   title: string;
@@ -210,6 +223,81 @@ export interface CaseRecord {
   legalStage?: LegalStage;
   totalFees?: number;
   paymentsReceived?: number;
+  urgency: CasePriority;
+  requestDescription?: string;
+  requestMessage?: string;
+  requestedAt: string;
+  acceptedAt?: string;
+  acceptedBy?: string;
+  rejectedAt?: string;
+  rejectionReason?: RejectionReason;
+  rejectionNote?: string;
+  viewedByLawyerAt?: string;
+  resolvedAt?: string;
+  closedAt?: string;
+  isManual: boolean;
+}
+
+export type CaseEventType =
+  | "request_submitted"
+  | "viewed"
+  | "accepted"
+  | "rejected"
+  | "status_changed"
+  | "document_uploaded"
+  | "document_requested"
+  | "clarification_requested"
+  | "manual_created";
+
+export interface CaseEvent {
+  id: string;
+  caseId: string;
+  actorId?: string;
+  actorRole: "client" | "lawyer" | "admin" | "system";
+  eventType: CaseEventType;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface CaseDocument {
+  id: string;
+  caseId: string;
+  uploadedBy: string;
+  uploadedByRole: "client" | "lawyer";
+  fileName: string;
+  storagePath: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  createdAt: string;
+}
+
+export interface CaseNote {
+  id: string;
+  caseId: string;
+  lawyerId: string;
+  note: string;
+  createdAt: string;
+}
+
+export interface Report {
+  id: string;
+  reporterId: string;
+  targetType: "lawyer" | "case" | "user";
+  targetId: string;
+  reason: string;
+  details?: string;
+  status: "open" | "reviewing" | "resolved" | "dismissed";
+  adminNote?: string;
+  createdAt: string;
+  resolvedAt?: string;
+}
+
+export interface SystemEvent {
+  id: string;
+  kind: string;
+  severity: "info" | "warning" | "error";
+  message: string;
+  createdAt: string;
 }
 
 export interface Appointment {
@@ -227,12 +315,17 @@ export interface Appointment {
   notes?: string;
 }
 
+export type MessageKind = "text" | "document_request" | "clarification_request";
+
 export interface Message {
   id: string;
   caseId: string;
   senderId: string;
   senderName: string;
   senderRole: UserRole;
+  receiverId?: string;
+  readAt?: string;
+  kind: MessageKind;
   message: string;
   createdAt: string;
 }
@@ -261,7 +354,13 @@ export interface AppNotification {
     | "appointment"
     | "message"
     | "review_reminder"
-    | "system";
+    | "system"
+    | "case_request"
+    | "case_accepted"
+    | "case_rejected"
+    | "case_status"
+    | "document"
+    | "verification";
   titleAr: string;
   titleEn: string;
   bodyAr: string;

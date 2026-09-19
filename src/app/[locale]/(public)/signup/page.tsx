@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Scale, MailCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -10,7 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { signUpAction } from "@/lib/auth/actions";
+import { safeNextPath } from "@/lib/auth/next-path";
+import { clearDemoCookie } from "@/lib/demo/mode";
 import type { LawyerSpecialty } from "@/types";
 
 const specialties: LawyerSpecialty[] = [
@@ -24,11 +28,19 @@ const specialties: LawyerSpecialty[] = [
   "civil",
 ];
 
-export default function SignUpPage() {
+function SignUpForm() {
   const t = useTranslations("auth.signup");
   const tc = useTranslations("common");
   const tSpec = useTranslations("marketplace.specialties");
   const locale = useLocale() as "ar" | "en";
+  const params = useSearchParams();
+  const next = safeNextPath(params.get("next"));
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
+  const [verificationInfo, setVerificationInfo] = useState("");
+
+  useEffect(() => {
+    if (redirectTo) window.location.href = redirectTo;
+  }, [redirectTo]);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -54,12 +66,20 @@ export default function SignUpPage() {
       role,
       barNumber: role === "lawyer" ? barNumber : undefined,
       specialty: role === "lawyer" ? specialty : undefined,
+      verificationInfo: role === "lawyer" ? verificationInfo : undefined,
       language: locale,
     });
     setSubmitting(false);
 
     if (!result.ok) {
-      toast.error(result.error.includes("already registered") ? t("emailTaken") : result.error);
+      const known = ["invalid_name", "invalid_email", "weak_password", "bar_number_required", "specialty_required"];
+      toast.error(
+        result.error.includes("already registered")
+          ? t("emailTaken")
+          : known.includes(result.error)
+            ? t(("errors." + result.error) as "errors.generic")
+            : t("errors.generic")
+      );
       return;
     }
 
@@ -68,8 +88,9 @@ export default function SignUpPage() {
       return;
     }
 
+    clearDemoCookie();
     toast.success(t("success"));
-    window.location.href = `/${locale}/${result.role}/dashboard`;
+    setRedirectTo(next && result.role === "citizen" ? next : `/${locale}/${result.role}/dashboard`);
   };
 
   if (checkEmail) {
@@ -164,6 +185,17 @@ export default function SignUpPage() {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="verificationInfo">{t("verificationInfo")}</Label>
+                    <Textarea
+                      id="verificationInfo"
+                      value={verificationInfo}
+                      onChange={(e) => setVerificationInfo(e.target.value)}
+                      placeholder={t("verificationInfoPlaceholder")}
+                      maxLength={2000}
+                    />
+                    <p className="text-xs text-foreground-muted">{t("verificationInfoHelp")}</p>
+                  </div>
                   <p className="text-xs text-foreground-muted">{t("lawyerPendingNotice")}</p>
                 </>
               )}
@@ -175,7 +207,10 @@ export default function SignUpPage() {
 
             <p className="mt-6 text-center text-sm text-foreground-muted">
               {t("haveAccount")}{" "}
-              <Link href="/login" className="font-medium text-navy hover:underline dark:text-gold">
+              <Link
+                href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
+                className="font-medium text-navy hover:underline dark:text-gold"
+              >
                 {t("login")}
               </Link>
             </p>
@@ -183,5 +218,13 @@ export default function SignUpPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense>
+      <SignUpForm />
+    </Suspense>
   );
 }

@@ -11,7 +11,9 @@
     "consultationType": "Consultation type",
     "allCities": "All cities",
     "allSpecialties": "All specialties",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "allAvailability": "Any availability",
+    "acceptingOnly": "Only lawyers accepting new cases"
   },
   "specialties": {
     "rental": "Rental",
@@ -35,8 +37,11 @@
     "perConsultation": "JOD / consultation",
     "matchPercent": "{percent}% match",
     "viewProfile": "View profile",
-    "verifiedDemo": "Demo verified",
-    "reviewsCount": "{count} reviews"
+    "verifiedDemo": "Verified",
+    "reviewsCount": "{count} reviews",
+    "notAccepting": "Not accepting new cases",
+    "accepting": "Accepting new cases",
+    "save": "Save lawyer"
   },
   "empty": "No lawyers matched your search",
   "profile": {
@@ -57,7 +62,11 @@
     "yourReviewPlaceholder": "Share your experience with this lawyer...",
     "submitReview": "Submit Review",
     "reviewSubmitted": "Your review was submitted, thank you",
-    "loginToReview": "Log in to leave a review"
+    "loginToReview": "Log in to leave a review",
+    "notFound": "Lawyer not found or unavailable.",
+    "noReviews": "No reviews yet.",
+    "alreadyReviewed": "You have already reviewed this lawyer.",
+    "reviewNotAllowed": "You can only review a lawyer after a case with them is resolved."
   },
   "matching": {
     "whyMatch": "Why this lawyer matches your case",

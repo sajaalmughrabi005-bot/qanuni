@@ -11,17 +11,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AiDisclaimer } from "@/components/shared/ai-disclaimer";
 import { useSession } from "@/lib/auth/use-session";
-import { useLawyerByProfileId } from "@/lib/auth/use-lawyer";
+import { useMyLawyer } from "@/lib/auth/use-lawyer";
 import { addDraft, updateDraft } from "@/lib/data/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { mapDraft } from "@/lib/supabase/mappers";
 import { generateDraftAction } from "@/lib/ai/actions";
+import { useDemoStore } from "@/lib/demo/store";
+import { isDemoActive } from "@/lib/demo/mode";
 
 function DrafterInner() {
   const t = useTranslations("lawyer.drafter");
   const locale = useLocale();
   const { session } = useSession();
-  const lawyer = useLawyerByProfileId(session?.userId);
+  const { lawyer } = useMyLawyer();
   const params = useSearchParams();
   const caseId = params.get("caseId") || undefined;
 
@@ -31,8 +33,14 @@ function DrafterInner() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!draftId) return;
+    if (isDemoActive()) {
+      const d = useDemoStore.getState().drafts.find((x) => x.id === draftId);
+      if (d) Promise.resolve().then(() => { setInstructions(d.instructions); setDraft(d.content); });
+      return;
+    }
     const supabase = createSupabaseBrowserClient();
-    if (!draftId || !supabase) return;
+    if (!supabase) return;
     supabase
       .from("drafts")
       .select("*")
@@ -63,7 +71,8 @@ function DrafterInner() {
   const save = async () => {
     if (!session || !lawyer || !draft.trim()) return;
     if (draftId) {
-      await updateDraft(draftId, { instructions, content: draft });
+      const res = await updateDraft(draftId, { instructions, content: draft });
+      if (!res.ok) return toast.error(t("saveFailed"));
     } else {
       const created = await addDraft({
         caseId,
@@ -73,7 +82,8 @@ function DrafterInner() {
         content: draft,
         status: "draft",
       });
-      if (created) setDraftId(created.id);
+      if (!created.ok) return toast.error(t("saveFailed"));
+      setDraftId(created.data);
     }
     toast.success(t("savedSuccess"));
   };

@@ -13,20 +13,24 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { mapDocument, mapProfile } from "@/lib/supabase/mappers";
 import { initials, formatDate } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { useDemoStore } from "@/lib/demo/store";
 import type { LegalDocument, Profile } from "@/types";
 
 export default function ClientFilePage() {
   const params = useParams<{ id: string }>();
   const t = useTranslations("lawyer.clients");
-  const tCol = useTranslations("lawyer.cases.columns");
+  const tCol = useTranslations("cases.status");
   const tDocStatus = useTranslations("citizen.documents.status");
   const locale = useLocale();
 
   const { data: allCases } = useCases();
-  const [clientProfile, setClientProfile] = useState<Profile | undefined>(undefined);
+  const [realProfile, setClientProfile] = useState<Profile | undefined>(undefined);
+  const demoProfiles = useDemoStore((s) => s.profiles);
   const [clientDocuments, setClientDocuments] = useState<LegalDocument[]>([]);
 
-  const clientCases = allCases.filter((c) => c.clientId === params.id);
+  const clientProfile = realProfile ?? demoProfiles.find((p) => p.id === params.id);
+  // Contact details and history open up only once the lawyer has accepted a case for this client.
+  const clientCases = allCases.filter((c) => c.clientId === params.id && c.status !== "requested" && c.status !== "rejected");
   const clientName = clientProfile?.fullName || clientCases[0]?.clientName;
   const documentIds = Array.from(new Set(clientCases.flatMap((c) => c.documentIds)));
 

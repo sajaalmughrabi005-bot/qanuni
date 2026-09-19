@@ -1,0 +1,231 @@
+{
+  "status": {
+    "requested": "بانتظار الرد",
+    "accepted": "مقبولة",
+    "active": "قيد المتابعة",
+    "waiting_for_client": "بانتظار العميل",
+    "waiting_for_lawyer": "بانتظار المحامي",
+    "resolved": "تم الحل",
+    "closed": "مغلقة",
+    "rejected": "مرفوضة"
+  },
+  "citizenLine": {
+    "requested": "🟡 بانتظار رد المحامي",
+    "accepted": "🟢 تم قبول الطلب",
+    "rejected": "🔴 تم رفض الطلب",
+    "active": "🔵 القضية قيد المتابعة",
+    "waiting_for_client": "🟠 مطلوب منك إجراء",
+    "waiting_for_lawyer": "🟣 بانتظار المحامي",
+    "resolved": "✅ تم حل القضية",
+    "closed": "⚫ القضية مغلقة"
+  },
+  "nextAction": {
+    "citizen": {
+      "requested": "سيراجع المحامي طلبك ويرد عليك قريباً.",
+      "accepted": "تم قبول طلبك. سيبدأ المحامي بمتابعة القضية.",
+      "active": "المحامي يتابع قضيتك. يمكنك مراسلته أو رفع مستندات.",
+      "waiting_for_client": "المحامي بانتظار ردّك أو مستنداتك. راجع الرسائل.",
+      "waiting_for_lawyer": "وصل ردّك. المحامي سيراجعه ويكمل المتابعة.",
+      "resolved": "تم حل القضية. أكّد الإغلاق أو قيّم المحامي.",
+      "closed": "القضية مغلقة ومؤرشفة.",
+      "rejected": "لم يقبل المحامي الطلب. يمكنك اختيار محامٍ آخر."
+    },
+    "lawyer": {
+      "requested": "راجع الطلب ثم اقبله أو ارفضه.",
+      "accepted": "ابدأ المتابعة: حوّل القضية إلى «قيد المتابعة».",
+      "active": "تابع القضية، اطلب مستندات أو حدّث الحالة.",
+      "waiting_for_client": "بانتظار رد العميل أو مستنداته.",
+      "waiting_for_lawyer": "ردّ العميل وصل — راجعه واستكمل.",
+      "resolved": "تم الحل. بانتظار تأكيد العميل للإغلاق أو أغلق القضية.",
+      "closed": "القضية مغلقة.",
+      "rejected": "رفضت هذا الطلب."
+    }
+  },
+  "urgency": {
+    "low": "منخفضة",
+    "medium": "متوسطة",
+    "high": "عالية",
+    "urgent": "عاجلة"
+  },
+  "rejectionReason": {
+    "out_of_scope": "خارج نطاق التخصص",
+    "no_capacity": "لا أستطيع استقبال قضية جديدة",
+    "conflict_of_interest": "تعارض مصالح",
+    "other": "أخرى"
+  },
+  "actions": {
+    "accept": "قبول الطلب",
+    "reject": "رفض الطلب",
+    "confirmReject": "تأكيد الرفض",
+    "openCase": "فتح القضية",
+    "start": "بدء المتابعة",
+    "markWaitingClient": "بانتظار العميل",
+    "markActive": "قيد المتابعة",
+    "resolve": "تم الحل",
+    "reopen": "إعادة فتح القضية",
+    "close": "إغلاق القضية",
+    "iResponded": "قمت بالمطلوب",
+    "confirmClose": "تأكيد إغلاق القضية",
+    "changeStatus": "تغيير الحالة",
+    "cancel": "إلغاء",
+    "send": "إرسال",
+    "report": "إبلاغ",
+    "download": "تحميل"
+  },
+  "transitionTo": {
+    "active": "قيد المتابعة",
+    "waiting_for_client": "بانتظار العميل",
+    "waiting_for_lawyer": "بانتظار المحامي",
+    "resolved": "تم الحل",
+    "closed": "إغلاق"
+  },
+  "sections": {
+    "request": "تفاصيل الطلب",
+    "timeline": "سجل القضية",
+    "messages": "الرسائل",
+    "documents": "المستندات",
+    "notes": "ملاحظاتي الخاصة",
+    "lawyer": "محاميك",
+    "client": "العميل",
+    "summary": "ملخص القضية",
+    "evidence": "الأدلة والسياق القانوني"
+  },
+  "request": {
+    "title": "طلب استشارة / إرسال طلب قضية",
+    "titleLabel": "عنوان القضية",
+    "titlePlaceholder": "مثال: إخلاء من شقة بدون إشعار",
+    "categoryLabel": "التصنيف",
+    "descriptionLabel": "وصف القضية",
+    "descriptionPlaceholder": "اشرح ما حدث ومطلبك بأكبر قدر من التفصيل.",
+    "urgencyLabel": "درجة الاستعجال",
+    "contractLabel": "العقد ذو الصلة",
+    "noContract": "بدون عقد",
+    "messageLabel": "رسالة للمحامي (اختياري)",
+    "filesLabel": "مستندات داعمة (اختياري)",
+    "filesHelp": "PDF أو صور أو Word أو نص — حتى 10 ميغابايت لكل ملف.",
+    "submit": "إرسال الطلب",
+    "sending": "جارٍ الإرسال...",
+    "success": "تم إرسال طلبك. سنُعلمك فور رد المحامي.",
+    "pickLawyer": "اختر المحامي",
+    "lawyerNotAccepting": "المحامي لا يستقبل قضايا جديدة حاليًا.",
+    "loginRequired": "سجّل الدخول لإرسال طلب إلى المحامي.",
+    "onlyCitizens": "إرسال الطلبات متاح للمواطنين فقط.",
+    "noLawyers": "لا يوجد محامون متاحون حاليًا لهذا التصنيف.",
+    "filesUploadFailed": "أُرسل الطلب لكن تعذر رفع بعض الملفات. يمكنك رفعها من صفحة القضية."
+  },
+  "list": {
+    "pending": "طلبات بانتظار الرد",
+    "accepted": "قضايا مقبولة",
+    "rejected": "طلبات مرفوضة",
+    "active": "قضايا جارية",
+    "resolved": "قضايا محلولة",
+    "empty": "لا توجد قضايا في هذا القسم.",
+    "all": "الكل"
+  },
+  "rejection": {
+    "title": "سبب الرفض",
+    "reasonLabel": "اختر السبب",
+    "noteLabel": "توضيح إضافي (اختياري)",
+    "notePlaceholder": "اكتب رسالة قصيرة للعميل...",
+    "reasonRequired": "الرجاء اختيار سبب الرفض.",
+    "clientView": "سبب الرفض: {reason}"
+  },
+  "requests": {
+    "title": "الطلبات الجديدة",
+    "subtitle": "طلبات من مواطنين تنتظر قبولك أو رفضك",
+    "empty": "لا توجد طلبات جديدة حالياً.",
+    "received": "وصل {date}",
+    "accepted": "تم قبول الطلب. تم إشعار العميل.",
+    "rejected": "تم رفض الطلب. تم إشعار العميل.",
+    "unopened": "جديد"
+  },
+  "timeline": {
+    "empty": "لا توجد أحداث بعد.",
+    "request_submitted": "أرسل العميل الطلب",
+    "viewed": "فتح المحامي الطلب",
+    "accepted": "قبل المحامي القضية",
+    "rejected": "رفض المحامي الطلب — {reason}",
+    "status_changed": "تغيّرت الحالة إلى «{to}»",
+    "document_uploaded": "رُفع مستند: {file_name}",
+    "document_requested": "طلب المحامي مستنداً",
+    "clarification_requested": "طلب المحامي توضيحاً",
+    "manual_created": "أضاف المحامي القضية يدوياً",
+    "by": {
+      "client": "العميل",
+      "lawyer": "المحامي",
+      "admin": "الإدارة",
+      "system": "النظام"
+    }
+  },
+  "messages": {
+    "placeholder": "اكتب رسالتك...",
+    "empty": "لا توجد رسائل بعد.",
+    "closedNotice": "لا يمكن إرسال رسائل في هذه الحالة.",
+    "requestedNotice": "ستتمكن من المراسلة بعد قبول المحامي للطلب.",
+    "documentRequest": "طلب مستند",
+    "clarificationRequest": "طلب توضيح",
+    "requestDocumentPrompt": "ما هو المستند المطلوب؟",
+    "clarificationPrompt": "ما التوضيح المطلوب؟",
+    "read": "تمت القراءة",
+    "sent": "أُرسلت",
+    "kindDocument": "طلب مستند",
+    "kindClarification": "طلب توضيح",
+    "requestHint": "اكتب رسالتك أعلاه ثم اختر «طلب مستند» أو «طلب توضيح» لإرسالها كطلب رسمي يظهر في سجل القضية.",
+    "send": "إرسال"
+  },
+  "documents": {
+    "empty": "لا توجد مستندات بعد.",
+    "upload": "رفع مستند",
+    "uploading": "جارٍ الرفع...",
+    "uploadedBy": "رفعه {who} · {date}",
+    "closedNotice": "لا يمكن رفع مستندات في هذه الحالة.",
+    "uploaded": "تم رفع المستند.",
+    "deleted": "تم حذف المستند.",
+    "demoDownload": "تنزيل الملفات غير متاح في النسخة التجريبية.",
+    "privateNote": "المستندات خاصة: لا يراها إلا أنت والمحامي المعيّن."
+  },
+  "notes": {
+    "placeholder": "ملاحظة خاصة (لا يراها العميل)...",
+    "add": "إضافة ملاحظة",
+    "empty": "لا توجد ملاحظات.",
+    "private": "خاصة بك فقط"
+  },
+  "client": {
+    "manual": "عميل أُضيف يدوياً (بدون حساب)",
+    "contactHidden": "تظهر بيانات التواصل بعد قبول الطلب."
+  },
+  "report": {
+    "title": "إبلاغ",
+    "reasonLabel": "سبب البلاغ",
+    "reasonPlaceholder": "مثال: سلوك غير مهني",
+    "detailsLabel": "تفاصيل (اختياري)",
+    "submit": "إرسال البلاغ",
+    "success": "تم إرسال البلاغ للإدارة.",
+    "loginRequired": "سجّل الدخول لإرسال بلاغ."
+  },
+  "review": {
+    "afterResolved": "يمكنك تقييم المحامي بعد حل القضية."
+  },
+  "errors": {
+    "not_authenticated": "يجب تسجيل الدخول أولاً.",
+    "not_allowed": "هذا الإجراء غير متاح لحسابك.",
+    "forbidden": "ليست لديك صلاحية لهذا الإجراء.",
+    "lawyer_unavailable": "هذا المحامي غير متاح لاستقبال الطلبات.",
+    "lawyer_not_accepting": "المحامي لا يستقبل قضايا جديدة حاليًا.",
+    "invalid_title": "عنوان القضية يجب أن يكون بين 3 و200 حرف.",
+    "invalid_description": "الوصف يجب أن يكون بين 10 و5000 حرف.",
+    "invalid_urgency": "درجة الاستعجال غير صالحة.",
+    "invalid_category": "التصنيف غير صالح.",
+    "invalid_message": "الرسالة فارغة أو طويلة جداً.",
+    "invalid_transition": "لا يمكن تغيير الحالة بهذا الشكل.",
+    "case_not_found": "القضية غير موجودة.",
+    "case_not_open_for_messages": "لا يمكن إرسال رسائل في حالة القضية الحالية.",
+    "case_not_open_for_documents": "لا يمكن رفع مستندات في حالة القضية الحالية.",
+    "rejection_reason_required": "الرجاء اختيار سبب الرفض.",
+    "no_recipient": "لا يوجد مستلم لهذه الرسالة.",
+    "file_too_large": "الملف أكبر من 10 ميغابايت.",
+    "file_type_not_allowed": "نوع الملف غير مسموح.",
+    "not_configured": "الخدمة غير مهيأة.",
+    "unknown": "حدث خطأ غير متوقع. حاول مرة أخرى."
+  }
+}

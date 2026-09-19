@@ -196,10 +196,13 @@ export default async function LandingPage({
       </section>
 
       {/* Demo entry */}
-      <section className="py-20">
+      <section id="demo" className="py-20">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <Reveal className="mx-auto max-w-xl text-center">
-            <h2 className="text-3xl font-bold">{t("demoEntry.title")}</h2>
+            <span className="inline-flex rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold">
+              {t("demoEntry.badge")}
+            </span>
+            <h2 className="mt-4 text-3xl font-bold">{t("demoEntry.title")}</h2>
             <p className="mt-3 text-foreground-muted">{t("demoEntry.subtitle")}</p>
           </Reveal>
           <div className="mt-10">
@@ -217,6 +220,11 @@ export default async function LandingPage({
             {t("finalCta.cta")}
             <ArrowIcon className="h-4 w-4" />
           </StartAnalysisButton>
+          <p className="mt-4 text-sm">
+            <a href="#demo" className="text-foreground-muted underline-offset-4 hover:underline">
+              {t("finalCta.demoCta")}
+            </a>
+          </p>
         </div>
       </section>
     </div>

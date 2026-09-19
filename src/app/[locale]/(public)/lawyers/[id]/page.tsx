@@ -3,17 +3,20 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { Star, MapPin, Clock, Briefcase, Languages as LanguagesIcon, ShieldCheck } from "lucide-react";
+import { Star, MapPin, Clock, Briefcase, Languages as LanguagesIcon, ShieldCheck, Flag } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/shared/empty-state";
-import { RequestConsultationDialog } from "@/components/citizen/request-consultation-dialog";
-import { WriteReviewForm } from "@/components/citizen/write-review-form";
+import { CaseRequestDialog } from "@/components/cases/case-request-dialog";
+import { ReportDialog } from "@/components/cases/report-dialog";
 import { useLawyer } from "@/lib/auth/use-lawyer";
+import { useSession } from "@/lib/auth/use-session";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { mapReview } from "@/lib/supabase/mappers";
+import { demoReviews } from "@/lib/demo/lawyers";
+import { useDemoRole } from "@/lib/demo/use-demo";
 import { initials, formatDate } from "@/lib/utils";
 import type { Review } from "@/types";
 
@@ -24,12 +27,15 @@ export default function LawyerProfilePage() {
   const tAvail = useTranslations("marketplace.availability");
   const tCard = useTranslations("marketplace.card");
   const tTypes = useTranslations("lawyer.calendar.types");
+  const tCases = useTranslations("cases");
   const locale = useLocale();
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const demoRole = useDemoRole();
+  const { session } = useSession();
+  const [requestOpen, setRequestOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [reviewsVersion, setReviewsVersion] = useState(0);
 
-  const lawyer = useLawyer(params.id);
+  const { lawyer, loading } = useLawyer(params.id);
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
@@ -40,10 +46,13 @@ export default function LawyerProfilePage() {
       .eq("lawyer_id", params.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setReviews((data || []).map(mapReview)));
-  }, [params.id, reviewsVersion]);
+  }, [params.id]);
 
+  const shownReviews = demoRole ? demoReviews.filter((r) => r.lawyerId === params.id) : reviews;
+
+  if (loading) return null;
   if (!lawyer) {
-    return <EmptyState icon={Briefcase} title="Not found" className="mx-auto mt-16 max-w-lg" />;
+    return <EmptyState icon={Briefcase} title={t("notFound")} className="mx-auto mt-16 max-w-lg" />;
   }
 
   return (
@@ -52,17 +61,21 @@ export default function LawyerProfilePage() {
         <CardContent className="p-8">
           <div className="flex flex-col items-start gap-5 sm:flex-row">
             <Avatar className="h-20 w-20 text-xl">
+              {lawyer.avatarUrl && <AvatarImage src={lawyer.avatarUrl} alt={lawyer.fullName} />}
               <AvatarFallback>{initials(lawyer.fullName)}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl font-bold">{lawyer.fullName}</h1>
-                {lawyer.verificationStatus === "demo_verified" && (
+                {lawyer.verificationStatus === "approved" && (
                   <Badge variant="gold" className="gap-1">
                     <ShieldCheck className="h-3 w-3" />
                     {tCard("verifiedDemo")}
                   </Badge>
                 )}
+                <Badge variant={lawyer.acceptingNewCases ? "low" : "subtle"}>
+                  {lawyer.acceptingNewCases ? tCard("accepting") : tCard("notAccepting")}
+                </Badge>
               </div>
               <p className="mt-1 flex items-center gap-1 text-sm text-foreground-muted">
                 <MapPin className="h-3.5 w-3.5" />
@@ -114,7 +127,9 @@ export default function LawyerProfilePage() {
               <Clock className="h-3.5 w-3.5" />
               {tCard("responseTime", { hours: lawyer.responseTimeHours })}
             </span>
-            <span className="text-foreground-muted">{t("completedCases")}: {lawyer.completedCases}</span>
+            <span className="text-foreground-muted">
+              {t("completedCases")}: {lawyer.completedCases}
+            </span>
           </div>
 
           <div className="mt-6">
@@ -128,20 +143,29 @@ export default function LawyerProfilePage() {
             </div>
           </div>
 
-          <Button variant="gold" size="lg" className="mt-8 w-full sm:w-auto" onClick={() => setDialogOpen(true)}>
-            {t("requestConsultation")}
-          </Button>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Button variant="gold" size="lg" onClick={() => setRequestOpen(true)} disabled={!lawyer.acceptingNewCases}>
+              {t("requestConsultation")}
+            </Button>
+            {!lawyer.acceptingNewCases && <p className="text-sm text-risk-high">{tCases("request.lawyerNotAccepting")}</p>}
+            {session && (
+              <Button variant="ghost" size="sm" onClick={() => setReportOpen(true)}>
+                <Flag className="h-3.5 w-3.5" />
+                {tCases("actions.report")}
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
       <div className="mt-8">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">{t("reviews")}</h2>
-          <span className="text-xs text-foreground-muted">{t("demoReviewNotice")}</span>
+          <span className="text-xs text-foreground-muted">{tCases("review.afterResolved")}</span>
         </div>
         <div className="space-y-3">
-          <WriteReviewForm lawyerId={lawyer.id} onSubmitted={() => setReviewsVersion((v) => v + 1)} />
-          {reviews.map((r) => (
+          {shownReviews.length === 0 && <p className="text-sm text-foreground-muted">{t("noReviews")}</p>}
+          {shownReviews.map((r) => (
             <Card key={r.id}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -159,7 +183,8 @@ export default function LawyerProfilePage() {
         </div>
       </div>
 
-      <RequestConsultationDialog lawyer={lawyer} open={dialogOpen} onOpenChange={setDialogOpen} />
+      <CaseRequestDialog lawyer={lawyer} open={requestOpen} onOpenChange={setRequestOpen} />
+      <ReportDialog targetType="lawyer" targetId={lawyer.id} open={reportOpen} onOpenChange={setReportOpen} />
     </div>
   );
 }

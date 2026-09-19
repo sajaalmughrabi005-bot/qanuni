@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth/use-session";
-import { loginAction } from "@/lib/auth/actions";
-import { DEMO_EMAILS, DEMO_PASSWORD } from "@/lib/auth/demo-accounts";
 
+/**
+ * Entry point for the contract analyzer. The analyzer needs a real account
+ * (analyses are saved to the user's history), so anonymous visitors are sent
+ * to sign in and returned to the analyzer afterwards.
+ */
 export function StartAnalysisButton({
   children,
   size = "lg",
@@ -21,22 +23,21 @@ export function StartAnalysisButton({
 }) {
   const router = useRouter();
   const locale = useLocale();
-  const { session } = useSession();
-  const [loading, setLoading] = useState(false);
+  const { session, loading } = useSession();
 
-  const go = async () => {
+  const go = () => {
     if (loading) return;
     if (!session) {
-      setLoading(true);
-      await loginAction(DEMO_EMAILS.citizen, DEMO_PASSWORD);
-      window.location.href = `/${locale}/citizen/analyze/new`;
-      return;
+      router.push(`/login?next=${encodeURIComponent(`/${locale}/citizen/analyze/new`)}`);
+    } else if (session.role === "citizen") {
+      router.push("/citizen/analyze/new");
+    } else {
+      router.push(`/${session.role}/dashboard`);
     }
-    router.push("/citizen/analyze/new");
   };
 
   return (
-    <Button size={size} variant={variant} className={className} onClick={go} disabled={loading}>
+    <Button size={size} variant={variant} className={className} onClick={go}>
       {children}
     </Button>
   );

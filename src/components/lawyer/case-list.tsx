@@ -16,7 +16,7 @@ const priorityVariant: Record<CaseRecord["priority"], "low" | "medium" | "high">
 
 export function CaseList({ cases }: { cases: CaseRecord[] }) {
   const t = useTranslations("lawyer.cases");
-  const tStatus = useTranslations("lawyer.cases.columns");
+  const tStatus = useTranslations("cases.status");
   const tPriority = useTranslations("lawyer.cases.priority");
   const locale = useLocale();
 

@@ -12,74 +12,65 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { extractCaseDataAction } from "@/lib/ai/actions";
 import { useRouter } from "@/i18n/navigation";
-import { useSession } from "@/lib/auth/use-session";
-import { useLawyerByProfileId } from "@/lib/auth/use-lawyer";
-import { createCase } from "@/lib/data/actions";
+import { createManualCase } from "@/lib/data/actions";
+import { errorKey } from "@/lib/data/error-key";
 import { ExtractedCaseData } from "@/types";
+
+const MAX_TEXT_FILE_BYTES = 200 * 1024;
 
 export default function LawyerDocumentsPage() {
   const t = useTranslations("lawyer.dataEntry");
+  const tCases = useTranslations("cases");
   const locale = useLocale();
   const router = useRouter();
-  const { session } = useSession();
-  const lawyer = useLawyerByProfileId(session?.userId);
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [data, setData] = useState<ExtractedCaseData | null>(null);
 
+  const onPickFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!/\.txt$/i.test(file.name) && file.type !== "text/plain") return toast.error(t("textOnly"));
+    if (file.size > MAX_TEXT_FILE_BYTES) return toast.error(t("tooLarge"));
+    setFileName(file.name);
+    setText(await file.text());
+  };
+
   const extract = async () => {
+    if (!text.trim()) return;
     setLoading(true);
-    const demoContent =
-      locale === "ar"
-        ? `المدعي: أحمد محمد الزعبي\nالمدعى عليه: محمد علي الحوراني\nرقم الدعوى: 2026/451\nمحكمة: محكمة صلح عمّان\nالمبلغ المطالب به: 1000 دينار\nالتاريخ: 2026/09/15`
-        : `client: Ahmad Mohammad Al-Zoubi\nopposing party: Mohammad Ali Al-Hourani\ncase number: 2026/451\ncourt: Amman Magistrate Court\namount claimed: 1000 JOD\ndate: 2026/09/15`;
-    const content = text.trim() || demoContent;
-    await new Promise((r) => setTimeout(r, 900));
-    const res = await extractCaseDataAction(content);
+    const res = await extractCaseDataAction(text.trim());
     setData(res);
     setLoading(false);
   };
 
   const confirmSave = async () => {
-    if (!data || !session || !lawyer) return;
-    const name = data.clientName || (locale === "ar" ? "عميل بدون اسم" : "Unnamed client");
-    // No real citizen account exists for a case extracted from a paper
-    // document — cases.client_id is a required FK, so it's set to the
-    // lawyer's own profile id as a placeholder; clientName carries the
-    // actual display name.
-    const newCase = await createCase({
-      clientId: session.userId,
+    if (!data) return;
+    setSaving(true);
+    const name = data.clientName?.trim() || (locale === "ar" ? "عميل بدون اسم" : "Unnamed client");
+    const title =
+      locale === "ar"
+        ? `قضية مستخرجة${data.caseNumber ? ` — رقم ${data.caseNumber}` : ""}`
+        : `Extracted case${data.caseNumber ? ` — No. ${data.caseNumber}` : ""}`;
+    const res = await createManualCase({
+      title,
       clientName: name,
-      lawyerId: lawyer.id,
-      title:
-        locale === "ar"
-          ? `قضية مستخرجة${data.caseNumber ? ` — رقم ${data.caseNumber}` : ""}`
-          : `Extracted case${data.caseNumber ? ` — No. ${data.caseNumber}` : ""}`,
       category: "civil",
-      status: "new",
-      priority: "medium",
       summaryAr: `تم استخراج بيانات القضية من مستند: ${name}${data.opposingParty ? ` ضد ${data.opposingParty}` : ""}${data.court ? ` — ${data.court}` : ""}.`,
       summaryEn: `Case data extracted from a document: ${name}${data.opposingParty ? ` vs. ${data.opposingParty}` : ""}${data.court ? ` — ${data.court}` : ""}.`,
-      clientStoryAr: text.trim(),
-      clientStoryEn: text.trim(),
+      story: text.trim().slice(0, 4000),
       opposingParty: data.opposingParty,
-      relevantClauseIds: [],
-      documentIds: [],
-      keyDatesAr: data.importantDates || [],
-      keyDatesEn: data.importantDates || [],
-      questionsAr: [],
-      questionsEn: [],
-      suggestedSpecialty: "civil",
+      keyDates: data.importantDates || [],
       deadline: data.deadline,
     });
-    if (!newCase) {
-      toast.error(locale === "ar" ? "تعذر حفظ القضية" : "Couldn't save the case");
-      return;
-    }
+    setSaving(false);
+    if (!res.ok) return toast.error(tCases(`errors.${errorKey(res.error)}` as "errors.unknown"));
     toast.success(t("confirmSave"));
-    router.push(`/lawyer/cases/${newCase.id}`);
+    router.push(`/lawyer/cases/${res.data}`);
   };
 
   return (
@@ -95,22 +86,19 @@ export default function LawyerDocumentsPage() {
             onClick={() => fileRef.current?.click()}
             className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-border px-6 py-8 text-center hover:bg-surface-muted/60"
           >
-            <input
-              ref={fileRef}
-              type="file"
-              className="hidden"
-              onChange={(e) => setFileName(e.target.files?.[0]?.name || "")}
-            />
+            <input ref={fileRef} type="file" accept=".txt,text/plain" className="hidden" onChange={onPickFile} />
             {fileName ? <FileText className="h-7 w-7 text-gold" /> : <Upload className="h-7 w-7 text-foreground-muted" />}
             <p className="text-sm font-medium">{fileName || t("upload")}</p>
+            <p className="text-xs text-foreground-muted">{t("textOnly")}</p>
           </div>
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={t("pasteHint")}
             className="min-h-28"
+            maxLength={20000}
           />
-          <Button className="w-full" onClick={extract} disabled={loading}>
+          <Button className="w-full" onClick={extract} disabled={loading || !text.trim()}>
             <Sparkles className="h-4 w-4" />
             {loading ? t("extracting") : t("extractAction")}
           </Button>
@@ -123,7 +111,9 @@ export default function LawyerDocumentsPage() {
           <CardContent className="space-y-4 p-6">
             <div className="flex items-center justify-between">
               <p className="font-medium">{t("reviewTitle")}</p>
-              <span className="text-xs text-foreground-muted">{t("confidence")}: {data.confidence}%</span>
+              <span className="text-xs text-foreground-muted">
+                {t("confidence")}: {data.confidence}%
+              </span>
             </div>
             <Progress value={data.confidence} />
             <div className="grid gap-3 sm:grid-cols-2">
@@ -131,10 +121,18 @@ export default function LawyerDocumentsPage() {
               <Field label={t("fields.opposingParty")} value={data.opposingParty} onChange={(v) => setData({ ...data, opposingParty: v })} />
               <Field label={t("fields.caseNumber")} value={data.caseNumber} onChange={(v) => setData({ ...data, caseNumber: v })} />
               <Field label={t("fields.court")} value={data.court} onChange={(v) => setData({ ...data, court: v })} />
-              <Field label={t("fields.importantDates")} value={data.importantDates?.join(", ")} onChange={() => {}} />
-              <Field label={t("fields.amounts")} value={data.amounts?.join(", ")} onChange={() => {}} />
+              <Field
+                label={t("fields.importantDates")}
+                value={data.importantDates?.join(", ")}
+                onChange={(v) => setData({ ...data, importantDates: v.split(",").map((d) => d.trim()).filter(Boolean) })}
+              />
+              <Field
+                label={t("fields.amounts")}
+                value={data.amounts?.join(", ")}
+                onChange={(v) => setData({ ...data, amounts: v.split(",").map((d) => d.trim()).filter(Boolean) })}
+              />
             </div>
-            <Button variant="gold" className="w-full" onClick={confirmSave}>
+            <Button variant="gold" className="w-full" onClick={confirmSave} disabled={saving}>
               <Check className="h-4 w-4" />
               {t("confirmSave")}
             </Button>

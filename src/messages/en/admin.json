@@ -22,22 +22,91 @@
     "activityOverTime": "Activity over time",
     "casesByCategory": "Cases by category",
     "casesByStatus": "Cases by status",
-    "topLawyers": "Top active lawyers"
+    "topLawyers": "Top active lawyers",
+    "pendingVerification": "Pending verifications",
+    "openReports": "Open reports",
+    "noData": "No data yet.",
+    "systemHealth": "System health",
+    "aiProvider": "AI provider",
+    "recentErrors": "Recent errors & warnings",
+    "noErrors": "No errors recorded."
   },
   "verification": {
     "title": "Verification requests",
     "empty": "No pending requests",
     "approve": "Approve",
     "reject": "Reject",
-    "barNumber": "Bar number",
+    "barNumber": "Bar association number",
     "specialty": "Specialty",
-    "pendingBadge": "Pending verification"
+    "pendingBadge": "Pending verification",
+    "requestInfo": "Request more info",
+    "noteRequired": "Write a note for the lawyer when rejecting or requesting more information.",
+    "notePlaceholder": "Note for the lawyer (required when rejecting or requesting info)",
+    "years": "years experience",
+    "info": "Verification details",
+    "noInfo": "The lawyer hasn't submitted any information yet.",
+    "previousNote": "Previous note",
+    "waitingOnLawyer": "Waiting on the lawyer",
+    "done": {
+      "approve": "Lawyer verified and notified.",
+      "reject": "Request rejected and the lawyer notified.",
+      "request_info": "More information requested from the lawyer."
+    }
   },
   "users": {
     "statusActive": "Active",
     "statusDisabled": "Disabled",
     "activate": "Activate",
     "deactivate": "Deactivate",
-    "demoBadge": "Demo account"
+    "demoBadge": "Demo account",
+    "search": "Search by name or email",
+    "all": "All",
+    "activated": "Account activated.",
+    "deactivated": "Account suspended."
+  },
+  "cases": {
+    "privacy": "Oversight view: only case metadata is shown — never messages, documents or private notes.",
+    "search": "Search by title or names",
+    "all": "All",
+    "empty": "No matching cases.",
+    "unassigned": "No lawyer",
+    "manual": "Manual case"
+  },
+  "lawyers": {
+    "search": "Search by lawyer name",
+    "all": "All",
+    "empty": "No matching lawyers.",
+    "review": "Review",
+    "publicProfile": "Public profile",
+    "notAccepting": "Not accepting cases"
+  },
+  "reports": {
+    "title": "Reports & disputes",
+    "subtitle": "User reports against lawyers, cases or accounts.",
+    "empty": "No reports need review.",
+    "showClosed": "Show closed",
+    "hideClosed": "Hide closed",
+    "reporter": "Reported by",
+    "notePlaceholder": "Admin note (optional)",
+    "markReviewing": "Mark as reviewing",
+    "resolve": "Resolve",
+    "dismiss": "Dismiss",
+    "saved": "Report updated.",
+    "status": {
+      "open": "Open",
+      "reviewing": "Reviewing",
+      "resolved": "Resolved",
+      "dismissed": "Dismissed"
+    },
+    "target": {
+      "lawyer": "Lawyer",
+      "case": "Case",
+      "user": "User"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications.",
+    "markAllRead": "Mark all as read"
   }
 }

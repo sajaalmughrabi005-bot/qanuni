@@ -1,7 +1,12 @@
 import type {
   Analysis,
   Appointment,
+  CaseDocument,
+  CaseEvent,
+  CaseNote,
   CaseRecord,
+  Report,
+  SystemEvent,
   DocumentClause,
   LegalDocument,
   LegalDraft,
@@ -50,6 +55,11 @@ export function mapLawyer(row: Record<string, unknown>): Lawyer {
     reviewCount: Number(row.review_count) || 0,
     completedCases: Number(row.completed_cases) || 0,
     responseTimeHours: Number(row.response_time_hours) || 24,
+    acceptingNewCases: row.accepting_new_cases !== false,
+    preferredCategories: (row.preferred_categories as LawyerSpecialty[]) || [],
+    barNumber: (row.bar_number as string) || undefined,
+    verificationInfo: (row.verification_info as string) || undefined,
+    verificationAdminNote: (row.verification_admin_note as string) || undefined,
   };
 }
 
@@ -168,7 +178,7 @@ export function analysisToPayload(a: Omit<Analysis, "id" | "documentId" | "userI
 export function mapCase(row: Record<string, unknown>): CaseRecord {
   return {
     id: row.id as string,
-    clientId: row.client_id as string,
+    clientId: (row.client_id as string) || undefined,
     clientName: row.client_name as string,
     lawyerId: (row.lawyer_id as string) || undefined,
     title: row.title as string,
@@ -196,6 +206,80 @@ export function mapCase(row: Record<string, unknown>): CaseRecord {
     legalStage: row.legal_stage as CaseRecord["legalStage"],
     totalFees: row.total_fees != null ? Number(row.total_fees) : undefined,
     paymentsReceived: row.payments_received != null ? Number(row.payments_received) : undefined,
+    urgency: ((row.urgency as string) || "medium") as CaseRecord["urgency"],
+    requestDescription: (row.request_description as string) || undefined,
+    requestMessage: (row.request_message as string) || undefined,
+    requestedAt: (row.requested_at as string) || (row.created_at as string),
+    acceptedAt: (row.accepted_at as string) || undefined,
+    acceptedBy: (row.accepted_by as string) || undefined,
+    rejectedAt: (row.rejected_at as string) || undefined,
+    rejectionReason: (row.rejection_reason as CaseRecord["rejectionReason"]) || undefined,
+    rejectionNote: (row.rejection_note as string) || undefined,
+    viewedByLawyerAt: (row.viewed_by_lawyer_at as string) || undefined,
+    resolvedAt: (row.resolved_at as string) || undefined,
+    closedAt: (row.closed_at as string) || undefined,
+    isManual: (row.is_manual as boolean) || false,
+  };
+}
+
+export function mapCaseEvent(row: Record<string, unknown>): CaseEvent {
+  return {
+    id: row.id as string,
+    caseId: row.case_id as string,
+    actorId: (row.actor_id as string) || undefined,
+    actorRole: row.actor_role as CaseEvent["actorRole"],
+    eventType: row.event_type as CaseEvent["eventType"],
+    metadata: (row.metadata as Record<string, unknown>) || {},
+    createdAt: row.created_at as string,
+  };
+}
+
+export function mapCaseDocument(row: Record<string, unknown>): CaseDocument {
+  return {
+    id: row.id as string,
+    caseId: row.case_id as string,
+    uploadedBy: row.uploaded_by as string,
+    uploadedByRole: row.uploaded_by_role as CaseDocument["uploadedByRole"],
+    fileName: row.file_name as string,
+    storagePath: row.storage_path as string,
+    mimeType: (row.mime_type as string) || undefined,
+    sizeBytes: row.size_bytes != null ? Number(row.size_bytes) : undefined,
+    createdAt: row.created_at as string,
+  };
+}
+
+export function mapCaseNote(row: Record<string, unknown>): CaseNote {
+  return {
+    id: row.id as string,
+    caseId: row.case_id as string,
+    lawyerId: row.lawyer_id as string,
+    note: row.note as string,
+    createdAt: row.created_at as string,
+  };
+}
+
+export function mapReport(row: Record<string, unknown>): Report {
+  return {
+    id: row.id as string,
+    reporterId: row.reporter_id as string,
+    targetType: row.target_type as Report["targetType"],
+    targetId: row.target_id as string,
+    reason: row.reason as string,
+    details: (row.details as string) || undefined,
+    status: row.status as Report["status"],
+    adminNote: (row.admin_note as string) || undefined,
+    createdAt: row.created_at as string,
+    resolvedAt: (row.resolved_at as string) || undefined,
+  };
+}
+
+export function mapSystemEvent(row: Record<string, unknown>): SystemEvent {
+  return {
+    id: row.id as string,
+    kind: row.kind as string,
+    severity: row.severity as SystemEvent["severity"],
+    message: row.message as string,
+    createdAt: row.created_at as string,
   };
 }
 
@@ -223,6 +307,9 @@ export function mapMessage(row: Record<string, unknown>): Message {
     senderId: row.sender_id as string,
     senderName: row.sender_name as string,
     senderRole: row.sender_role as Message["senderRole"],
+    receiverId: (row.receiver_id as string) || undefined,
+    readAt: (row.read_at as string) || undefined,
+    kind: ((row.kind as string) || "text") as Message["kind"],
     message: row.message as string,
     createdAt: row.created_at as string,
   };
