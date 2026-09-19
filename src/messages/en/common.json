@@ -119,5 +119,9 @@
     "text": "You're in the demo — all data here is fake, nothing is saved and nothing connects to a real account.",
     "signup": "Create your real account",
     "exit": "Exit demo"
+  },
+  "password": {
+    "show": "Show password",
+    "hide": "Hide password"
   }
 }

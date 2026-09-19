@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { CheckCircle2, Scale } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSession } from "@/lib/auth/use-session";
@@ -84,9 +84,8 @@ export default function ResetPasswordPage() {
                 <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="password">{t("newPassword")}</Label>
-                    <Input
+                    <PasswordInput
                       id="password"
-                      type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
@@ -96,9 +95,8 @@ export default function ResetPasswordPage() {
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
-                    <Input
+                    <PasswordInput
                       id="confirmPassword"
-                      type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
