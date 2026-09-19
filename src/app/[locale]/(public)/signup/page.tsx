@@ -73,12 +73,16 @@ function SignUpForm() {
 
     if (!result.ok) {
       const known = ["invalid_name", "invalid_email", "weak_password", "bar_number_required", "specialty_required"];
+      // Supabase's built-in mailer only sends a few emails per hour; say so instead of a vague failure.
+      const rateLimited = /rate limit|too many|security purposes/i.test(result.error);
       toast.error(
         result.error.includes("already registered")
           ? t("emailTaken")
-          : known.includes(result.error)
-            ? t(("errors." + result.error) as "errors.generic")
-            : t("errors.generic")
+          : rateLimited
+            ? t("errors.rate_limit")
+            : known.includes(result.error)
+              ? t(("errors." + result.error) as "errors.generic")
+              : t("errors.generic")
       );
       return;
     }
