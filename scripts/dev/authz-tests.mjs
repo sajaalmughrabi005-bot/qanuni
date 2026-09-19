@@ -511,6 +511,45 @@ await test("an unapproved lawyer / a citizen cannot create manual cases", async 
   await asUser(db, citizenA, () => expectError(() => q("select lawyer_create_manual_case('Forged case','x','civil','','','','',array[]::text[],null)"), "forbidden"));
 });
 
+// ---------------------------------------------------------------- saved lawyers + AI history (005)
+console.log("\nSaved lawyers & AI history");
+await test("a user can save a public lawyer; nobody else sees the bookmark", async () => {
+  const lid = (await q("select id from lawyers where profile_id=$1", [lawyer1])).rows[0].id;
+  await asUser(db, citizenA, () => q("insert into saved_lawyers (user_id, lawyer_id) values ($1,$2)", [citizenA, lid]));
+  await asUser(db, citizenA, async () => { assert((await q("select 1 from saved_lawyers")).rows.length === 1); });
+  await asUser(db, citizenB, async () => { assert((await q("select 1 from saved_lawyers")).rows.length === 0); });
+  await asUser(db, lawyer1, async () => { assert((await q("select 1 from saved_lawyers")).rows.length === 0); });
+});
+await test("a user cannot save on behalf of someone else, and anon cannot save", async () => {
+  const lid = (await q("select id from lawyers where profile_id=$1", [lawyer1])).rows[0].id;
+  await asUser(db, citizenB, () => expectError(() => q("insert into saved_lawyers (user_id, lawyer_id) values ($1,$2)", [citizenA, lid]), "row-level security"));
+  await asUser(db, null, () => expectError(() => q("select 1 from saved_lawyers"), "permission denied"));
+});
+await test("another user cannot delete someone else's bookmark", async () => {
+  await asUser(db, citizenB, () => q("delete from saved_lawyers"));
+  await asUser(db, citizenA, async () => { assert((await q("select 1 from saved_lawyers")).rows.length === 1); });
+  await asUser(db, citizenA, () => q("delete from saved_lawyers"));
+});
+await test("AI history is private to its owner and cannot point at someone else's document", async () => {
+  await asUser(db, citizenA, () => q("insert into ai_history (user_id, kind, prompt, answer) values ($1,'ask','q','{\"a\":1}'::jsonb)", [citizenA]));
+  await asUser(db, citizenB, async () => { assert((await q("select 1 from ai_history")).rows.length === 0); });
+  await asUser(db, citizenB, () => expectError(() => q("insert into ai_history (user_id, kind, prompt, answer) values ($1,'ask','forged','{}'::jsonb)", [citizenA]), "row-level security"));
+  await asUser(db, admin, async () => { assert((await q("select 1 from ai_history")).rows.length === 0, "admin must not read private AI history"); });
+});
+
+console.log("\nAccount deletion");
+await test("deleting an account that sent messages / owns data succeeds and removes its data", async () => {
+  const victim = await signUp(db, "victim@test", { full_name: "Victim", role: "citizen" });
+  const lid = (await q("select id from lawyers where profile_id=$1", [lawyer1])).rows[0].id;
+  const caseId = (await asUser(db, victim, () => q("select request_case($1,'Case to delete','rental','A description long enough','medium') as id", [lid]))).rows[0].id;
+  await asUser(db, lawyer1, () => q("select respond_case($1,true,null,null)", [caseId]));
+  await asUser(db, victim, () => q("insert into messages (case_id, sender_id, sender_name, sender_role, message) values ($1,$2,'Victim','citizen','hello')", [caseId, victim]));
+  await q("delete from auth.users where id=$1", [victim]);
+  assert((await q("select 1 from profiles where id=$1", [victim])).rows.length === 0, "profile should be gone");
+  assert((await q("select 1 from messages where sender_id=$1", [victim])).rows.length === 0, "messages should be gone");
+  assert((await q("select 1 from cases where id=$1", [caseId])).rows.length === 0, "the user's cases should be gone");
+});
+
 console.log(`\n${passed} passed, ${failures.length} failed`);
 if (failures.length) {
   console.log("Failures:\n - " + failures.join("\n - "));

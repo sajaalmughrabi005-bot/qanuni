@@ -58,6 +58,7 @@ export async function createDb({ withMigration004 = true } = {}) {
   await db.exec(adaptSchema(read("supabase/schema.sql")));
   if (withMigration004) {
     await db.exec(read("supabase/migrations/004_case_lifecycle_and_security.sql"));
+    await db.exec(read("supabase/migrations/005_saved_lawyers_and_ai_history.sql"));
   }
   return db;
 }
