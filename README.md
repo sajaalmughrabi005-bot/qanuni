@@ -64,7 +64,7 @@ Transitions are enforced in Postgres (`_allowed_transition`, `transition_case`, 
 
 ### Tests
 ```bash
-node scripts/dev/authz-tests.mjs                  # 97 database-level authorization/workflow tests (local Postgres via PGlite)
+node scripts/dev/authz-tests.mjs                  # 98 database-level authorization/workflow tests (local Postgres via PGlite)
 node scripts/dev/qa-fixtures.mjs create           # temporary QA accounts on the real project (service role)
 node scripts/dev/live-authz.mjs                   # 25 end-to-end checks against the REAL Supabase (Auth + RLS + Storage)
 node scripts/dev/qa-fixtures.mjs remove           # delete the QA accounts again
@@ -109,7 +109,7 @@ src/
     supabase/              client/server/admin clients, row mappers
 supabase/
   schema.sql               Baseline schema (tables, RLS, base triggers)
-  migrations/              002 review trigger, 003 notification triggers, 004 lifecycle + security hardening, 005 saved lawyers / AI history / account deletion
+  migrations/              002 review trigger, 003 notification triggers, 004 lifecycle + security hardening, 005 saved lawyers / AI history / account deletion, 006 admin notifications
 scripts/
   admin/                   make-admin.mjs, cleanup-demo-data.mjs
   dev/                     PGlite harness + tests, live E2E checks, QA fixtures
@@ -118,7 +118,7 @@ scripts/
 ## Database setup
 
 1. Run `supabase/schema.sql` in the Supabase SQL Editor.
-2. Run each file in `supabase/migrations/` **in order** (002 → 005). They are idempotent, so re-running is safe.
+2. Run each file in `supabase/migrations/` **in order** (002 → 006). They are idempotent, so re-running is safe.
 3. In Supabase → Authentication → URL Configuration, set the Site URL to your domain and add
    `https://<your-domain>/**` and `http://localhost:3000/**` to the redirect allow-list (required for email confirmation and password-reset links).
 4. Sign up normally on the site, then promote yourself to admin **once**, from a trusted machine:

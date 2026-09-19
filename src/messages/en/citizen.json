@@ -31,7 +31,11 @@
       "processing": "Processing",
       "analyzed": "Analyzed",
       "failed": "Analysis failed"
-    }
+    },
+    "delete": "Delete document",
+    "confirmDelete": "Confirm delete",
+    "cancel": "Cancel",
+    "deleted": "Document and its analysis were deleted."
   },
   "analyses": {
     "title": "My Analyses",

@@ -537,6 +537,18 @@ await test("AI history is private to its owner and cannot point at someone else'
   await asUser(db, admin, async () => { assert((await q("select 1 from ai_history")).rows.length === 0, "admin must not read private AI history"); });
 });
 
+console.log("\nAdmin notifications (006)");
+await test("admins are notified of new lawyer applications and reports; nobody else is", async () => {
+  const before = (await q("select count(*)::int as n from notifications where user_id=$1", [admin])).rows[0].n;
+  const newLawyer = await signUp(db, "l-notify@test", { full_name: "Notify Lawyer", role: "lawyer", bar_number: "BAR-N", specialty: "civil", verification_info: "x" });
+  const mid = (await q("select count(*)::int as n from notifications where user_id=$1 and type='verification'", [admin])).rows[0].n;
+  assert(mid >= 1, "no verification notification for admin");
+  await asUser(db, citizenA, () => q("insert into reports (reporter_id, target_type, target_id, reason) values ($1,'lawyer',$2,'سبب البلاغ')", [citizenA, newLawyer]));
+  const after = (await q("select count(*)::int as n from notifications where user_id=$1", [admin])).rows[0].n;
+  assert(after >= before + 2, "admin should have 2 new notifications, went " + before + " -> " + after);
+  await asUser(db, citizenB, async () => { assert((await q("select 1 from notifications where type in ('system','verification') and title_ar like '%بلاغ%'")).rows.length === 0, "citizen sees admin notification"); });
+});
+
 console.log("\nAccount deletion");
 await test("deleting an account that sent messages / owns data succeeds and removes its data", async () => {
   const victim = await signUp(db, "victim@test", { full_name: "Victim", role: "citizen" });

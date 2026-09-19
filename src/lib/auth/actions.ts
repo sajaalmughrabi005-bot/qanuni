@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { logSystemEvent } from "@/lib/system-events";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { LawyerSpecialty, UserRole } from "@/types";
@@ -72,7 +73,10 @@ export async function signUpAction(input: SignUpInput): Promise<AuthResult> {
     },
   });
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    await logSystemEvent("signup_error", `Signup failed (${role}): ${error.message}`, "warning");
+    return { ok: false, error: error.message };
+  }
   // Supabase returns a user with no identities (and no error) when the email
   // is already registered, to avoid leaking which emails exist.
   if (data.user && data.user.identities && data.user.identities.length === 0) {

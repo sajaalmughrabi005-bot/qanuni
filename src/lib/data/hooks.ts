@@ -424,7 +424,7 @@ export function useAiHistory(kind: "ask" | "scenario", documentId?: string): Lis
     "created_at",
     { filter: { column: "kind", value: kind } }
   );
-  const filtered = documentId ? real.data.filter((e) => e.documentId === documentId) : real.data;
+  const filtered = real.data.filter((e) => e.documentId === documentId);
   return demoRole ? demoResult<AiHistoryEntry>([]) : { ...real, data: filtered };
 }
 

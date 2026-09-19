@@ -31,7 +31,11 @@
       "processing": "جارٍ التحليل",
       "analyzed": "تم التحليل",
       "failed": "فشل التحليل"
-    }
+    },
+    "delete": "حذف المستند",
+    "confirmDelete": "تأكيد الحذف",
+    "cancel": "إلغاء",
+    "deleted": "تم حذف المستند وتحليله."
   },
   "analyses": {
     "title": "تحليلاتي",
