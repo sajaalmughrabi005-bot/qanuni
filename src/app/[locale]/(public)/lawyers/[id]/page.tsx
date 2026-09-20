@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { CaseRequestDialog } from "@/components/cases/case-request-dialog";
 import { ReportDialog } from "@/components/cases/report-dialog";
 import { useLawyer } from "@/lib/auth/use-lawyer";
+import { useGovernorateLabel } from "@/components/shared/governorate-select";
 import { useSession } from "@/lib/auth/use-session";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { mapReview } from "@/lib/supabase/mappers";
@@ -30,6 +31,7 @@ export default function LawyerProfilePage() {
   const tCases = useTranslations("cases");
   const locale = useLocale();
   const demoRole = useDemoRole();
+  const cityLabel = useGovernorateLabel();
   const { session } = useSession();
   const [requestOpen, setRequestOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
@@ -79,7 +81,7 @@ export default function LawyerProfilePage() {
               </div>
               <p className="mt-1 flex items-center gap-1 text-sm text-foreground-muted">
                 <MapPin className="h-3.5 w-3.5" />
-                {lawyer.city}
+                {cityLabel(lawyer.city)}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {lawyer.specialties.map((s) => (

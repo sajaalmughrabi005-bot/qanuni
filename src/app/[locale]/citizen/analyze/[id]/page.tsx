@@ -19,6 +19,7 @@ import { CaseRequestDialog } from "@/components/cases/case-request-dialog";
 import { useLawyerDirectory } from "@/lib/auth/use-lawyer";
 import { useSession } from "@/lib/auth/use-session";
 import { matchLawyersToCase } from "@/lib/ai/engine";
+import { governorateKey } from "@/lib/governorates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { mapAnalysis, mapClause, mapDocument } from "@/lib/supabase/mappers";
 import { demoAnalysis, demoClauses, demoDocument, DEMO_DOCUMENT_ID } from "@/lib/mock-data";
@@ -56,7 +57,7 @@ export default function AnalysisResultsPage() {
   const suggestions = useMemo(() => {
     if (!document) return [];
     const category = ({ rental: "rental", employment: "employment", sale: "commercial", service: "commercial", general: "civil" } as const)[document.documentType];
-    return matchLawyersToCase(lawyers.filter((l) => l.acceptingNewCases), category, profile?.city, "ar").slice(0, 6);
+    return matchLawyersToCase(lawyers.filter((l) => l.acceptingNewCases).map((l) => ({ ...l, city: governorateKey(l.city) ?? l.city })), category, governorateKey(profile?.city) ?? profile?.city, "ar").slice(0, 6);
   }, [lawyers, document, profile?.city]);
 
   if (loading) return null;

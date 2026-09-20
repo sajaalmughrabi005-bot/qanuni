@@ -13,12 +13,14 @@ import { useSession } from "@/lib/auth/use-session";
 import { useSavedLawyerIds } from "@/lib/data/hooks";
 import { setLawyerSaved } from "@/lib/data/actions";
 import { useRouter } from "@/i18n/navigation";
+import { useGovernorateLabel } from "@/components/shared/governorate-select";
 
 export function LawyerCard({ lawyer, matchScore }: { lawyer: Lawyer; matchScore?: number }) {
   const t = useTranslations("marketplace");
   const tSpec = useTranslations("marketplace.specialties");
   const tAvail = useTranslations("marketplace.availability");
   const router = useRouter();
+  const cityLabel = useGovernorateLabel();
   const { session } = useSession();
   const { ids: savedIds, refetch } = useSavedLawyerIds();
   const saved = savedIds.includes(lawyer.id);
@@ -57,7 +59,7 @@ export function LawyerCard({ lawyer, matchScore }: { lawyer: Lawyer; matchScore?
               </p>
               <p className="flex items-center gap-1 text-xs text-foreground-muted">
                 <MapPin className="h-3 w-3" />
-                {lawyer.city}
+                {cityLabel(lawyer.city)}
               </p>
             </div>
           </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { governorateKey } from "@/lib/governorates";
+import { useGovernorateLabel } from "@/components/shared/governorate-select";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Search, Users } from "lucide-react";
@@ -36,14 +38,15 @@ export default function LawyerMarketplacePage() {
   const { lawyers } = useLawyerDirectory();
   const tAvail = useTranslations("marketplace.availability");
 
+  const cityLabel = useGovernorateLabel();
   const cities = useMemo(
-    () => Array.from(new Set(lawyers.map((l) => l.city).filter(Boolean))),
+    () => Array.from(new Set(lawyers.map((l) => governorateKey(l.city)).filter((c): c is NonNullable<typeof c> => !!c))),
     [lawyers]
   );
 
   const filtered = lawyers.filter((l) => {
     if (query && !l.fullName.toLowerCase().includes(query.toLowerCase())) return false;
-    if (city !== "all" && l.city !== city) return false;
+    if (city !== "all" && governorateKey(l.city) !== city) return false;
     if (specialty !== "all" && !l.specialties.includes(specialty as LawyerSpecialty)) return false;
     if (availability !== "all" && l.availabilityStatus !== availability) return false;
     if (acceptingOnly && !l.acceptingNewCases) return false;
@@ -75,7 +78,7 @@ export default function LawyerMarketplacePage() {
             <SelectItem value="all">{t("search.allCities")}</SelectItem>
             {cities.map((c) => (
               <SelectItem key={c} value={c}>
-                {c}
+                {cityLabel(c)}
               </SelectItem>
             ))}
           </SelectContent>

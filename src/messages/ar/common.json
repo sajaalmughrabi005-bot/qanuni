@@ -123,5 +123,20 @@
   "password": {
     "show": "إظهار كلمة المرور",
     "hide": "إخفاء كلمة المرور"
+  },
+  "governorates": {
+    "placeholder": "اختر المحافظة",
+    "amman": "عمّان",
+    "irbid": "إربد",
+    "zarqa": "الزرقاء",
+    "balqa": "البلقاء",
+    "madaba": "مادبا",
+    "karak": "الكرك",
+    "tafilah": "الطفيلة",
+    "maan": "معان",
+    "aqaba": "العقبة",
+    "mafraq": "المفرق",
+    "jerash": "جرش",
+    "ajloun": "عجلون"
   }
 }

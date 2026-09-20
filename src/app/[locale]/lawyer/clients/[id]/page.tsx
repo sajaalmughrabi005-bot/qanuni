@@ -14,6 +14,7 @@ import { mapDocument, mapProfile } from "@/lib/supabase/mappers";
 import { initials, formatDate } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useDemoStore } from "@/lib/demo/store";
+import { useGovernorateLabel } from "@/components/shared/governorate-select";
 import type { LegalDocument, Profile } from "@/types";
 
 export default function ClientFilePage() {
@@ -26,6 +27,7 @@ export default function ClientFilePage() {
   const { data: allCases } = useCases();
   const [realProfile, setClientProfile] = useState<Profile | undefined>(undefined);
   const demoProfiles = useDemoStore((s) => s.profiles);
+  const cityLabel = useGovernorateLabel();
   const [clientDocuments, setClientDocuments] = useState<LegalDocument[]>([]);
 
   const clientProfile = realProfile ?? demoProfiles.find((p) => p.id === params.id);
@@ -96,7 +98,7 @@ export default function ClientFilePage() {
           )}
           {clientProfile?.city && (
             <p className="flex items-center gap-2 text-foreground-muted">
-              <MapPin className="h-3.5 w-3.5" /> {clientProfile.city}
+              <MapPin className="h-3.5 w-3.5" /> {cityLabel(clientProfile.city)}
             </p>
           )}
           {!clientProfile?.email && !clientProfile?.phone && !clientProfile?.city && (

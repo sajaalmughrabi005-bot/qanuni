@@ -549,6 +549,16 @@ await test("admins are notified of new lawyer applications and reports; nobody e
   await asUser(db, citizenB, async () => { assert((await q("select 1 from notifications where type in ('system','verification') and title_ar like '%بلاغ%'")).rows.length === 0, "citizen sees admin notification"); });
 });
 
+await test("signup stores a valid governorate on the profile and lawyer row, and ignores invalid values", async () => {
+  const l = await signUp(db, "gov-lawyer@test", { full_name: "Gov Lawyer", role: "lawyer", bar_number: "B-1", specialty: "civil", city: "irbid" });
+  const c = await signUp(db, "gov-citizen@test", { full_name: "Gov Citizen", role: "citizen", city: "Atlantis" });
+  const lp = (await q("select city from profiles where id=$1", [l])).rows[0].city;
+  const lr = (await q("select city from lawyers where profile_id=$1", [l])).rows[0].city;
+  const cp = (await q("select city from profiles where id=$1", [c])).rows[0].city;
+  assert(lp === "irbid" && lr === "irbid", "lawyer city not stored: " + lp + "/" + lr);
+  assert(cp === null, "invalid city should be ignored, got " + cp);
+});
+
 console.log("\nAccount deletion");
 await test("deleting an account that sent messages / owns data succeeds and removes its data", async () => {
   const victim = await signUp(db, "victim@test", { full_name: "Victim", role: "citizen" });

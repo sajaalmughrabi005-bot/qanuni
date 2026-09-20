@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { signUpAction } from "@/lib/auth/actions";
 import { safeNextPath } from "@/lib/auth/next-path";
+import { GovernorateSelect } from "@/components/shared/governorate-select";
 import { clearDemoCookie } from "@/lib/demo/mode";
 import type { LawyerSpecialty } from "@/types";
 
@@ -48,6 +49,7 @@ function SignUpForm() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"citizen" | "lawyer">("citizen");
   const [barNumber, setBarNumber] = useState("");
+  const [city, setCity] = useState("");
   const [specialty, setSpecialty] = useState<LawyerSpecialty>("rental");
   const [submitting, setSubmitting] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
@@ -59,6 +61,10 @@ function SignUpForm() {
       toast.error(t("passwordTooShort"));
       return;
     }
+    if (role === "lawyer" && !city) {
+      toast.error(t("errors.city_required"));
+      return;
+    }
     setSubmitting(true);
     const result = await signUpAction({
       fullName,
@@ -67,13 +73,14 @@ function SignUpForm() {
       role,
       barNumber: role === "lawyer" ? barNumber : undefined,
       specialty: role === "lawyer" ? specialty : undefined,
+      city: city || undefined,
       verificationInfo: role === "lawyer" ? verificationInfo : undefined,
       language: locale,
     });
     setSubmitting(false);
 
     if (!result.ok) {
-      const known = ["invalid_name", "invalid_email", "weak_password", "bar_number_required", "specialty_required"];
+      const known = ["invalid_name", "invalid_email", "weak_password", "bar_number_required", "specialty_required", "city_required", "invalid_city"];
       // Supabase's built-in mailer only sends a few emails per hour; say so instead of a vague failure.
       const rateLimited = /rate limit|too many|security purposes/i.test(result.error);
       toast.error(
@@ -173,6 +180,10 @@ function SignUpForm() {
                   <div className="space-y-1.5">
                     <Label htmlFor="barNumber">{t("barNumber")}</Label>
                     <Input id="barNumber" value={barNumber} onChange={(e) => setBarNumber(e.target.value)} required />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>{t("city")}</Label>
+                    <GovernorateSelect value={city} onChange={setCity} />
                   </div>
                   <div className="space-y-1.5">
                     <Label>{t("specialty")}</Label>

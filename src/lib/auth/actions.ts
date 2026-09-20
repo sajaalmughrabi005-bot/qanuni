@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { logSystemEvent } from "@/lib/system-events";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { isGovernorate } from "@/lib/governorates";
 import type { LawyerSpecialty, UserRole } from "@/types";
 
 export type SignUpInput = {
@@ -13,6 +14,8 @@ export type SignUpInput = {
   role: "citizen" | "lawyer";
   barNumber?: string;
   specialty?: LawyerSpecialty;
+  /** Governorate key (see lib/governorates.ts). Required for lawyers. */
+  city?: string;
   /** Free-text professional details the admin reviews before approving a lawyer. */
   verificationInfo?: string;
   language: "ar" | "en";
@@ -50,6 +53,9 @@ export async function signUpAction(input: SignUpInput): Promise<AuthResult> {
     if (!input.barNumber || input.barNumber.trim().length < 3) return { ok: false, error: "bar_number_required" };
     if (!input.specialty || !SPECIALTIES.includes(input.specialty)) return { ok: false, error: "specialty_required" };
   }
+  const city = input.city && isGovernorate(input.city) ? input.city : undefined;
+  if (input.city && !city) return { ok: false, error: "invalid_city" };
+  if (role === "lawyer" && !city) return { ok: false, error: "city_required" };
   const language = input.language === "en" ? "en" : "ar";
 
   const origin = await siteOrigin();
@@ -66,6 +72,7 @@ export async function signUpAction(input: SignUpInput): Promise<AuthResult> {
         full_name: fullName,
         role,
         language,
+        city,
         bar_number: role === "lawyer" ? input.barNumber?.trim() : undefined,
         specialty: role === "lawyer" ? input.specialty : undefined,
         verification_info: role === "lawyer" ? input.verificationInfo?.trim().slice(0, 2000) : undefined,

@@ -13,6 +13,8 @@ import { useSession } from "@/lib/auth/use-session";
 import { deleteAccountAction } from "@/lib/auth/actions";
 import { updateMyProfile } from "@/lib/data/actions";
 import { resizeImageToDataUrl } from "@/lib/image";
+import { governorateKey } from "@/lib/governorates";
+import { GovernorateSelect, useGovernorateLabel } from "@/components/shared/governorate-select";
 import { initials } from "@/lib/utils";
 import type { Profile } from "@/types";
 
@@ -20,6 +22,7 @@ export function ProfileCard({ embedded = false }: { embedded?: boolean }) {
   const t = useTranslations("common.profile");
   const { profile, refreshProfile, isDemo } = useSession();
   const fileRef = useRef<HTMLInputElement>(null);
+  const cityLabel = useGovernorateLabel();
 
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -33,7 +36,7 @@ export function ProfileCard({ embedded = false }: { embedded?: boolean }) {
     setForm({
       fullName: profile.fullName,
       phone: profile.phone,
-      city: profile.city,
+      city: governorateKey(profile.city) ?? "",
       avatarUrl: profile.avatarUrl,
     });
     setEditing(true);
@@ -146,9 +149,9 @@ export function ProfileCard({ embedded = false }: { embedded?: boolean }) {
                 {t("city")}
               </Label>
               {editing ? (
-                <Input value={form.city ?? ""} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} maxLength={80} />
+                <GovernorateSelect value={form.city} onChange={(c) => setForm((f) => ({ ...f, city: c }))} />
               ) : (
-                <p className="text-sm">{profile.city || "—"}</p>
+                <p className="text-sm">{cityLabel(profile.city) || "—"}</p>
               )}
             </div>
           </div>

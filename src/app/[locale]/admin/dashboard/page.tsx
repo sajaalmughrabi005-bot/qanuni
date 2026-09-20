@@ -24,6 +24,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { AiStatusIndicator } from "@/components/shared/ai-status-indicator";
 import { useAdminStats, useAdminLawyers, useSystemEvents } from "@/lib/data/hooks";
 import { formatDateTime, initials } from "@/lib/utils";
+import { useGovernorateLabel } from "@/components/shared/governorate-select";
 import type { CaseStatus } from "@/types";
 
 const COLORS = ["#b68a35", "#0f1c30", "#1f7a4d", "#b8791a", "#b3312c", "#5b6773", "#0ea5e9", "#8b5cf6"];
@@ -46,6 +47,7 @@ export default function AdminDashboardPage() {
   const tSpec = useTranslations("marketplace.specialties");
   const locale = useLocale();
   const router = useRouter();
+  const cityLabel = useGovernorateLabel();
 
   const { stats } = useAdminStats();
   const { data: allLawyers } = useAdminLawyers();
@@ -179,7 +181,7 @@ export default function AdminDashboardPage() {
                 </Avatar>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gold">{l.fullName}</p>
-                  <p className="text-xs text-foreground-muted">{l.city}</p>
+                  <p className="text-xs text-foreground-muted">{cityLabel(l.city)}</p>
                 </div>
                 <Badge variant="gold">{l.completedCases}</Badge>
               </Link>

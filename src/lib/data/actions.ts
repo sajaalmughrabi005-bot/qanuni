@@ -3,6 +3,7 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { analysisToPayload } from "@/lib/supabase/mappers";
 import { isDemoActive } from "@/lib/demo/mode";
+import { isGovernorate } from "@/lib/governorates";
 import { useDemoStore } from "@/lib/demo/store";
 import { DEMO_LAWYER_ID } from "@/lib/demo/lawyers";
 import type {
@@ -580,7 +581,11 @@ export async function updateMyProfile(userId: string, patch: ProfilePatch): Prom
     row.full_name = name;
   }
   if (patch.phone !== undefined) row.phone = patch.phone.trim().slice(0, 30) || null;
-  if (patch.city !== undefined) row.city = patch.city.trim().slice(0, 80) || null;
+  if (patch.city !== undefined) {
+    const c = patch.city.trim();
+    if (c && !isGovernorate(c)) return fail("invalid_city");
+    row.city = c || null;
+  }
   if (patch.avatarUrl !== undefined) row.avatar_url = patch.avatarUrl || null;
   const { error } = await supabase.from("profiles").update(row).eq("id", userId);
   return error ? dbError(error) : ok(undefined);
@@ -615,7 +620,10 @@ export async function updateMyLawyerProfile(lawyerId: string, patch: LawyerProfi
   const row: Record<string, unknown> = {};
   if (patch.avatarUrl !== undefined) row.avatar_url = patch.avatarUrl;
   if (patch.bio !== undefined) row.bio = patch.bio;
-  if (patch.city !== undefined) row.city = patch.city;
+  if (patch.city !== undefined) {
+    if (patch.city && !isGovernorate(patch.city)) return fail("invalid_city");
+    row.city = patch.city;
+  }
   if (patch.languages !== undefined) row.languages = patch.languages;
   if (patch.specialties !== undefined) row.specialties = patch.specialties;
   if (patch.consultationPrice !== undefined) row.consultation_price = patch.consultationPrice;

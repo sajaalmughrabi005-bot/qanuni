@@ -123,5 +123,20 @@
   "password": {
     "show": "Show password",
     "hide": "Hide password"
+  },
+  "governorates": {
+    "placeholder": "Select governorate",
+    "amman": "Amman",
+    "irbid": "Irbid",
+    "zarqa": "Zarqa",
+    "balqa": "Balqa",
+    "madaba": "Madaba",
+    "karak": "Karak",
+    "tafilah": "Tafilah",
+    "maan": "Ma'an",
+    "aqaba": "Aqaba",
+    "mafraq": "Mafraq",
+    "jerash": "Jerash",
+    "ajloun": "Ajloun"
   }
 }

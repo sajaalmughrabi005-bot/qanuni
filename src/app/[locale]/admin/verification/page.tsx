@@ -14,6 +14,7 @@ import { useAdminLawyers } from "@/lib/data/hooks";
 import { adminReviewLawyer } from "@/lib/data/actions";
 import { errorKey } from "@/lib/data/error-key";
 import { initials } from "@/lib/utils";
+import { useGovernorateLabel } from "@/components/shared/governorate-select";
 import type { Lawyer } from "@/types";
 
 type Decision = "approve" | "reject" | "request_info";
@@ -23,6 +24,7 @@ function ReviewCard({ lawyer, onDone }: { lawyer: Lawyer; onDone: () => void }) 
   const tVerify = useTranslations("lawyer.verification");
   const tCases = useTranslations("cases");
   const tSpec = useTranslations("marketplace.specialties");
+  const cityLabel = useGovernorateLabel();
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -48,7 +50,7 @@ function ReviewCard({ lawyer, onDone }: { lawyer: Lawyer; onDone: () => void }) 
           <div className="min-w-0 flex-1">
             <p className="font-medium">{lawyer.fullName}</p>
             <p className="text-xs text-foreground-muted">
-              {lawyer.specialties.map((s) => tSpec(s)).join(", ") || "—"} · {lawyer.city || "—"} · {lawyer.yearsExperience} {t("years")}
+              {lawyer.specialties.map((s) => tSpec(s)).join(", ") || "—"} · {cityLabel(lawyer.city) || "—"} · {lawyer.yearsExperience} {t("years")}
             </p>
           </div>
           <Badge variant="subtle">{tVerify(`status.${lawyer.verificationStatus}`)}</Badge>

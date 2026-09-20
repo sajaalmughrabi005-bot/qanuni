@@ -17,6 +17,8 @@ import { ProfileCard } from "@/components/shared/profile-card";
 import { useMyLawyer } from "@/lib/auth/use-lawyer";
 import { updateMyLawyerProfile, updateMyProfile } from "@/lib/data/actions";
 import { resizeImageToDataUrl } from "@/lib/image";
+import { governorateKey } from "@/lib/governorates";
+import { GovernorateSelect, useGovernorateLabel } from "@/components/shared/governorate-select";
 import { initials, cn } from "@/lib/utils";
 import type { Lawyer, LawyerSpecialty } from "@/types";
 
@@ -39,6 +41,7 @@ export default function LawyerProfileSettingsPage() {
   const tAvail = useTranslations("marketplace.availability");
   const { lawyer, refresh } = useMyLawyer();
   const fileRef = useRef<HTMLInputElement>(null);
+  const cityLabel = useGovernorateLabel();
 
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -49,7 +52,7 @@ export default function LawyerProfileSettingsPage() {
   const startEdit = () => {
     setForm({
       bio: lawyer.bio,
-      city: lawyer.city,
+      city: governorateKey(lawyer.city) ?? "",
       consultationPrice: lawyer.consultationPrice,
       yearsExperience: lawyer.yearsExperience,
       availabilityStatus: lawyer.availabilityStatus,
@@ -70,7 +73,7 @@ export default function LawyerProfileSettingsPage() {
     setSaving(true);
     const res = await updateMyLawyerProfile(lawyer.id, {
       bio: (form.bio ?? "").slice(0, 2000),
-      city: (form.city ?? "").trim().slice(0, 80),
+      city: form.city ?? "",
       consultationPrice: price,
       yearsExperience: Math.round(years),
       availabilityStatus: form.availabilityStatus,
@@ -79,7 +82,7 @@ export default function LawyerProfileSettingsPage() {
       avatarUrl: form.avatarUrl ?? "",
     });
     if (res.ok) {
-      await updateMyProfile(lawyer.profileId, { avatarUrl: form.avatarUrl ?? "", city: (form.city ?? "").trim() });
+      await updateMyProfile(lawyer.profileId, { avatarUrl: form.avatarUrl ?? "", city: form.city ?? "" });
       await refresh();
     }
     setSaving(false);
@@ -145,16 +148,13 @@ export default function LawyerProfileSettingsPage() {
             <div>
               <p className="text-lg font-semibold">{lawyer.fullName}</p>
               {editing ? (
-                <Input
-                  value={form.city ?? ""}
-                  onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-                  className="mt-1 h-8 w-40"
-                  maxLength={80}
-                />
+                <div className="mt-1 w-48">
+                  <GovernorateSelect value={form.city} onChange={(c) => setForm((f) => ({ ...f, city: c }))} />
+                </div>
               ) : (
                 <p className="flex items-center gap-1 text-sm text-foreground-muted">
                   <MapPin className="h-3.5 w-3.5" />
-                  {lawyer.city || "—"}
+                  {cityLabel(lawyer.city) || "—"}
                 </p>
               )}
             </div>

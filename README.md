@@ -64,7 +64,7 @@ Transitions are enforced in Postgres (`_allowed_transition`, `transition_case`, 
 
 ### Tests
 ```bash
-node scripts/dev/authz-tests.mjs                  # 98 database-level authorization/workflow tests (local Postgres via PGlite)
+node scripts/dev/authz-tests.mjs                  # 99 database-level authorization/workflow tests (local Postgres via PGlite)
 node scripts/dev/qa-fixtures.mjs create           # temporary QA accounts on the real project (service role)
 node scripts/dev/live-authz.mjs                   # 25 end-to-end checks against the REAL Supabase (Auth + RLS + Storage)
 node scripts/dev/qa-fixtures.mjs remove           # delete the QA accounts again

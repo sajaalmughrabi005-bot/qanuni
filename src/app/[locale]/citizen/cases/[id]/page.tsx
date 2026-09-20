@@ -20,6 +20,7 @@ import { ReportDialog } from "@/components/cases/report-dialog";
 import { WriteReviewForm } from "@/components/citizen/write-review-form";
 import { useCases, useAppointments, useClausesByIds, useCaseEvents } from "@/lib/data/hooks";
 import { useLawyer } from "@/lib/auth/use-lawyer";
+import { useGovernorateLabel } from "@/components/shared/governorate-select";
 import { useSession } from "@/lib/auth/use-session";
 import { initials, formatDate, formatDateTime } from "@/lib/utils";
 
@@ -33,6 +34,7 @@ export default function CitizenCaseDetailPage() {
   const ar = locale === "ar";
   const { session } = useSession();
   const [reportOpen, setReportOpen] = useState(false);
+  const cityLabel = useGovernorateLabel();
 
   const { data: cases, loading, refetch } = useCases();
   const { data: allAppointments } = useAppointments();
@@ -143,7 +145,7 @@ export default function CitizenCaseDetailPage() {
                 <p className="font-medium text-gold">{lawyer.fullName}</p>
                 <p className="flex items-center gap-1 text-xs text-foreground-muted">
                   <MapPin className="h-3 w-3" />
-                  {lawyer.city}
+                  {cityLabel(lawyer.city)}
                 </p>
               </div>
               <span className="flex items-center gap-1 text-sm font-medium">

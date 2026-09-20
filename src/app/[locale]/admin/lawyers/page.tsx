@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAdminLawyers } from "@/lib/data/hooks";
 import { initials } from "@/lib/utils";
+import { useGovernorateLabel } from "@/components/shared/governorate-select";
 import type { VerificationStatus } from "@/types";
 
 const FILTERS: (VerificationStatus | "all")[] = ["all", "pending", "more_info_requested", "approved", "rejected"];
@@ -20,6 +21,7 @@ export default function AdminLawyersPage() {
   const tVerify = useTranslations("lawyer.verification");
   const tSpec = useTranslations("marketplace.specialties");
   const { data: lawyers } = useAdminLawyers();
+  const cityLabel = useGovernorateLabel();
   const [filter, setFilter] = useState<VerificationStatus | "all">("all");
   const [query, setQuery] = useState("");
 
@@ -57,7 +59,7 @@ export default function AdminLawyersPage() {
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{l.fullName}</p>
                   <p className="text-xs text-foreground-muted">
-                    {l.city || "—"} · {l.specialties.map((s) => tSpec(s)).join(", ") || "—"}
+                    {cityLabel(l.city) || "—"} · {l.specialties.map((s) => tSpec(s)).join(", ") || "—"}
                   </p>
                 </div>
                 {approved && !l.acceptingNewCases && <Badge variant="subtle">{tAdmin("notAccepting")}</Badge>}
