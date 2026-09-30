@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { FileQuestion, Briefcase } from "lucide-react";
+import { FileQuestion, Briefcase, FileWarning } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -73,6 +73,12 @@ export default function AnalysisResultsPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <DocumentOverview document={document} />
       <AiDisclaimer />
+      {analysis.coverage?.isTruncated && (
+        <div className="flex items-start gap-2 rounded-xl border border-gold/25 bg-gold/5 px-3 py-2.5 text-xs text-foreground-muted">
+          <FileWarning className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold" />
+          <span>{t("partialCoverage", { percent: analysis.coverage.coveragePercent })}</span>
+        </div>
+      )}
 
       <Tabs defaultValue="risk">
         <TabsList className="flex-wrap">

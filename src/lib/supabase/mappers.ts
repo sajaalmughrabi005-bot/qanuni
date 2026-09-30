@@ -152,6 +152,9 @@ export function mapAnalysis(row: Record<string, unknown>): Analysis {
     questionsForLawyerAr: (payload.questionsForLawyerAr as string[]) || [],
     questionsForLawyerEn: (payload.questionsForLawyerEn as string[]) || [],
     createdAt: row.created_at as string,
+    // Absent on analyses saved before this field existed — left undefined
+    // rather than defaulted, so the UI can tell "unknown" apart from "0%".
+    coverage: (payload.coverage as Analysis["coverage"]) || undefined,
   };
 }
 
@@ -172,6 +175,7 @@ export function analysisToPayload(a: Omit<Analysis, "id" | "documentId" | "userI
     concernsEn: a.concernsEn,
     questionsForLawyerAr: a.questionsForLawyerAr,
     questionsForLawyerEn: a.questionsForLawyerEn,
+    coverage: a.coverage,
   };
 }
 

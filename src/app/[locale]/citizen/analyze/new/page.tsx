@@ -15,13 +15,16 @@ import { Progress } from "@/components/ui/progress";
 import { useSession } from "@/lib/auth/use-session";
 import { createDraftDocument, deleteDocument, finalizeDocumentAnalysis } from "@/lib/data/actions";
 import { analyzeDocumentAction } from "@/lib/ai/actions";
+import { extractTextFromFileAction } from "@/lib/documents/extract-text";
 import { DEMO_DOCUMENT_ID } from "@/lib/mock-data";
 import type { DocumentType } from "@/types";
 
 const STEPS = ["uploading", "extracting", "identifying", "comparing", "generating"] as const;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB, matches the UI copy
-const READABLE_EXTENSIONS = [".txt"];
-const UNREADABLE_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg"];
+// .txt is read directly in the browser; .pdf/.docx go through extractTextFromFileAction
+// (server-side, see lib/documents/extract-text.ts) before landing in the same pastedText state.
+const BROWSER_READABLE_EXTENSIONS = [".txt"];
+const SERVER_EXTRACTABLE_EXTENSIONS = [".pdf", ".docx"];
 
 export default function NewAnalysisPage() {
   const t = useTranslations("citizen.upload");
@@ -38,6 +41,7 @@ export default function NewAnalysisPage() {
   const [role, setRole] = useState("none");
   const [purpose, setPurpose] = useState("understand");
   const [dragOver, setDragOver] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const openSample = () => {
@@ -46,12 +50,9 @@ export default function NewAnalysisPage() {
 
   const acceptFile = async (f: File) => {
     const ext = "." + (f.name.split(".").pop() || "").toLowerCase();
-    if (UNREADABLE_EXTENSIONS.includes(ext)) {
-      // We can't extract text from PDFs/scans yet; be upfront instead of analysing a placeholder.
-      toast.error(t("needsText"));
-      return;
-    }
-    if (!READABLE_EXTENSIONS.includes(ext)) {
+    const readable = BROWSER_READABLE_EXTENSIONS.includes(ext);
+    const extractable = SERVER_EXTRACTABLE_EXTENSIONS.includes(ext);
+    if (!readable && !extractable) {
       toast.error(t("fileTypeNotSupported"));
       return;
     }
@@ -59,8 +60,26 @@ export default function NewAnalysisPage() {
       toast.error(t("fileTooLarge"));
       return;
     }
+
+    if (readable) {
+      setFile(f);
+      setPastedText((await f.text()).slice(0, 20000));
+      return;
+    }
+
+    // PDF/DOCX: extract server-side, then drop the text into the exact same
+    // pastedText flow the .txt path already uses — nothing downstream changes.
+    setExtracting(true);
+    const fd = new FormData();
+    fd.set("file", f);
+    const result = await extractTextFromFileAction(fd);
+    setExtracting(false);
+    if (result.status !== "ok") {
+      toast.error(locale === "ar" ? result.reasonAr : result.reasonEn);
+      return;
+    }
     setFile(f);
-    setPastedText((await f.text()).slice(0, 20000));
+    setPastedText(result.text.slice(0, 20000));
   };
 
   const runAnalysis = async () => {
@@ -184,14 +203,19 @@ export default function NewAnalysisPage() {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".txt,.pdf,.png,.jpg,.jpeg"
+              accept=".txt,.pdf,.docx"
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];
                 if (f) acceptFile(f);
               }}
             />
-            {file ? (
+            {extracting ? (
+              <>
+                <Sparkles className="h-8 w-8 animate-pulse text-gold" />
+                <p className="font-medium">{t("extractingFile")}</p>
+              </>
+            ) : file ? (
               <>
                 <FileText className="h-8 w-8 text-gold" />
                 <p className="font-medium">{file.name}</p>
@@ -286,7 +310,7 @@ export default function NewAnalysisPage() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button className="flex-1" onClick={runAnalysis} disabled={!file && !pastedText.trim()}>
+            <Button className="flex-1" onClick={runAnalysis} disabled={extracting || (!file && !pastedText.trim())}>
               {t("analyzeButton")}
             </Button>
             {isDemo && (

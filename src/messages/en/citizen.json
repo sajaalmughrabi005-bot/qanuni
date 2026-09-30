@@ -113,7 +113,8 @@
     "privacyNotice": "Legal documents may contain sensitive information. Upload only documents you are authorized to share.",
     "fileTooLarge": "This file is larger than the 10MB limit.",
     "fileTypeNotSupported": "Unsupported file type. Allowed: PDF, JPG, PNG, or TXT.",
-    "needsText": "Reading text from PDFs and images isn't available yet. Paste the contract text in the box below or upload a .txt file."
+    "needsText": "Reading text from PDFs and images isn't available yet. Paste the contract text in the box below or upload a .txt file.",
+    "extractingFile": "Extracting text from the file..."
   },
   "processing": {
     "uploading": "Uploading document...",
@@ -157,7 +158,8 @@
     "createCase": "Escalate to a Lawyer",
     "createCaseDesc": "Send your case details to a matching lawyer for review",
     "citizenDescriptionLabel": "Your description of the problem",
-    "aiAssessmentLabel": "AI legal assessment"
+    "aiAssessmentLabel": "AI legal assessment",
+    "partialCoverage": "Only part of the contract was analyzed because the text is long (about {percent}% of the document). The result may not reflect the entire contract."
   },
   "describeProblem": {
     "title": "Describe Your Legal Problem",

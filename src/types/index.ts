@@ -149,6 +149,20 @@ export interface Analysis {
   questionsForLawyerAr: string[];
   questionsForLawyerEn: string[];
   createdAt: string;
+  /**
+   * How much of the source document this analysis actually covers. Optional
+   * and additive — set by analyzeDocumentAction; absent on analyses saved
+   * before this field existed, so callers must not assume it's present.
+   */
+  coverage?: AnalysisCoverage;
+}
+
+/** See Analysis.coverage. */
+export interface AnalysisCoverage {
+  analyzedCharacters: number;
+  totalCharacters: number;
+  coveragePercent: number;
+  isTruncated: boolean;
 }
 
 export interface ScenarioResult {
