@@ -43,25 +43,18 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // pdf-parse (contract PDF text extraction) pulls in pdfjs-dist, which tries
-  // a try/catch-wrapped require("@napi-rs/canvas") — a native addon — at
-  // module load, via a locally-constructed require (createRequire), not the
-  // module-level require. Next's static output-file tracer (@vercel/nft)
-  // can't see through that, so @napi-rs/canvas never lands in the deployed
-  // function's .nft.json trace at all (confirmed empirically: zero matches,
-  // not just the native binary) and the PDF path crashes with "DOMMatrix is
-  // not defined" the moment the module loads. serverExternalPackages alone
-  // does not fix this — it only tells Next's own bundler not to inline these
-  // packages; it doesn't make the tracer see the dynamic require. The
-  // outputFileTracingIncludes below force-includes the base package and the
-  // Linux x64 glibc binary Vercel's nodejs24.x/x86_64 runtime actually needs
-  // (confirmed via this project's own Vercel build config), per Next's own
-  // documented fix for this exact class of native-addon tracing gap
-  // (node_modules/next/dist/docs/.../output.md, "native/runtime assets").
-  serverExternalPackages: ["pdf-parse", "@napi-rs/canvas"],
-  outputFileTracingIncludes: {
-    "/*": ["node_modules/@napi-rs/canvas/**/*", "node_modules/@napi-rs/canvas-linux-x64-gnu/**/*"],
-  },
+  // pdf-parse (contract PDF text extraction) pulls in pdfjs-dist, which
+  // tries to require("@napi-rs/canvas") — a native addon — at module load,
+  // purely to polyfill a global DOMMatrix. @napi-rs/canvas is NOT required
+  // for text extraction: getText() never touches canvas/image APIs (only
+  // getImage()/getScreenshot() do, which this app never calls). Instead,
+  // src/lib/documents/dom-matrix-polyfill.ts supplies a minimal DOMMatrix
+  // before pdf-parse is imported, so the native addon's require() is allowed
+  // to fail harmlessly — it is deliberately never bundled, traced, or
+  // shipped. serverExternalPackages only lists pdf-parse itself, keeping
+  // Next's bundler from inlining it (it has its own dynamic/Node-specific
+  // requires unrelated to canvas).
+  serverExternalPackages: ["pdf-parse"],
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

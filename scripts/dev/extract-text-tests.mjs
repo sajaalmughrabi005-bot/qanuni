@@ -8,7 +8,10 @@
 // binaries are committed). The one "oversized file" case is built in
 // memory at test time instead of shipping an 11MB fixture.
 //
-// Run: node scripts/dev/extract-text-tests.mjs
+// Run: node --experimental-loader ./scripts/dev/alias-loader.mjs scripts/dev/extract-text-tests.mjs
+// (extract-text.ts imports a relative sibling module, which plain Node's ESM
+// resolver can't follow without an explicit extension; the loader handles it
+// the same way it already does for @/ aliases.)
 import { readFileSync } from "fs";
 import { extractTextFromFileAction } from "../../src/lib/documents/extract-text.ts";
 
