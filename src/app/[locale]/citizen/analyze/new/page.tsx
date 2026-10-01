@@ -70,16 +70,27 @@ export default function NewAnalysisPage() {
     // PDF/DOCX: extract server-side, then drop the text into the exact same
     // pastedText flow the .txt path already uses — nothing downstream changes.
     setExtracting(true);
-    const fd = new FormData();
-    fd.set("file", f);
-    const result = await extractTextFromFileAction(fd);
-    setExtracting(false);
-    if (result.status !== "ok") {
-      toast.error(locale === "ar" ? result.reasonAr : result.reasonEn);
-      return;
+    try {
+      const fd = new FormData();
+      fd.set("file", f);
+      const result = await extractTextFromFileAction(fd);
+      if (result.status !== "ok") {
+        toast.error(locale === "ar" ? result.reasonAr : result.reasonEn);
+        return;
+      }
+      setFile(f);
+      setPastedText(result.text.slice(0, 20000));
+    } catch {
+      // extractTextFromFileAction is designed to always return a typed
+      // result, never throw — but if the server action call itself fails
+      // unexpectedly (a crash, a network error, ...), await above rejects
+      // instead of resolving, which would otherwise skip straight past
+      // setExtracting(false) and leave the dropzone stuck on "extracting…"
+      // forever. This is the one path that must never be allowed to hang.
+      toast.error(t("extractionFailed"));
+    } finally {
+      setExtracting(false);
     }
-    setFile(f);
-    setPastedText(result.text.slice(0, 20000));
   };
 
   const runAnalysis = async () => {

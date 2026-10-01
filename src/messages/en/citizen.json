@@ -114,7 +114,8 @@
     "fileTooLarge": "This file is larger than the 10MB limit.",
     "fileTypeNotSupported": "Unsupported file type. Allowed: PDF, JPG, PNG, or TXT.",
     "needsText": "Reading text from PDFs and images isn't available yet. Paste the contract text in the box below or upload a .txt file.",
-    "extractingFile": "Extracting text from the file..."
+    "extractingFile": "Extracting text from the file...",
+    "extractionFailed": "Something unexpected went wrong while reading the file. Try a different file, or paste the contract text manually."
   },
   "processing": {
     "uploading": "Uploading document...",
