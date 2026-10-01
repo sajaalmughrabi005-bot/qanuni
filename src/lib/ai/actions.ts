@@ -4,6 +4,7 @@ import { Analysis, ChatMessage, DocumentClause, DocumentType, ExtractedCaseData,
 import { hasOpenAI, completeJSON, completeText } from "./provider";
 import { getAccessLevel } from "@/lib/auth/access";
 import { MAX_ANALYSIS_CHARS, computeCoverage, coverageInstruction } from "./coverage";
+import { checkLegalRelevance, NOT_LEGALLY_RELEVANT_REASON } from "./relevance";
 import {
   heuristicAnalyzeText,
   heuristicAnswerQuestion,
@@ -14,6 +15,7 @@ import {
   heuristicAssistantReply,
   heuristicParseVoiceCommand,
   checkDocumentPlausibility,
+  checkMeaningfulContent,
   looksLegallyPlausible,
   VoiceCommandResult,
 } from "./engine";
@@ -38,6 +40,7 @@ const AI_UNAVAILABLE_REASON = {
   reasonAr: "تعذر تحليل المستند حالياً. يرجى المحاولة مرة أخرى بعد قليل.",
   reasonEn: "We couldn't analyze the document right now. Please try again in a moment.",
 };
+
 
 /**
  * Access control for every AI entry point. Real (signed-in) users get the
@@ -175,6 +178,10 @@ export type AnalyzeDocumentResult =
 
 export async function analyzeDocumentAction(params: {
   text: string;
+  // The user's own content only — no role/purpose boilerplate mixed in. Used
+  // exclusively by the pre-analysis gates below; the full analysis still
+  // uses `text` (with context) exactly as before.
+  rawContent: string;
   fileName: string;
   documentId: string;
   userId: string;
@@ -189,6 +196,16 @@ export async function analyzeDocumentAction(params: {
     return { status: "not_recognized", reasonAr: plausibility.reasonAr, reasonEn: plausibility.reasonEn };
   }
 
+  // Gate 2: deterministic, keyword-free, zero-AI-cost rejection of obvious
+  // garbage/gibberish — runs on the user's actual content, not the
+  // role/purpose line, so that boilerplate can't pad gibberish past a
+  // length check. Deliberately lenient (see checkMeaningfulContent); genuine
+  // short statements always pass through to Gate 3.
+  const meaningful = checkMeaningfulContent(params.rawContent);
+  if (!meaningful.meaningful) {
+    return { status: "not_recognized", reasonAr: meaningful.reasonAr, reasonEn: meaningful.reasonEn };
+  }
+
   // Computed once, up front, from the real total length — shared by both the
   // AI path below and the local-fallback path further down.
   const totalCharacters = params.text.length;
@@ -197,6 +214,14 @@ export async function analyzeDocumentAction(params: {
 
   const live = await aiLive("strict");
   if (live) {
+    // Gate 3: cheap AI relevance pre-filter, before the expensive full
+    // analysis call. Fails open on any classifier problem (see
+    // checkLegalRelevance) so a transient failure never blocks a real user.
+    const isRelevant = await checkLegalRelevance(params.rawContent);
+    if (!isRelevant) {
+      return { status: "not_recognized", ...NOT_LEGALLY_RELEVANT_REASON };
+    }
+
     const json = await completeJSON({
       system: `You are a legal-document analysis assistant for Jordan. Extract clauses and risk indicators as strict JSON. Never invent legal citations or article numbers — only reference sources if explicitly provided. Always caveat that this is not legal advice. Reply in ${params.locale === "ar" ? "Arabic" : "English"} for the *Ar fields is Arabic and *En fields is English (fill both).\n\n${JORDAN_LAW_LOCK}\n\n${PROMPT_INJECTION_LOCK}`,
       user: `First determine whether the DOCUMENT CONTENT below is legally relevant, i.e. EITHER (a) actual contract/legal document text (rental, employment, sale, service, NDA, etc.), OR (b) a person's own description — even informal, colloquial, or first-person ("my landlord wants to evict me...") — of a real legal problem, dispute, or contractual situation. Only mark it as NOT legally relevant if it is unrelated to any legal/contractual matter entirely: casual small talk with no legal topic, an unrelated photo caption (e.g. food, a selfie, an animal), gibberish, song lyrics, or random text with no identifiable legal subject matter.

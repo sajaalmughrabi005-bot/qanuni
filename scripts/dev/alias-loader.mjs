@@ -5,11 +5,18 @@
 // explicit. No new package — built on Node's own module customization hooks.
 // Used only by scripts/dev/*.mjs test runners; the app itself is unaffected
 // (Next.js resolves "@/" and extensions on its own).
+//
+// Also redirects the "server-only" package to a no-op stub (see
+// server-only-stub.mjs): Next's bundler already treats "server-only" as a
+// no-op when the importing code runs server-side, which every test script
+// here does directly in Node; plain Node's resolver doesn't know that and
+// always hits the package's unconditionally-throwing default export.
 import { statSync } from "fs";
 import { fileURLToPath, pathToFileURL } from "url";
 import path from "path";
 
 const srcRoot = fileURLToPath(new URL("../../src/", import.meta.url));
+const serverOnlyStub = fileURLToPath(new URL("./server-only-stub.mjs", import.meta.url));
 // Files first, directory-with-index last — a bare path that happens to also
 // be a directory must still resolve to the file, matching TS/webpack alias
 // resolution (e.g. "@/types" -> src/types.ts, not src/types/ if both exist).
@@ -28,6 +35,9 @@ function resolvedFile(base) {
 }
 
 export async function resolve(specifier, context, nextResolve) {
+  if (specifier === "server-only") {
+    return nextResolve(pathToFileURL(serverOnlyStub).href, context);
+  }
   if (specifier.startsWith("@/")) {
     const found = resolvedFile(path.join(srcRoot, specifier.slice(2)));
     if (found) return nextResolve(pathToFileURL(found).href, context);

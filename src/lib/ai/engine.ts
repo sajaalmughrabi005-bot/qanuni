@@ -1,4 +1,4 @@
-import {
+import type {
   Analysis,
   DocumentClause,
   DocumentType,
@@ -73,6 +73,77 @@ export function checkDocumentPlausibility(text: string): DocumentPlausibility {
 /** Weak keyword/pattern check used only by the non-AI heuristic engine to avoid confidently "analyzing" clearly non-legal pasted text (e.g. a casual message or song lyrics). */
 export function looksLegallyPlausible(text: string): boolean {
   return LEGAL_SIGNAL_PATTERN.test(text) || AMOUNT_OR_DATE_PATTERN.test(text);
+}
+
+export type MeaningfulContentCheck =
+  | { meaningful: true }
+  | { meaningful: false; reasonAr: string; reasonEn: string };
+
+const MEANINGFUL_REJECT_REASON = {
+  reasonAr: "لا يبدو أن المحتوى المُرسل يحتوي على نص مقروء أو ذي معنى.",
+  reasonEn: "The submitted content doesn't appear to contain readable/meaningful text.",
+} as const;
+
+// Deliberately short: a real, short description of a legal problem ("My
+// landlord wants to evict me") can be well under what the old padded
+// 80-character check required — this operates on the user's own content
+// alone, not the role/purpose context line the UI prefixes onto it.
+const MIN_MEANINGFUL_CHARS = 15;
+// A single unbroken "word" longer than this, with no spaces anywhere, is not
+// how anyone writes a sentence in any language QANUNI supports.
+const SINGLE_TOKEN_MAX_CHARS = 20;
+// Below this ratio of distinct characters to sample length, text reads as a
+// repeated/near-repeated character run rather than language.
+const MIN_CHAR_DIVERSITY = 0.22;
+// Diversity is measured over a fixed-size prefix, not the whole string: any
+// real alphabet is bounded (~28 Arabic letter forms, ~26 Latin), so a long
+// genuine sentence's distinct/length ratio trends down simply from being
+// long, even though it's perfectly real text — capping the sample keeps the
+// ratio comparable regardless of overall input length.
+const DIVERSITY_SAMPLE_CHARS = 60;
+
+/**
+ * Deterministic, language-agnostic, keyword-free gate that runs BEFORE the
+ * lightweight AI legal-relevance classifier (and well before the full
+ * analysis). Its only job is to reject structurally-obvious garbage cheaply,
+ * at zero AI cost — two narrow, distinct signals: no word/space structure at
+ * all (one unbroken run), or a repeated/near-repeated character pattern.
+ * Random non-repeating noise and subtler cases are intentionally left to the
+ * AI classifier, which can actually read the content — never to judge legal
+ * relevance, which belongs there regardless. Deliberately lenient: every
+ * threshold here is sized so genuine short statements (in either Arabic or
+ * English, formal or colloquial) pass easily, and anything
+ * not clearly, structurally gibberish is left for the AI classifier to
+ * judge rather than rejected here.
+ */
+export function checkMeaningfulContent(rawContent: string): MeaningfulContentCheck {
+  const trimmed = rawContent.trim();
+
+  if (trimmed.length < MIN_MEANINGFUL_CHARS) {
+    return { meaningful: false, ...MEANINGFUL_REJECT_REASON };
+  }
+
+  const tokens = trimmed.split(/\s+/).filter(Boolean);
+  const withoutSpaces = trimmed.replace(/\s+/g, "");
+
+  // No normal word/space structure at all (one long unbroken run).
+  if (tokens.length <= 1 && withoutSpaces.length > SINGLE_TOKEN_MAX_CHARS) {
+    return { meaningful: false, ...MEANINGFUL_REJECT_REASON };
+  }
+
+  // Extremely low character diversity — a repeated or near-repeated
+  // character run rather than real language. Only checked once there's
+  // enough text to judge a ratio from, so short real inputs can't be
+  // penalized by small-sample noise.
+  if (withoutSpaces.length >= 12) {
+    const sample = withoutSpaces.slice(0, DIVERSITY_SAMPLE_CHARS);
+    const distinctChars = new Set(sample).size;
+    if (distinctChars / sample.length < MIN_CHAR_DIVERSITY) {
+      return { meaningful: false, ...MEANINGFUL_REJECT_REASON };
+    }
+  }
+
+  return { meaningful: true };
 }
 
 function splitIntoClauses(text: string): string[] {

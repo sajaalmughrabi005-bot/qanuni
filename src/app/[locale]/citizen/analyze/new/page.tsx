@@ -126,6 +126,10 @@ export default function NewAnalysisPage() {
 
     const result = await analyzeDocumentAction({
       text,
+      // The user's actual content, with none of the role/purpose context
+      // line mixed in — used by the pre-analysis gates so that boilerplate
+      // can't artificially pad obviously-empty or gibberish input past them.
+      rawContent: pastedText.trim(),
       fileName,
       documentId,
       userId: session.userId,
