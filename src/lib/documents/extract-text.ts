@@ -80,7 +80,16 @@ async function extractPdf(buffer: Buffer): Promise<ExtractTextResult> {
     if (result.total === 0) return { status: "empty", ...REASONS.emptyPdf };
     if (!meaningful) return { status: "no_text_layer", ...REASONS.noTextLayerPdf };
     return { status: "ok", text };
-  } catch {
+  } catch (err) {
+    // TEMPORARY diagnostic: production has been returning extraction_failed
+    // for a PDF that extracts correctly locally, and this catch (wrapping
+    // both PDFParse construction and getText()) silently discards the real
+    // cause. No file contents/buffer are logged — only the error's own
+    // name/message/stack. Remove once the production exception is known.
+    console.error(
+      "[PDF_DIAGNOSTIC] pdf-parse",
+      err instanceof Error ? { name: err.name, message: err.message, stack: err.stack } : { value: String(err) },
+    );
     return { status: "extraction_failed", ...REASONS.extractionFailed };
   } finally {
     await parser?.destroy().catch(() => {});
@@ -124,7 +133,13 @@ export async function extractTextFromFileAction(formData: FormData): Promise<Ext
   let buffer: Buffer;
   try {
     buffer = Buffer.from(await file.arrayBuffer());
-  } catch {
+  } catch (err) {
+    // TEMPORARY diagnostic — see matching comment in extractPdf(). No file
+    // contents/buffer are logged, only the error's own name/message/stack.
+    console.error(
+      "[PDF_DIAGNOSTIC] file-arraybuffer",
+      err instanceof Error ? { name: err.name, message: err.message, stack: err.stack } : { value: String(err) },
+    );
     return { status: "extraction_failed", ...REASONS.extractionFailed };
   }
 
