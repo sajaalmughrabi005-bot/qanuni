@@ -4,6 +4,7 @@
 // globalThis.DOMMatrix exists the moment pdfjs-dist's module-level code runs.
 // See dom-matrix-polyfill.ts for why this avoids needing @napi-rs/canvas.
 import "./dom-matrix-polyfill";
+import "./pdf-worker-polyfill";
 import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
 
