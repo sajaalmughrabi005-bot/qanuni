@@ -45,16 +45,23 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // pdf-parse (contract PDF text extraction) pulls in pdfjs-dist, which tries
   // a try/catch-wrapped require("@napi-rs/canvas") — a native addon — at
-  // module load. Next's static output-file tracer can't see through that
-  // try/catch, so on Vercel the native binary silently gets left out of the
-  // deployed function; the PDF path then crashes with "DOMMatrix is not
-  // defined" the moment the module loads (confirmed: it was present in the
-  // bundled JS but absent from every serverless function's .nft.json trace).
-  // Marking both packages external tells Next to skip tracing them and copy
-  // them whole via normal node_modules resolution instead, which includes
-  // the native binary. https://mehmet-kozan.github.io/pdf-parse/ (Next.js /
-  // Vercel troubleshooting guide).
+  // module load, via a locally-constructed require (createRequire), not the
+  // module-level require. Next's static output-file tracer (@vercel/nft)
+  // can't see through that, so @napi-rs/canvas never lands in the deployed
+  // function's .nft.json trace at all (confirmed empirically: zero matches,
+  // not just the native binary) and the PDF path crashes with "DOMMatrix is
+  // not defined" the moment the module loads. serverExternalPackages alone
+  // does not fix this — it only tells Next's own bundler not to inline these
+  // packages; it doesn't make the tracer see the dynamic require. The
+  // outputFileTracingIncludes below force-includes the base package and the
+  // Linux x64 glibc binary Vercel's nodejs24.x/x86_64 runtime actually needs
+  // (confirmed via this project's own Vercel build config), per Next's own
+  // documented fix for this exact class of native-addon tracing gap
+  // (node_modules/next/dist/docs/.../output.md, "native/runtime assets").
   serverExternalPackages: ["pdf-parse", "@napi-rs/canvas"],
+  outputFileTracingIncludes: {
+    "/*": ["node_modules/@napi-rs/canvas/**/*", "node_modules/@napi-rs/canvas-linux-x64-gnu/**/*"],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
