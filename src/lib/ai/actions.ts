@@ -280,8 +280,12 @@ ${params.text.slice(0, MAX_ANALYSIS_CHARS)}
   // transparent heuristic engine (clearly labeled "demo_engine" to the UI),
   // but only when the text has at least weak legal/contract signals; the
   // heuristic engine has no real language understanding so it must not
-  // confidently "analyze" obviously non-legal text either.
-  if (!looksLegallyPlausible(params.text)) {
+  // confidently "analyze" obviously non-legal text either. Checked against
+  // rawContent, not the role/purpose-prefixed text: the English context
+  // line's default purpose label ("...rights and obligations") itself
+  // contains a legal-signal keyword, which let arbitrary pasted content
+  // pass this gate regardless of what it actually said.
+  if (!looksLegallyPlausible(params.rawContent)) {
     return {
       status: "not_recognized",
       reasonAr:
