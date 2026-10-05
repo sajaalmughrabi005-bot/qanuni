@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { mapLawyer } from "@/lib/supabase/mappers";
+import { readPublicDirectory } from "@/lib/data/public-directory";
 import { useDemoStore } from "@/lib/demo/store";
 import { useDemoRole, DEMO_LAWYER_ID } from "@/lib/demo/use-demo";
 import { useScopedQuery } from "@/lib/data/use-scoped-query";
@@ -15,31 +15,24 @@ import type { Lawyer } from "@/types";
  * public-safe columns. In the isolated demo it returns clearly-fake sample
  * lawyers instead.
  */
-export function useLawyerDirectory(): { lawyers: Lawyer[]; loading: boolean; error: string | null } {
+export function useLawyerDirectory(): { lawyers: Lawyer[]; loading: boolean; error: string | null; refetch: () => Promise<boolean> } {
   const demoRole = useDemoRole();
   const demoLawyers = useDemoStore((s) => s.lawyers);
-  const [supabase] = useState(() => createSupabaseBrowserClient());
   const read=useCallback(async()=>{
-    if(!supabase)throw new Error("not_configured");
-    const {data,error}=await supabase.from("lawyers_public").select("*").order("rating",{ascending:false});
-    if(error)throw new Error("query_failed");
-    return (data||[]).map(mapLawyer);
-  },[supabase]);
-  const real=useScopedQuery<Lawyer[]>("public-lawyer-directory",demoRole?null:read,[]);
-  return demoRole ? { lawyers: demoLawyers, loading: false, error:null } : { lawyers:real.data, loading:real.loading,error:real.error };
+    return readPublicDirectory(createSupabaseBrowserClient());
+  },[]);
+  const real=useScopedQuery<Lawyer[]>(`public-lawyer-directory:${demoRole||"real"}`,demoRole?null:read,[]);
+  return demoRole ? { lawyers: demoLawyers, loading: false, error:null,refetch:async()=>true } : { lawyers:real.data, loading:real.loading,error:real.error,refetch:real.refetch };
 }
 
 /** One publicly visible lawyer by id (undefined when unknown, unapproved or hidden). */
 export function useLawyer(id: string | undefined): { lawyer: Lawyer | undefined; loading: boolean; error: string | null } {
   const demoRole = useDemoRole();
   const demoLawyers = useDemoStore((s) => s.lawyers);
-  const [supabase] = useState(() => createSupabaseBrowserClient());
   const read=useCallback(async()=>{
-    if(!supabase)throw new Error("not_configured");
-    const {data,error}=await supabase.from("lawyers_public").select("*").eq("id",id!).maybeSingle();
-    if(error)throw new Error("query_failed");
-    return data?mapLawyer(data):undefined;
-  },[supabase,id]);
+    const data=await readPublicDirectory(createSupabaseBrowserClient(),id);
+    return data[0];
+  },[id]);
   const real=useScopedQuery<Lawyer|undefined>(id||"",demoRole||!id?null:read,undefined);
   if (demoRole) return { lawyer: demoLawyers.find((l) => l.id === id), loading: false,error:null };
   return { lawyer:real.data, loading:real.loading,error:real.error };

@@ -1,14 +1,14 @@
 {
   "hero": {
-    "title": "Understand your rights before you sign.",
-    "subtitle": "Analyze your contract, understand its clauses, identify potential risks, and connect with the right lawyer — all in one place.",
-    "ctaPrimary": "Check Your Contract — Free",
+    "title": "Legal clarity starts with your document.",
+    "subtitle": "Understand your document, its terms and what needs attention, with plain explanations, available Jordanian sources and access to a lawyer.",
+    "ctaPrimary": "Analyze your document",
     "ctaSecondary": "Find a Lawyer",
-    "ctaTertiary": "I'm a Lawyer",
-    "trustBadge": "An AI-powered Jordanian LegalTech platform"
+    "ctaTertiary": "Lawyer and professional sign-in",
+    "trustBadge": "HAQ — document understanding for Jordan"
   },
   "loop": {
-    "title": "The core product loop",
+    "title": "From your document to a clear next step",
     "understand": "Understand",
     "understandDesc": "AI explains the document",
     "identify": "Identify",
@@ -22,15 +22,15 @@
   },
   "howItWorks": {
     "title": "How HAQ works",
-    "subtitle": "From document to resolution, in clear steps",
+    "subtitle": "Read, understand and choose your next step",
     "step1Title": "Upload your document",
     "step1Desc": "A rental contract, employment agreement, or any legal document",
-    "step2Title": "Get instant analysis",
+    "step2Title": "Understand the document",
     "step2Desc": "AI identifies clauses and potential risks",
     "step3Title": "Ask and explore",
     "step3Desc": "Ask questions and simulate different scenarios",
     "step4Title": "Connect with a lawyer",
-    "step4Desc": "Get a consultation from a lawyer matched to your case"
+    "step4Desc": "Choose a lawyer from the directory to review your circumstances"
   },
   "citizenFeatures": {
     "title": "For anyone facing a legal document",
@@ -52,9 +52,9 @@
     "f2Title": "AI Case Summary",
     "f2Desc": "Client story, evidence, and legal context in one place",
     "f3Title": "AI Legal Drafter",
-    "f3Desc": "Generate professional notices and memos in seconds",
+    "f3Desc": "Draft notices and memos for professional review",
     "f4Title": "Smart calendar & reminders",
-    "f4Desc": "Never miss a deadline or court date again"
+    "f4Desc": "Organize dates and reminders across your cases"
   },
   "aiCapabilities": {
     "title": "AI built for the Jordanian context",
@@ -72,9 +72,9 @@
     "subtitle": "Fluent Arabic, full RTL, and professional English — one click away"
   },
   "finalCta": {
-    "title": "Ready to understand your rights?",
-    "subtitle": "Start free and create your account to save your analyses and contact lawyers.",
-    "cta": "Start free",
+    "title": "Start with your document.",
+    "subtitle": "Read the explanation, review the terms and involve a lawyer when needed. Create an account to save analyses.",
+    "cta": "Analyze your document",
     "demoCta": "Or try the demo version before signing up"
   },
   "demoEntry": {

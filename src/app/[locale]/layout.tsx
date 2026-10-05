@@ -9,6 +9,7 @@ import { ThemeSync } from "@/components/providers/theme-sync";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { AiAssistantWidget } from "@/components/shared/ai-assistant-widget";
+import { RouteScaleTransition } from "@/components/shared/route-scale-transition";
 import "../globals.css";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-latin", display: "swap" });
@@ -94,6 +95,7 @@ export default async function LocaleLayout({
             <ThemeSync />
             <TooltipProvider delayDuration={200}>
               {children}
+              <RouteScaleTransition />
               <AiAssistantWidget />
               <Toaster position={dir === "rtl" ? "bottom-left" : "bottom-right"} dir={dir} />
             </TooltipProvider>

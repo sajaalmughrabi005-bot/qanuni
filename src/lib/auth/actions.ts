@@ -3,7 +3,7 @@
 import { headers, cookies } from "next/headers";
 import { DEMO_SESSION_COOKIE } from "@/lib/demo/session";
 import { DEMO_COOKIE } from "@/lib/demo/mode";
-import { logSystemEvent } from "@/lib/system-events";
+import { classifySignupError, signupDiagnostic, type SignupErrorCode, type SignupStage } from "./signup-diagnostics";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isGovernorate } from "@/lib/governorates";
@@ -26,7 +26,7 @@ export type SignUpInput = {
 export type AuthResult =
   | { ok: true; session: true; role: UserRole }
   | { ok: true; session: false } // signed up, but email confirmation is required before login
-  | { ok: false; error: string };
+  | { ok: false; error: SignupErrorCode };
 
 const SPECIALTIES: LawyerSpecialty[] = ["rental", "employment", "commercial", "family", "criminal", "real_estate", "corporate", "civil"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -34,34 +34,50 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 async function siteOrigin() {
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
-  return `${proto}://${host}`;
+  if (!host) throw new Error("site_origin_missing");
+  const local = /^(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/.test(host);
+  const proto = h.get("x-forwarded-proto") ?? (local ? "http" : "https");
+  if (proto !== "http" && proto !== "https") throw new Error("site_origin_invalid");
+  const origin = new URL(`${proto}://${host}`);
+  if (origin.username || origin.password || origin.pathname !== "/" || origin.search || origin.hash) throw new Error("site_origin_invalid");
+  return origin.origin;
 }
 
 export async function signUpAction(input: SignUpInput): Promise<AuthResult> {
+  const requestId = crypto.randomUUID();
+  let stage: SignupStage = "configuration";
+  const invalid = (error: SignupErrorCode): AuthResult => {
+    signupDiagnostic(requestId,"validation",{category:"validation",code:error});
+    return {ok:false,error};
+  };
+  try {
   const supabase = await createSupabaseServerClient();
-  if (!supabase) return { ok: false, error: "not_configured" };
+  if (!supabase) { signupDiagnostic(requestId,stage,{category:"configuration",code:"missing_configuration"}); return { ok: false, error: "not_configured" }; }
 
   // Server-side validation: never trust the form. "admin" can never be
   // requested here — only citizen or lawyer — and the database trigger also
   // maps any other role value to citizen.
+  stage = "validation";
+  if (!input || typeof input !== "object") return invalid("generic");
   const role = input.role === "lawyer" ? "lawyer" : "citizen";
-  const email = (input.email || "").trim().toLowerCase();
-  const fullName = (input.fullName || "").trim();
-  if (fullName.length < 2 || fullName.length > 120) return { ok: false, error: "invalid_name" };
-  if (!EMAIL_RE.test(email)) return { ok: false, error: "invalid_email" };
-  if (!input.password || input.password.length < 8) return { ok: false, error: "weak_password" };
+  const email = typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
+  const fullName = typeof input.fullName === "string" ? input.fullName.trim() : "";
+  if (fullName.length < 2 || fullName.length > 120) return invalid("invalid_name");
+  if (!EMAIL_RE.test(email)) return invalid("invalid_email");
+  if (typeof input.password !== "string" || input.password.length < 8 || input.password.length > 1024) return invalid("weak_password");
   if (role === "lawyer") {
-    if (!input.barNumber || input.barNumber.trim().length < 3) return { ok: false, error: "bar_number_required" };
-    if (!input.specialty || !SPECIALTIES.includes(input.specialty)) return { ok: false, error: "specialty_required" };
+    if (typeof input.barNumber !== "string" || input.barNumber.trim().length < 3 || input.barNumber.trim().length > 60) return invalid("bar_number_required");
+    if (!input.specialty || !SPECIALTIES.includes(input.specialty)) return invalid("specialty_required");
   }
   const city = input.city && isGovernorate(input.city) ? input.city : undefined;
-  if (input.city && !city) return { ok: false, error: "invalid_city" };
-  if (role === "lawyer" && !city) return { ok: false, error: "city_required" };
+  if (input.city && !city) return invalid("invalid_city");
+  if (role === "lawyer" && !city) return invalid("city_required");
   const language = input.language === "en" ? "en" : "ar";
 
+  stage = "redirect";
   const origin = await siteOrigin();
   const dashboard = `/${language}/${role}/dashboard`;
+  stage = "auth_signup";
   const { data, error } = await supabase.auth.signUp({
     email,
     password: input.password,
@@ -77,22 +93,40 @@ export async function signUpAction(input: SignUpInput): Promise<AuthResult> {
         city,
         bar_number: role === "lawyer" ? input.barNumber?.trim() : undefined,
         specialty: role === "lawyer" ? input.specialty : undefined,
-        verification_info: role === "lawyer" ? input.verificationInfo?.trim().slice(0, 2000) : undefined,
+        verification_info: role === "lawyer" && typeof input.verificationInfo === "string" ? input.verificationInfo.trim().slice(0, 2000) : undefined,
       },
     },
   });
 
   if (error) {
-    await logSystemEvent("signup_error", `Signup failed (${role}): ${error.message}`, "warning");
-    return { ok: false, error: error.message };
+    const failure=classifySignupError(error);
+    signupDiagnostic(requestId,stage,failure);
+    return { ok: false, error: failure.publicCode };
   }
   // Supabase returns a user with no identities (and no error) when the email
   // is already registered, to avoid leaking which emails exist.
   if (data.user && data.user.identities && data.user.identities.length === 0) {
-    return { ok: false, error: "already registered" };
+    signupDiagnostic(requestId,stage,{category:"duplicate_account",code:"empty_identities"});
+    return { ok: false, error: "email_taken" };
   }
-  if (!data.session) return { ok: true, session: false };
+  if (!data.user) { signupDiagnostic(requestId,stage,{category:"auth_signup",code:"missing_user"}); return {ok:false,error:"generic"}; }
+  if (!data.session) { signupDiagnostic(requestId,"email_confirmation",{category:"confirmation_pending",code:"confirmation_pending"}); return { ok: true, session: false }; }
+  stage = "profile_lookup";
+  const {data:profile,error:profileError}=await supabase.from("profiles").select("id,role,account_status").eq("id",data.user.id).single();
+  let profileValid=!profileError&&profile?.id===data.user.id&&profile.role===role&&profile.account_status==="active";
+  if(profileValid&&role==="lawyer") {
+    const lawyer=await supabase.from("lawyers").select("profile_id,verification_status").eq("profile_id",data.user.id).single();
+    profileValid=!lawyer.error&&lawyer.data?.profile_id===data.user.id&&lawyer.data.verification_status==="pending";
+  }
+  if(!profileValid) { signupDiagnostic(requestId,stage,{category:"profile_creation_unverified",code:"profile_unavailable"}); await supabase.auth.signOut(); return {ok:false,error:"profile_unavailable"}; }
+  const jar=await cookies();jar.delete(DEMO_SESSION_COOKIE);jar.delete(DEMO_COOKIE);
+  signupDiagnostic(requestId,"complete",{category:"complete",code:"profile_verified"});
   return { ok: true, session: true, role };
+  } catch(cause) {
+    const failure=classifySignupError(cause);
+    signupDiagnostic(requestId,stage,stage==="configuration"||stage==="redirect"?{category:"configuration",code:"configuration"}:failure);
+    return {ok:false,error:stage==="profile_lookup"?"profile_unavailable":stage==="configuration"||stage==="redirect"?"service_unavailable":failure.publicCode};
+  }
 }
 
 export async function loginAction(

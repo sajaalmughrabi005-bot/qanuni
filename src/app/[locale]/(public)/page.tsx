@@ -48,11 +48,10 @@ export default async function LandingPage({
   ] as const;
 
   return (
-    <div>
+    <div className="haq-landing">
       {/* Hero */}
       <section className="relative overflow-hidden bg-navy text-white">
-        <div className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(circle_at_20%_20%,white,transparent_35%),radial-gradient(circle_at_80%_60%,white,transparent_35%)]" />
-        <div className="relative mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 sm:py-32">
+        <div className="relative mx-auto max-w-5xl px-4 py-20 text-center sm:px-6 sm:py-28">
           <LegalMotion />
           <Reveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs text-gold-light">
@@ -70,17 +69,15 @@ export default async function LandingPage({
           </Reveal>
           <Reveal delay={0.24}>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              <StartAnalysisButton>
+              <StartAnalysisButton className="text-navy">
                 {t("hero.ctaPrimary")}
                 <ArrowIcon className="h-4 w-4" />
               </StartAnalysisButton>
               <Button asChild size="lg" variant="outline" className="border-white/25 bg-transparent text-white hover:bg-white/10">
                 <Link href="/lawyers">{t("hero.ctaSecondary")}</Link>
               </Button>
-              <Button asChild size="lg" variant="ghost" className="text-white hover:bg-white/10">
-                <Link href="/login">{t("hero.ctaTertiary")}</Link>
-              </Button>
             </div>
+            <p className="mt-6 text-sm text-white/65"><Link className="underline underline-offset-4 hover:text-white" href="/login">{t("hero.ctaTertiary")}</Link></p>
           </Reveal>
         </div>
       </section>
@@ -214,16 +211,16 @@ export default async function LandingPage({
       </section>
 
       {/* Final CTA */}
-      <section className="bg-gold/10 py-20">
+      <section className="border-t border-white/10 bg-navy py-20 text-white">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <h2 className="text-3xl font-bold text-ink">{t("finalCta.title")}</h2>
-          <p className="mt-3 text-foreground-muted">{t("finalCta.subtitle")}</p>
-          <StartAnalysisButton className="mt-8">
+          <h2 className="text-3xl font-bold">{t("finalCta.title")}</h2>
+          <p className="mt-3 text-white/70">{t("finalCta.subtitle")}</p>
+          <StartAnalysisButton className="mt-8 text-navy">
             {t("finalCta.cta")}
             <ArrowIcon className="h-4 w-4" />
           </StartAnalysisButton>
           <p className="mt-4 text-sm">
-            <a href="#demo" className="text-foreground-muted underline-offset-4 hover:underline">
+            <a href="#demo" className="text-white/70 underline-offset-4 hover:underline">
               {t("finalCta.demoCta")}
             </a>
           </p>

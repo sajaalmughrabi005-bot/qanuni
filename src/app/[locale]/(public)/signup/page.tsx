@@ -66,6 +66,7 @@ function SignUpForm() {
       return;
     }
     setSubmitting(true);
+    try {
     const result = await signUpAction({
       fullName,
       email,
@@ -77,21 +78,10 @@ function SignUpForm() {
       verificationInfo: role === "lawyer" ? verificationInfo : undefined,
       language: locale,
     });
-    setSubmitting(false);
 
     if (!result.ok) {
-      const known = ["invalid_name", "invalid_email", "weak_password", "bar_number_required", "specialty_required", "city_required", "invalid_city"];
-      // Supabase's built-in mailer only sends a few emails per hour; say so instead of a vague failure.
-      const rateLimited = /rate limit|too many|security purposes/i.test(result.error);
-      toast.error(
-        result.error.includes("already registered")
-          ? t("emailTaken")
-          : rateLimited
-            ? t("errors.rate_limit")
-            : known.includes(result.error)
-              ? t(("errors." + result.error) as "errors.generic")
-              : t("errors.generic")
-      );
+      const known = ["invalid_name", "invalid_email", "weak_password", "bar_number_required", "specialty_required", "city_required", "invalid_city", "rate_limit", "service_unavailable", "profile_unavailable", "not_configured"];
+      toast.error(result.error==="email_taken"?t("emailTaken"):known.includes(result.error)?t(("errors."+result.error) as "errors.generic"):t("errors.generic"));
       return;
     }
 
@@ -103,6 +93,11 @@ function SignUpForm() {
     clearDemoCookie();
     toast.success(t("success"));
     setRedirectTo(next && result.role === "citizen" ? next : `/${locale}/${result.role}/dashboard`);
+    } catch {
+      toast.error(t("errors.service_unavailable"));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (checkEmail) {

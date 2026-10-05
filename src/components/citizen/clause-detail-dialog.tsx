@@ -80,7 +80,7 @@ export function ClauseDetailDialog({
               <p className="mt-1.5 text-sm text-foreground-muted">
                 {source.excerptAr}
               </p>
-              <p className="mt-2 text-xs">{locale === "ar" ? "تم التحقق من نص المصدر فقط. نسخة يوليو 2025؛ سريان الحكم على حالتك يتطلب مراجعة محامٍ." : "Source text checked only. July 2025 snapshot; applicability to your case requires lawyer review."}</p>
+              <p className="mt-2 text-xs">{locale === "ar" ? "تم التحقق من نص المصدر فقط. التفسير والتعديلات اللاحقة وانطباق الحكم على حالتك تتطلب مراجعة محامٍ." : "Source text checked only. Interpretation, later amendments and applicability to your case require lawyer review."}</p>
               {source.sourceUrl && <a href={source.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-gold underline">{locale === "ar" ? "المصدر الأصلي" : "View source"}</a>}
             </div>
           )}

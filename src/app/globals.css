@@ -85,6 +85,22 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Public landing page palette; account dashboards retain their theme settings. */
+.haq-landing {
+  --background: #0c1421;
+  --surface: #111f31;
+  --surface-muted: #17263a;
+  --foreground: #f1efe9;
+  --foreground-muted: #abb5c4;
+  --border: #293749;
+  --navy: #0c1421;
+  --ink: #f1efe9;
+  --gold: #cba760;
+  --gold-light: #d8be89;
+  background: var(--background);
+  color: var(--foreground);
+}
+
 html[dir="rtl"] body {
   font-family: var(--font-arabic);
 }

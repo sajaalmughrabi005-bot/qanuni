@@ -36,7 +36,9 @@ export default function LawyerMarketplacePage() {
   const [availability, setAvailability] = useState<string>("all");
   const [acceptingOnly, setAcceptingOnly] = useState(false);
   // The directory only ever contains approved lawyers (enforced in the database view).
-  const { lawyers,loading,error } = useLawyerDirectory();
+  const { lawyers,loading,error,refetch } = useLawyerDirectory();
+  const [retrying,setRetrying]=useState(false);
+  const retry=async()=>{if(retrying)return;setRetrying(true);try{await refetch();}finally{setRetrying(false);}};
   const tAvail = useTranslations("marketplace.availability");
 
   const cityLabel = useGovernorateLabel();
@@ -54,15 +56,14 @@ export default function LawyerMarketplacePage() {
     return true;
   });
 
-  if(error)return <DataLoadError/>;
-  if(loading)return <p role="status">{t("title")}…</p>;
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6" aria-busy={loading||retrying}>
       <div className="mb-8">
         <h1 className="text-3xl font-bold">{t("title")}</h1>
         <p className="mt-2 text-foreground-muted">{t("subtitle")}</p>
       </div>
 
+      {error||retrying ? <div className="max-w-xl"><DataLoadError title={t("states.errorTitle")} message={t(error==="not_configured"?"states.configurationError":"states.unavailable")} onRetry={()=>void retry()} retrying={retrying}/></div> : loading ? <p role="status" className="rounded-xl border border-border bg-surface p-6">{t("states.loading")}</p> : <>
       <div className="mb-8 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <Search className="absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-muted" />
@@ -136,7 +137,7 @@ export default function LawyerMarketplacePage() {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Users} title={t("empty")} />
+        <EmptyState icon={Users} title={lawyers.length?t("empty"):t("states.directoryEmpty")} description={lawyers.length?t("states.adjustFilters"):t("states.emptyDescription")} />
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((lawyer) => (
@@ -144,6 +145,7 @@ export default function LawyerMarketplacePage() {
           ))}
         </div>
       )}
+      </>}
     </div>
   );
 }

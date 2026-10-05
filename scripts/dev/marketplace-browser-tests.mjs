@@ -26,7 +26,7 @@ try {
    await route.abort();
   });
   const t=JSON.parse(fs.readFileSync(`src/messages/${locale}/marketplace.json`,'utf8')).profile;
-  const errorText=locale==='ar'?'تعذر تحميل البيانات. هذه حالة خطأ وليست قائمة فارغة.':'Unable to load data. This is an error, not an empty list.';
+  const errorText=locale==='ar'?'تعذر تحميل المعلومات':'Unable to load this information';
   await page.goto(`${base}/${locale}/lawyers/${id}`);
   await page.getByText(t.reviewsLoading,{exact:true}).waitFor();assert.equal(await page.getByText(t.noReviews,{exact:true}).count(),0);
   release();await page.getByText(errorText,{exact:true}).waitFor();assert.equal(await page.getByText(t.noReviews,{exact:true}).count(),0);

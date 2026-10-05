@@ -1,5 +1,19 @@
 # Staging verification runbook — 2026-10-04
 
+## Pre-staging update — 2026-10-05
+
+Git is now initialized correctly; continue from **staging-prep**. The checkout baseline was db5bfb50785cf3d06f4256aceaa968b5d8755fa5, also the untouched main reference. The historical missing-Git recovery step below is superseded. See [PRE_STAGING_REPORT.md](PRE_STAGING_REPORT.md) for the scoped changes and current verification.
+
+**Connection blocker:** anonymous Auth settings and public directory GETs fail with ENOTFOUND for the configured Supabase hostname. First confirm the designated staging project's actual URL/reference and public key in its dashboard, then verify DNS and read-only Auth settings/public-view access. Do not guess a replacement URL or use the production project. `.env.local` was preserved unchanged. No actual signup POST was attempted here.
+
+When the target is explicitly confirmed, check enabled email signup, password policy, email confirmation, SMTP/send limits, staging Site URL and localized confirmation callback allowlist (`/<locale>/auth/callback?next=...`). Verify real citizen/lawyer signup using owner-controlled addresses, confirmation then login, active own profile and pending own lawyer row. If signup diagnostics say `database_trigger`, inspect the staging Auth/DB log and the deployed `handle_new_user` trigger/schema; if `profile_lookup`, verify profile creation and self-read RLS. Never disable RLS to pass a test. Test localhost/127.0.0.1 callbacks locally and the approved HTTPS staging callback remotely. Client-visible messages remain safe; operational logs contain request ID/stage/category/code/status, without email/password/provider messages.
+
+For the public directory, verify `lawyers_public` exists with 004's public-safe columns, anon/authenticated SELECT, approved non-demo lawyer and active profile filtering. Test true successful-empty, visible approved row, suspended/pending/demo exclusion and retry after a real transient error. A failure must never show synthetic lawyers.
+
+New **009_curated_labour_references.sql** only extends the existing atomic finalizer's curated source-ID allowlist. Preserve 007/008. For an empty disposable project, add 009 after the existing schema→004→005→006→007→008 sequence. For existing staging, compare all prerequisites/functions first and apply only needed reviewed additive SQL. Recheck ownership, disabled roles, exact quote validation, rollback, idempotency and eight source references after 009. Nothing was remotely applied. Current browser and safe-suite results are local evidence, not hosted Supabase/pgvector evidence.
+
+No new environment variable, dependency upgrade, table/bucket/domain/provider rename, external account or paid service was introduced. True scanned-image overlays remain dependent on validated OCR geometry support; they must not be implemented from invented model coordinates. Jordanian lawyer review of the eight selected Labour Law excerpts and uncovered categories remains required.
+
 **STAGING REQUIRED.** None of these credentialed steps was executed in this continuation. Existing local credentials do not establish a non-production identity. Obtain owner confirmation of the project reference and inspect its dashboard/environment designation before supplying credentials. Setting a variable alone is not proof. Never substitute the production project.
 
 ## 1. Preserve and compare

@@ -7,7 +7,8 @@ if(!process.env.HAQ_TEST_RENDERER)throw new Error('Set HAQ_TEST_RENDERER to the 
 const renderer=loadExternalRenderer(process.env.HAQ_TEST_RENDERER,React),{act}=React;
 globalThis.IS_REACT_ACT_ENVIRONMENT=true;
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};};
-const {useScopedQuery}=loadSource('src/lib/data/use-scoped-query.ts');
+const queryFailures=loadSource('src/lib/data/query-failure.ts');
+const {useScopedQuery}=loadSource('src/lib/data/use-scoped-query.ts',{'./query-failure':queryFailures});
 let state,root;
 function Query({id,read}){state=useScopedQuery(id,read,[]);return React.createElement('span',null,state.data.join(','));}
 const first=deferred(),second=deferred();
@@ -35,12 +36,14 @@ assert.equal(hookReads[0].filter.value,'CASE_A');await act(async()=>hookReads[0]
 await act(async()=>root.update(React.createElement(Notes,{id:'CASE_B'})));assert.deepEqual(state.data,[]);assert.equal(state.loading,true);assert.equal(hookReads[1].filter.value,'CASE_B');
 caller='ACCOUNT_B';await act(async()=>root.update(React.createElement(Notes,{id:'CASE_B'})));await act(async()=>{hookReads[1].resolve({data:[{id:'OLD_ACCOUNT'}],error:null});hookReads[2].resolve({data:null,error:{message:'controlled denial'}});});assert.deepEqual(state.data,[]);assert.equal(state.error,'query_failed');assert.equal(state.loading,false);
 await act(async()=>root.update(React.createElement(Notes,{id:undefined})));assert.deepEqual(state.data,[]);assert.equal(state.loading,false);assert.equal(state.error,null);assert.equal(hookReads.length,3);await act(async()=>root.unmount());
+const publicDirectory=loadSource('src/lib/data/public-directory.ts',{'./query-failure':queryFailures,'@/lib/supabase/mappers':{mapLawyer:row=>row}});
 const lawyers=loadSource('src/lib/auth/use-lawyer.ts',{
+ '@/lib/data/public-directory':publicDirectory,
  '@/lib/supabase/client':{createSupabaseBrowserClient:()=>hookClient},'@/lib/supabase/mappers':{mapLawyer:row=>row},'@/lib/demo/store':{useDemoStore:fn=>fn({lawyers:[]})},'@/lib/demo/use-demo':{useDemoRole:()=>null},'@/lib/auth/use-session':{useSession:()=>({})},'@/lib/data/use-scoped-query':{useScopedQuery}
 });
 function Lawyer({id}){state=lawyers.useLawyer(id);return null;}
-await act(async()=>{root=renderer.create(React.createElement(Lawyer,{id:'LAWYER_A'}));});await act(async()=>hookReads[3].resolve({data:{id:'LAWYER_A'},error:null}));assert.equal(state.lawyer.id,'LAWYER_A');
-await act(async()=>root.update(React.createElement(Lawyer,{id:'LAWYER_B'})));assert.equal(state.lawyer,undefined);assert.equal(state.loading,true);await act(async()=>hookReads[4].resolve({data:null,error:{message:'controlled denial'}}));assert.equal(state.lawyer,undefined);assert.equal(state.error,'query_failed');await act(async()=>root.unmount());
+await act(async()=>{root=renderer.create(React.createElement(Lawyer,{id:'LAWYER_A'}));});await act(async()=>hookReads[3].resolve({data:[{id:'LAWYER_A',profile_id:'P',full_name:'Synthetic Lawyer',verification_status:'approved'}],error:null}));assert.equal(state.lawyer.id,'LAWYER_A');
+await act(async()=>root.update(React.createElement(Lawyer,{id:'LAWYER_B'})));assert.equal(state.lawyer,undefined);assert.equal(state.loading,true);await act(async()=>hookReads[4].resolve({data:null,error:{message:'controlled denial'}}));assert.equal(state.lawyer,undefined);assert.equal(state.error,'directory_unavailable');await act(async()=>root.unmount());
 console.log('actual case-note and public-lawyer hooks: filter/identity switches, cancelled old identity, query errors and disabled filters PASS');
 
 let callback,reads=[],authFailure=false;

@@ -1,5 +1,7 @@
 # Changed files — 2026-10-04
 
+**2026-10-05 update:** Git is initialized correctly on staging-prep. Historical cumulative manifests below describe the already committed baseline. The exact new scoped manifest is in [PRE_STAGING_REPORT.md](PRE_STAGING_REPORT.md#15-exact-files-changed), relative to db5bfb50785cf3d06f4256aceaa968b5d8755fa5; no previous work was reset.
+
 Current SHA-256 comparison against the immutable Phase 0 snapshot: **165 authored files (102 modified, 63 added), 0 baseline files missing**. Git is unavailable and HAQ has no project-local checkout. Secret environments/dependencies/build output/generated next-env.d.ts and pre-existing .claude settings are excluded. .env.local, AGENTS.md and CODEX_MASTER_PLAN.md are preserved.
 
 Previous 130-file report (82 modified/48 added) is historical evidence, retained in the status/engineering report and prior temp hashes; it is not the current count. Latest recovery snapshot had 276 non-secret files, with 20 interrupted-session files recovered. **57 files changed/added after that snapshot; 69 files in the exact continuation union** (overlaps are counted once).

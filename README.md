@@ -20,7 +20,7 @@ Next.js 16 App Router, React 19, TypeScript, Tailwind v4 and next-intl (Arabic R
 
 ## User flows
 
-Citizen: upload/paste → extract/OCR → plausibility check → classify → retrieve limited legal sources → analyze all sections → understand risks/obligations → review source text/highlights → ask follow-ups → existing marketplace → explicit sharing consent → case request. Reports use the selected analysis; choose Save as PDF in the browser print dialog. Allow popups for report preview.
+Citizen: upload/paste → extract/OCR → meaningful-content check → strict legal-document classification (only LEGAL continues; NON_LEGAL/UNCERTAIN stop) → retrieve limited legal sources → analyze all sections → understand risks/obligations → review source text/highlights → ask follow-ups → existing marketplace → explicit sharing consent → case request. Reports use the selected analysis; choose Save as PDF in the browser print dialog. Allow popups for report preview.
 
 Lawyer: verified signup → request review/acceptance → private case workspace, messages/documents/notes/fees/calendar → AI data entry and drafting, shortening, formal rewriting and translation. Admins use verification, suspension/reporting tools and aggregate/sanitized oversight, without case-private content.
 
@@ -32,7 +32,7 @@ Entry creates an HMAC-signed HttpOnly session (one hour) plus the qanuni_demo UI
 
 PDF, DOCX, TXT, JPG/JPEG, PNG and WEBP are supported locally up to 10 MB. Embedded text precedes OCR; scanned PDFs/images use existing OpenAI vision. Direct PDF extraction has a 40-page safety bound. Poor/incomplete extraction is rejected or warned. Arabic PDF ligature/font extraction varies; compare with the original. Text has an explicit 240,000-character limit and 24,000-character sections followed by consolidation. Failure never creates a complete substitute result; input is retained for retry.
 
-Risks are unverified AI interpretations, never litigation probabilities or invented confidence percentages. The initial corpus has two annual-leave articles checked in a Ministry of Labour-hosted July 2025 snapshot. Source text verification does not verify interpretation, current amendments or historical applicability. Uncovered rental/civil/commercial topics have insufficient legal evidence and require lawyer review. Prompts and quote validators reduce hallucination risk but cannot guarantee correctness of every generated statement.
+Risks are unverified AI interpretations, never litigation probabilities or invented confidence percentages. The corpus contains eight selected Labour Law excerpts checked visually in a Ministry of Labour-hosted July 2025 snapshot, expanded from the original two annual-leave articles. Source text verification does not verify interpretation, current amendments or historical applicability. Uncovered rental/civil/commercial topics have insufficient legal evidence and require lawyer review. Prompts and quote validators reduce hallucination risk but cannot guarantee correctness of every generated statement.
 
 ## Environment
 
@@ -76,12 +76,13 @@ Additional local React query/session and mutation-failure probes use an optional
 
 ## Database and deployment
 
-No live migration/deployment performed. Review remote schema before applying SQL; do not blindly replay historical migrations. The local harness applies schema and 004–008, not every historical fresh-install sequence.
+No live migration/deployment performed. Review remote schema before applying SQL; do not blindly replay historical migrations. The local harness applies schema and 004–009, not every historical fresh-install sequence.
 
 Pending additive migrations:
 
 - 007_security_and_atomic_analysis.sql: active/approved account helpers, parent ownership, rejected-file revocation, admin event redaction, unknown risks/exact quotes, atomic analysis, request idempotency, complete manual-case text.
 - 008_private_source_documents.sql: original metadata and private citizen-documents bucket/policies. Existing case-documents remains private.
+- 009_curated_labour_references.sql: extends the existing finalizer reference allowlist for the eight selected source excerpts; preserves ownership/atomicity/retry guards.
 
 Validate in owner-approved staging Supabase, then coordinate app/schema deployment. Confirm RPC grants, disabled/rejected access, signed URL expiry, cleanup and reruns. Configure Site URL/redirect allowlist for the existing approved domain and localhost; do not automatically change DNS/domain/OAuth settings. Registered-user new persistence depends on pending migrations and is not remotely verified.
 

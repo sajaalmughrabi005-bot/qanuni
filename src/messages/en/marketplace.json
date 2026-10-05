@@ -85,5 +85,14 @@
     "submit": "Send Request",
     "success": "Your request was sent! You'll be notified when the lawyer responds.",
     "successDemo": "Your request was sent (demo simulation). In production, you'd get a WhatsApp notification."
+  },
+  "states": {
+    "errorTitle": "Unable to load the lawyer directory",
+    "configurationError": "The directory is currently unavailable. Try later or contact support.",
+    "unavailable": "We could not reach the directory. Please retry; no substitute results were shown.",
+    "loading": "Loading lawyers…",
+    "directoryEmpty": "No lawyers are available in the directory yet",
+    "emptyDescription": "Check back later for available profiles.",
+    "adjustFilters": "Try changing your search or clearing some filters."
   }
 }

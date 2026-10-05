@@ -18,5 +18,5 @@ const context=selectDocumentContext(text,'refund termination');assert.ok(context
 assert.equal(selectDocumentContext('short contract','refund').partial,false);assert.equal(cosine([1,0],[1,0]),1);assert.equal(cosine([1,0],[0,1]),0);
 const original=globalThis.fetch;process.env.OPENAI_API_KEY='mock-only';
 globalThis.fetch=async(_url,options)=>{const body=JSON.parse(options.body);assert.equal(body.store,undefined);return new Response(JSON.stringify({data:body.input.map((_,index)=>({index,embedding:Array(1536).fill(0)}))}));};
-try{assert.equal((await retrieveLegalSources('An employee waives annual leave.')).length,2);assert.equal((await retrieveLegalSources('Apartment paint colours')).length,0);}finally{globalThis.fetch=original;}
+try{const found=await retrieveLegalSources('An employee waives annual leave.');assert.ok(found.some(s=>s.article==='64'));assert.ok(found.length<=4);assert.ok(found.every(s=>s.verified&&!s.isDemoPlaceholder));assert.equal((await retrieveLegalSources('Apartment paint colours')).length,0);}finally{globalThis.fetch=original;}
 console.log('context-and-citations-tests: 18 assertions passed (mocked embeddings; no legal applicability claim)');

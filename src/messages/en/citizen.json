@@ -81,11 +81,11 @@
   },
   "upload": {
     "title": "Analyze a Legal Document",
-    "subtitle": "Upload your contract and get instant AI analysis",
+    "subtitle": "Upload a clear, complete legal document to understand its terms and what needs attention.",
     "dropzone": "Drag and drop a file here, or click to select",
     "dropzoneHint": "PDF, DOCX, TXT, JPG, JPEG, PNG, WEBP — up to 10 MB.",
-    "orPasteText": "Or paste text / describe your legal matter",
-    "pasteTextPlaceholder": "e.g. My landlord wants to evict me before the contract ends, without notice...",
+    "orPasteText": "Or paste the legal document text",
+    "pasteTextPlaceholder": "e.g. Rental agreement between the landlord and tenant. The tenant shall pay monthly rent...",
     "contextTitle": "A few details to help us understand your situation",
     "roleLabel": "Who are you in this situation?",
     "role": {

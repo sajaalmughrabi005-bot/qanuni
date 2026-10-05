@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { QueryFailure } from "./query-failure";
 
 /** Keeps results within their identity/filter and ignores superseded responses. */
 export function useScopedQuery<T>(key: string, read: (() => Promise<T>) | null, empty: T, pollMs?: number) {
@@ -17,8 +18,8 @@ export function useScopedQuery<T>(key: string, read: (() => Promise<T>) | null, 
       if (request !== generation.current) return false;
       setResult({ key, data, loading: false, error: null });
       return true;
-    } catch {
-      if (request === generation.current) setResult(previous => ({ key, data: previous?.key === key ? previous.data : empty, loading: false, error: "query_failed" }));
+    } catch(cause) {
+      if (request === generation.current) setResult(previous => ({ key, data: previous?.key === key ? previous.data : empty, loading: false, error: cause instanceof QueryFailure?cause.code:"query_failed" }));
       return false;
     }
     // Each caller supplies a stable read function for the serialized query key.

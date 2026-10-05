@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {buildAnalysisReport} from '../../src/lib/documents/report.ts';
+import {curatedSources} from '../../src/lib/legal/corpus.ts';
 const {chromium}=await import(process.env.HAQ_PLAYWRIGHT_MODULE||'playwright');
 const out=path.join(process.env.TEMP||'.','haq-browser-evidence');fs.mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.HAQ_CHROME_PATH,headless:true});
 const document={id:'private-id',fileName:'Mixed synthetic report',documentType:'rental',citizenDescription:'Rent 317 monthly.',language:'en'};
-const analysis={id:'private-analysis',createdAt:'2026-10-04T10:00:00Z',summaryAr:'ملخص عقد إيجار 317 ديناراً',summaryEn:'Synthetic rental 317 dinars',overallRisk:'unknown',coverage:{analyzedCharacters:17,totalCharacters:17,isTruncated:false}};
+const analysis={id:'private-analysis',createdAt:'2026-10-04T10:00:00Z',summaryAr:'ملخص عقد إيجار 317 ديناراً',summaryEn:'Synthetic rental 317 dinars',overallRisk:'unknown',legalSources:curatedSources.filter(s=>s.pdfPage===6||s.pdfPage===19),coverage:{analyzedCharacters:17,totalCharacters:17,isTruncated:false}};
 for(const field of ['yourObligations','otherPartyObligations','deadlines','paymentTerms','cancellationTerms','concerns','questionsForLawyer'])for(const lang of ['Ar','En'])analysis[field+lang]=Array.from({length:30},(_,i)=>`${lang==='Ar'?'التزام تجريبي مختلط للنص الطويل':'Synthetic mixed long report obligation'} ${i+1}: ${'mixed العربية 317 '.repeat(12)}`);
 analysis.questionsForLawyerEn.push('FINAL_REPORT_TERM_890_43');analysis.questionsForLawyerAr.push('FINAL_REPORT_TERM_890_43');
 try {
