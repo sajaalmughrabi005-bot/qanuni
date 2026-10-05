@@ -1,0 +1,118 @@
+"use client";
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { Star } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Link } from "@/i18n/navigation";
+import { useSession } from "@/lib/auth/use-session";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
+import { useDemoStore } from "@/lib/demo/store";
+
+export function WriteReviewForm({ lawyerId, onSubmitted }: { lawyerId: string; onSubmitted?: () => void }) {
+  const {session}=useSession();
+  return <ReviewEditor key={`${session?.userId}:${lawyerId}`} lawyerId={lawyerId} onSubmitted={onSubmitted}/>;
+}
+
+function ReviewEditor({ lawyerId, onSubmitted }: { lawyerId: string; onSubmitted?: () => void }) {
+  const t = useTranslations("marketplace.profile");
+  const { session, profile, isDemo } = useSession();
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  if (!session || !profile) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-between gap-3 p-4 text-sm text-foreground-muted">
+          {t("loginToReview")}
+          <Button asChild size="sm" variant="outline">
+            <Link href="/login">{t("requestConsultation")}</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (submitted) {
+    return (
+      <Card>
+        <CardContent className="p-4 text-sm text-foreground-muted">{t("reviewSubmitted")}</CardContent>
+      </Card>
+    );
+  }
+
+  const submit = async () => {
+    if (!rating || submitting) return;
+    setSubmitting(true);
+    try {
+    if(isDemo) {
+      const error=useDemoStore.getState().addReview(lawyerId,rating,comment.trim());
+      if(error)return toast.error(t(error as "reviewNotAllowed"));
+      setSubmitted(true);toast.success(t("reviewSubmitted"));onSubmitted?.();return;
+    }
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) {
+      return toast.error(t("reviewNotAllowed"));
+    }
+    const { error } = await supabase.from("reviews").insert({
+      lawyer_id: lawyerId,
+      client_id: session.userId,
+      client_name: profile.fullName,
+      rating,
+      review: comment.trim(),
+    });
+    if (error) {
+      toast.error(/duplicate|unique/i.test(error.message) ? t("alreadyReviewed") : t("reviewNotAllowed"));
+      return;
+    }
+    toast.success(t("reviewSubmitted"));
+    setSubmitted(true);
+    onSubmitted?.();
+    }catch{toast.error(t("reviewNotAllowed"));}finally{setSubmitting(false);}
+  };
+
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <p className="text-sm font-medium">{t("writeReview")}</p>
+        <div className="space-y-1.5">
+          <Label className="text-xs">{t("yourRating")}</Label>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setRating(n)}
+                onMouseEnter={() => setHoverRating(n)}
+                onMouseLeave={() => setHoverRating(0)}
+                aria-label={`${n}`}
+              >
+                <Star
+                  className={cn(
+                    "h-6 w-6 transition-colors",
+                    n <= (hoverRating || rating) ? "fill-gold text-gold" : "text-foreground-muted"
+                  )}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">{t("yourReview")}</Label>
+          <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder={t("yourReviewPlaceholder")} />
+        </div>
+        <Button variant="gold" size="sm" onClick={submit} disabled={!rating || submitting}>
+          {t("submitReview")}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}

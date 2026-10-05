@@ -1,0 +1,92 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { User, Briefcase, ShieldCheck } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { startDemoAction } from "@/lib/demo/actions";
+import { toast } from "sonner";
+import { useDemoStore } from "@/lib/demo/store";
+import type { UserRole } from "@/types";
+
+const roles: { role: UserRole; icon: typeof User; key: "citizen" | "lawyer" | "admin" }[] = [
+  { role: "citizen", icon: User, key: "citizen" },
+  { role: "lawyer", icon: Briefcase, key: "lawyer" },
+  { role: "admin", icon: ShieldCheck, key: "admin" },
+];
+
+/**
+ * Enters the isolated demo. This does NOT sign anyone in: it drops any real
+ * session, resets the in-memory sample data, and sets a client-side flag that
+ * switches the UI to fake sample data with the database disabled.
+ */
+export function DemoEntryButtons({ variant = "landing" }: { variant?: "landing" | "login" }) {
+  const t = useTranslations(variant === "landing" ? "landing.demoEntry" : "auth.login");
+  const locale = useLocale();
+  const [entering, setEntering] = useState<UserRole | null>(null);
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (redirectTo) window.location.href = redirectTo;
+  }, [redirectTo]);
+
+  const enter = async (role: UserRole) => {
+    if (entering) return;
+    setEntering(role);
+    try {
+      const result = await startDemoAction(role);
+      if (!result.ok) throw new Error("demo_unavailable");
+      useDemoStore.getState().reset();
+      setRedirectTo(`/${locale}/${role}/dashboard`);
+    } catch {
+      toast.error(locale === "ar" ? "تعذر بدء الجلسة التجريبية. حاول مجدداً." : "Unable to start demo session. Please retry.");
+      setEntering(null);
+    }
+  };
+
+  if (variant === "login") {
+    return (
+      <div className="grid gap-3">
+        {roles.map(({ role, icon: Icon }) => (
+          <Button
+            key={role}
+            variant="outline"
+            className="justify-start gap-3"
+            onClick={() => enter(role)}
+            disabled={entering !== null}
+          >
+            <Icon className="h-4 w-4 text-gold" />
+            {t(`demo${role.charAt(0).toUpperCase()}${role.slice(1)}` as "demoCitizen")}
+          </Button>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-3">
+      {roles.map(({ role, icon: Icon, key }) => (
+        <Card
+          key={role}
+          className="group cursor-pointer transition hover:-translate-y-1 hover:shadow-md"
+          onClick={() => enter(role)}
+          role="button"
+          tabIndex={entering ? -1 : 0}
+          aria-disabled={entering !== null}
+          onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); void enter(role); } }}
+        >
+          <CardContent className="flex flex-col items-start gap-3 p-6">
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ink/5 text-ink group-hover:bg-navy group-hover:text-gold transition-colors">
+              <Icon className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="font-semibold">{t(`${key}` as "citizen")}</p>
+              <p className="mt-1 text-sm text-foreground-muted">{t(`${key}Desc` as "citizenDesc")}</p>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}

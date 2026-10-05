@@ -1,0 +1,207 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "documents": "My Documents",
+    "analyses": "My Analyses",
+    "cases": "My Cases",
+    "lawyers": "Saved Lawyers",
+    "appointments": "Appointments",
+    "notifications": "Notifications",
+    "findLawyer": "Find a lawyer"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {name}",
+    "subtitle": "Here's a summary of your legal activity",
+    "analyzeDocument": "Analyze a Document",
+    "describeProblem": "Describe My Legal Problem",
+    "findLawyer": "Find a Lawyer",
+    "askTheLaw": "Ask the Law",
+    "statDocuments": "Documents analyzed",
+    "statCases": "Cases",
+    "statAppointments": "Upcoming appointments",
+    "statNotifications": "Unread notifications",
+    "recentActivity": "Recent activity"
+  },
+  "documents": {
+    "title": "My Documents",
+    "empty": "No documents yet",
+    "emptyDesc": "Upload your first legal document to start analyzing",
+    "uploadNew": "Upload new document",
+    "status": {
+      "uploaded": "Uploaded",
+      "processing": "Processing",
+      "analyzed": "Analyzed",
+      "failed": "Analysis failed"
+    },
+    "delete": "Delete document",
+    "confirmDelete": "Confirm delete",
+    "cancel": "Cancel",
+    "deleted": "Document and its analysis were deleted."
+  },
+  "analyses": {
+    "title": "My Analyses",
+    "empty": "No analyses yet",
+    "viewAnalysis": "View analysis"
+  },
+  "cases": {
+    "title": "My Cases",
+    "empty": "No cases yet",
+    "emptyDesc": "Create a case from one of your analyses to connect with a lawyer",
+    "yourLawyer": "Your Lawyer",
+    "status": {
+      "new": "New",
+      "contacted": "Contacted",
+      "reviewing": "Reviewing",
+      "in_progress": "In Progress",
+      "court": "Court / Proceedings",
+      "closed": "Closed"
+    },
+    "findAnother": "Find another lawyer"
+  },
+  "lawyers": {
+    "title": "Saved Lawyers",
+    "empty": "You haven't saved any lawyers yet",
+    "loading": "Loading saved lawyers…"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "empty": "No upcoming appointments",
+    "with": "with",
+    "status": {
+      "pending": "Pending confirmation",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "markAllRead": "Mark all as read"
+  },
+  "upload": {
+    "title": "Analyze a Legal Document",
+    "subtitle": "Upload your contract and get instant AI analysis",
+    "dropzone": "Drag and drop a file here, or click to select",
+    "dropzoneHint": "PDF, DOCX, TXT, JPG, JPEG, PNG, WEBP — up to 10 MB.",
+    "orPasteText": "Or paste text / describe your legal matter",
+    "pasteTextPlaceholder": "e.g. My landlord wants to evict me before the contract ends, without notice...",
+    "contextTitle": "A few details to help us understand your situation",
+    "roleLabel": "Who are you in this situation?",
+    "role": {
+      "none": "Not specified",
+      "tenant": "Tenant",
+      "landlord": "Landlord / Owner",
+      "employee": "Employee",
+      "employer": "Employer",
+      "other": "Other party"
+    },
+    "purposeLabel": "What's your goal with this analysis?",
+    "purpose": {
+      "understand": "Understand my rights and obligations",
+      "beforeSigning": "Before signing this document",
+      "activeDispute": "I currently have an active dispute"
+    },
+    "documentType": "Document type",
+    "types": {
+      "rental": "Rental contract",
+      "employment": "Employment contract",
+      "service": "Service agreement",
+      "sale": "Sale agreement",
+      "general": "General document"
+    },
+    "useDemo": "Or try the ready-made demo rental contract",
+    "analyzeButton": "Start Analysis",
+    "privacyNotice": "Legal documents may contain sensitive information. Upload only documents you are authorized to share.",
+    "fileTooLarge": "This file is larger than the 10MB limit.",
+    "fileTypeNotSupported": "PDF, DOCX, TXT, JPG, JPEG, PNG, WEBP — up to 10 MB.",
+    "needsText": "If extraction is unclear, upload a clearer copy or paste text.",
+    "extractingFile": "Extracting text from the file...",
+    "extractionFailed": "Something unexpected went wrong while reading the file. Try a different file, or paste the contract text manually."
+  },
+  "processing": {
+    "uploading": "Saving document and original file…",
+    "extracting": "Extracting text...",
+    "identifying": "Identifying clauses...",
+    "comparing": "Matching your document against Jordanian law...",
+    "generating": "Validating, classifying, retrieving sources and analyzing sections…",
+    "done": "Analysis complete",
+    "disclaimer": "⚖️ Please note: this analysis is a preliminary automated assessment and is not a legal ruling or a substitute for retaining a lawyer."
+  },
+  "results": {
+    "overview": "Document Overview",
+    "parties": "Parties",
+    "duration": "Duration",
+    "effectiveDate": "Effective date",
+    "keyAmounts": "Key amounts",
+    "clauseMap": "Clause Map",
+    "clauseMapDesc": "Click any highlighted clause to view details",
+    "riskDisclaimer": "These colors are AI risk indicators, not definitive legal conclusions.",
+    "whatThisMeans": "What this means for you",
+    "yourObligations": "Obligations by party",
+    "otherPartyObligations": "Other party's obligations",
+    "deadlines": "Important deadlines",
+    "paymentTerms": "Payment terms",
+    "cancellationTerms": "Cancellation terms",
+    "concerns": "Points worth your attention",
+    "questionsForLawyer": "Questions to ask a lawyer",
+    "riskOverview": "Legal Risk Overview",
+    "riskOverviewDesc": "An automated AI indicator, not legal advice",
+    "askLawyerCta": "Ask a lawyer about this clause",
+    "confidence": "Confidence level",
+    "caseStrengthMeter": "Unverified risk indicators",
+    "caseStrengthStrong": "Your position looks relatively strong",
+    "caseStrengthMedium": "Your position needs some attention",
+    "caseStrengthWeak": "Your position needs urgent lawyer review",
+    "tabClauses": "Clause Details",
+    "tabSummary": "Summary",
+    "tabRisk": "Risks and clauses",
+    "tabAsk": "Ask the Law",
+    "tabScenario": "Scenario Simulator",
+    "createCase": "Escalate to a Lawyer",
+    "createCaseDesc": "Send your case details to a matching lawyer for review",
+    "citizenDescriptionLabel": "Your description of the problem",
+    "aiAssessmentLabel": "AI legal assessment",
+    "partialCoverage": "Only part of the contract was analyzed because the text is long (about {percent}% of the document). The result may not reflect the entire contract."
+  },
+  "describeProblem": {
+    "title": "Describe Your Legal Problem",
+    "subtitle": "Explain your situation in your own words and we'll help you understand it — no document required",
+    "preferDocument": "Have a contract or document? Analyze it instead for a more precise answer"
+  },
+  "askTheLaw": {
+    "title": "Ask the Law",
+    "subtitle": "Ask in your own words about anything in your document",
+    "placeholder": "e.g. What happens if I leave the apartment before the contract ends?",
+    "send": "Send",
+    "talkToLawyer": "Talk to a lawyer about this",
+    "emptyState": "Ask your first question about this document",
+    "thinking": "Thinking..."
+  },
+  "scenario": {
+    "title": "Scenario Simulator",
+    "subtitle": "Test \"what if\" before making a decision — this is a simulation, not legal advice",
+    "disclaimer": "Scenario simulation — not legal advice",
+    "custom": "Or write your own scenario",
+    "customPlaceholder": "e.g. What if I'm a full month late on payment?",
+    "run": "Run Simulation",
+    "affectedClause": "Affected clause",
+    "questionsToAsk": "Questions worth discussing with a lawyer",
+    "presets": {
+      "leaveEarly": "What if I leave the apartment before the contract ends?",
+      "notPay": "What if I do not pay this amount?",
+      "damage": "What if the apartment is damaged for a reason beyond my control?"
+    },
+    "history": "Previous scenarios"
+  },
+  "termSimplifier": {
+    "title": "Legal Language Simplifier",
+    "englishEquivalent": "English equivalent",
+    "example": "Example"
+  },
+  "findLawyer": {
+    "title": "Find the right lawyer",
+    "matchTitle": "Lawyers suggested for your case",
+    "matchDesc": "Based on your case specialty and city"
+  }
+}

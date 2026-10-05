@@ -1,0 +1,89 @@
+{
+  "title": "دليل المحامين",
+  "subtitle": "ابحث عن محامٍ مرخّص يناسب قضيتك",
+  "search": {
+    "placeholder": "ابحث بالاسم أو التخصص...",
+    "city": "المدينة",
+    "specialty": "التخصص",
+    "language": "اللغة",
+    "priceRange": "نطاق السعر",
+    "availability": "التوفر",
+    "consultationType": "نوع الاستشارة",
+    "allCities": "كل المدن",
+    "allSpecialties": "كل التخصصات",
+    "clearFilters": "مسح الفلاتر",
+    "allAvailability": "كل حالات التوفر",
+    "acceptingOnly": "يستقبلون قضايا جديدة فقط"
+  },
+  "specialties": {
+    "rental": "الإيجارات",
+    "employment": "قانون العمل",
+    "commercial": "تجاري",
+    "family": "الأحوال الشخصية",
+    "criminal": "جزائي",
+    "real_estate": "عقاري",
+    "corporate": "شركات",
+    "civil": "مدني"
+  },
+  "availability": {
+    "available_today": "متاح اليوم",
+    "available_this_week": "متاح هذا الأسبوع",
+    "busy": "غير متاح حالياً"
+  },
+  "card": {
+    "yearsExperience": "{years} سنوات خبرة",
+    "completedCases": "{count} قضية منجزة",
+    "responseTime": "يرد خلال {hours} ساعات",
+    "perConsultation": "دينار / استشارة",
+    "matchPercent": "نسبة التوافق {percent}٪",
+    "viewProfile": "عرض الملف",
+    "verifiedDemo": "موثّق",
+    "reviewsCount": "{count} تقييم",
+    "notAccepting": "لا يستقبل قضايا جديدة",
+    "accepting": "يستقبل قضايا جديدة",
+    "save": "حفظ المحامي",
+    "saveFailed": "تعذر حفظ اختيارك للمحامي. حاول مجدداً.",
+    "saveUnavailable": "تعذر تحميل المحامين المحفوظين. أعد تحميل الصفحة للمحاولة."
+  },
+  "empty": "لم نجد محامين مطابقين لبحثك",
+  "profile": {
+    "about": "نبذة",
+    "specialties": "التخصصات",
+    "experience": "الخبرة",
+    "languages": "اللغات",
+    "pricing": "أسعار الاستشارة",
+    "availability": "التوفر",
+    "reviews": "التقييمات",
+    "completedCases": "القضايا المنجزة",
+    "requestConsultation": "طلب استشارة",
+    "consultationTypes": "أنواع الاستشارة",
+    "demoReviewNotice": "تقييمات تجريبية لأغراض العرض التوضيحي",
+    "writeReview": "أضف تقييمك",
+    "yourRating": "تقييمك",
+    "yourReview": "رأيك بالمحامي (اختياري)",
+    "yourReviewPlaceholder": "شاركنا تجربتك مع هذا المحامي...",
+    "submitReview": "إرسال التقييم",
+    "reviewSubmitted": "تم إرسال تقييمك، شكراً لك",
+    "loginToReview": "سجّل الدخول لتتمكن من إضافة تقييم",
+    "notFound": "المحامي غير موجود أو غير متاح.",
+    "noReviews": "لا توجد تقييمات بعد.",
+    "alreadyReviewed": "لقد قيّمت هذا المحامي من قبل.",
+    "reviewNotAllowed": "يمكنك التقييم فقط بعد حل قضية مع هذا المحامي.",
+    "reviewsLoading": "جارٍ تحميل التقييمات…"
+  },
+  "matching": {
+    "whyMatch": "لماذا يناسبك هذا المحامي",
+    "disclaimer": "نسبة التوافق مؤشر آلي ولا تضمن جودة الخدمة"
+  },
+  "consultation": {
+    "title": "طلب استشارة",
+    "selectType": "نوع الاستشارة",
+    "selectTime": "اختر موعداً",
+    "attachCase": "إرفاق قضية أو عقد سابق (اختياري)",
+    "noCase": "بدون إرفاق",
+    "message": "رسالة مختصرة (اختياري)",
+    "submit": "إرسال الطلب",
+    "success": "تم إرسال طلبك بنجاح! سيتم إشعارك عند رد المحامي.",
+    "successDemo": "تم إرسال طلبك (محاكاة تجريبية). في النسخة الحقيقية سيصل إشعار عبر واتساب."
+  }
+}

@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {useDemoStore} from '../../src/lib/demo/store.ts';
+const store=()=>useDemoStore.getState();store().reset();
+const doc=crypto.randomUUID();store().addDocument({id:doc,userId:'demo-only',fileName:'synthetic.txt',documentType:'rental',language:'en',status:'processing',createdAt:new Date().toISOString(),citizenDescription:'Rent 317 monthly.'});
+const source=new File(['Rent 317 monthly.'],'synthetic.txt',{type:'text/plain'});store().setSourceFile(doc,source);assert.equal(await store().sourceFiles[doc].text(),'Rent 317 monthly.');
+const caseId=store().requestCase({lawyerId:'lawyer-demo-1',title:'Synthetic case',category:'rental',description:'Synthetic rent dispute 317.',urgency:'medium',documentIds:[doc],relevantClauseIds:['clause-test'],summaryAr:'ملخص',summaryEn:'Summary 317',keyDatesEn:['day 9'],questionsEn:['Refund?']});
+const record=store().cases.find(c=>c.id===caseId);assert.deepEqual(record.documentIds,[doc]);assert.deepEqual(record.relevantClauseIds,['clause-test']);assert.equal(record.summaryEn,'Summary 317');assert.deepEqual(record.keyDatesEn,['day 9']);assert.deepEqual(record.questionsEn,['Refund?']);
+store().addCaseDocument(caseId,source,'client');const attachment=store().caseDocuments.find(d=>d.caseId===caseId);assert.equal(await (await fetch(store().fileUrls[attachment.id])).text(),'Rent 317 monthly.');store().removeCaseDocument(attachment.id);assert.ok(!store().caseDocuments.some(d=>d.id===attachment.id));assert.equal(store().fileUrls[attachment.id],undefined);
+store().removeDocument(doc);assert.equal(store().sourceFiles[doc],undefined);assert.ok(!store().documents.some(d=>d.id===doc));store().reset();assert.equal(store().documents.length,0);assert.equal(store().aiHistory.length,0);
+console.log('demo-workflow-tests: 13 assertions passed; actual source/attachment bytes, consented links and cleanup in memory only.');

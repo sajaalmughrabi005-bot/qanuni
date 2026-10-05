@@ -1,0 +1,231 @@
+{
+  "status": {
+    "requested": "Awaiting reply",
+    "accepted": "Accepted",
+    "active": "In progress",
+    "waiting_for_client": "Waiting for client",
+    "waiting_for_lawyer": "Waiting for lawyer",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "rejected": "Declined"
+  },
+  "citizenLine": {
+    "requested": "🟡 Waiting for the lawyer to reply",
+    "accepted": "🟢 Request accepted",
+    "rejected": "🔴 Request declined",
+    "active": "🔵 Case in progress",
+    "waiting_for_client": "🟠 Action needed from you",
+    "waiting_for_lawyer": "🟣 Waiting for the lawyer",
+    "resolved": "✅ Case resolved",
+    "closed": "⚫ Case closed"
+  },
+  "nextAction": {
+    "citizen": {
+      "requested": "The lawyer will review your request and reply soon.",
+      "accepted": "Your request was accepted. The lawyer will start working on it.",
+      "active": "Your lawyer is working on the case. You can message them or upload documents.",
+      "waiting_for_client": "Your lawyer is waiting for your reply or documents. Check the messages.",
+      "waiting_for_lawyer": "Your reply arrived. The lawyer will review it and continue.",
+      "resolved": "The case is resolved. Confirm the closure or review your lawyer.",
+      "closed": "The case is closed and archived.",
+      "rejected": "The lawyer did not accept this request. You can choose another lawyer."
+    },
+    "lawyer": {
+      "requested": "Review the request, then accept or decline it.",
+      "accepted": "Start working: move the case to “In progress”.",
+      "active": "Work the case, request documents or update its status.",
+      "waiting_for_client": "Waiting for the client's reply or documents.",
+      "waiting_for_lawyer": "The client replied — review it and continue.",
+      "resolved": "Resolved. Waiting for the client to confirm, or close the case yourself.",
+      "closed": "This case is closed.",
+      "rejected": "You declined this request."
+    }
+  },
+  "urgency": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "urgent": "Urgent"
+  },
+  "rejectionReason": {
+    "out_of_scope": "Outside my specialization",
+    "no_capacity": "I can't take a new case right now",
+    "conflict_of_interest": "Conflict of interest",
+    "other": "Other"
+  },
+  "actions": {
+    "accept": "Accept request",
+    "reject": "Decline request",
+    "confirmReject": "Confirm decline",
+    "openCase": "Open case",
+    "start": "Start working",
+    "markWaitingClient": "Waiting for client",
+    "markActive": "In progress",
+    "resolve": "Mark resolved",
+    "reopen": "Reopen case",
+    "close": "Close case",
+    "iResponded": "I've done what was asked",
+    "confirmClose": "Confirm case closure",
+    "changeStatus": "Change status",
+    "cancel": "Cancel",
+    "send": "Send",
+    "report": "Report",
+    "download": "Download"
+  },
+  "transitionTo": {
+    "active": "In progress",
+    "waiting_for_client": "Waiting for client",
+    "waiting_for_lawyer": "Waiting for lawyer",
+    "resolved": "Resolved",
+    "closed": "Close"
+  },
+  "sections": {
+    "request": "Request details",
+    "timeline": "Case timeline",
+    "messages": "Messages",
+    "documents": "Documents",
+    "notes": "My private notes",
+    "lawyer": "Your lawyer",
+    "client": "Client",
+    "summary": "Case summary",
+    "evidence": "Evidence & legal context"
+  },
+  "request": {
+    "title": "Request a consultation / send a case request",
+    "titleLabel": "Case title",
+    "titlePlaceholder": "e.g. Evicted from an apartment without notice",
+    "categoryLabel": "Category",
+    "descriptionLabel": "Describe your case",
+    "descriptionPlaceholder": "Explain what happened and what you are asking for, in as much detail as you can.",
+    "urgencyLabel": "Urgency",
+    "contractLabel": "Related contract",
+    "noContract": "No contract",
+    "messageLabel": "Message to the lawyer (optional)",
+    "filesLabel": "Supporting documents (optional)",
+    "filesHelp": "PDF, images, Word or text — up to 10 MB each.",
+    "submit": "Send request",
+    "sending": "Sending...",
+    "success": "Your request was sent. We'll notify you as soon as the lawyer replies.",
+    "pickLawyer": "Choose a lawyer",
+    "lawyerNotAccepting": "This lawyer is not accepting new cases right now.",
+    "loginRequired": "Sign in to send a request to a lawyer.",
+    "onlyCitizens": "Only citizens can send case requests.",
+    "noLawyers": "No lawyers are currently available for this category.",
+    "filesUploadFailed": "The request was sent but some files could not be uploaded. You can upload them from the case page."
+  },
+  "list": {
+    "pending": "Requests awaiting a reply",
+    "accepted": "Accepted cases",
+    "rejected": "Declined requests",
+    "active": "Active cases",
+    "resolved": "Resolved cases",
+    "empty": "No cases in this section.",
+    "all": "All"
+  },
+  "rejection": {
+    "title": "Reason for declining",
+    "reasonLabel": "Choose a reason",
+    "noteLabel": "Additional explanation (optional)",
+    "notePlaceholder": "Write a short message to the client...",
+    "reasonRequired": "Please choose a reason.",
+    "clientView": "Reason: {reason}"
+  },
+  "requests": {
+    "title": "New requests",
+    "subtitle": "Requests from citizens waiting for you to accept or decline",
+    "empty": "No new requests right now.",
+    "received": "Received {date}",
+    "accepted": "Request accepted. The client was notified.",
+    "rejected": "Request declined. The client was notified.",
+    "unopened": "New"
+  },
+  "timeline": {
+    "empty": "No events yet.",
+    "request_submitted": "Client submitted the request",
+    "viewed": "Lawyer opened the request",
+    "accepted": "Lawyer accepted the case",
+    "rejected": "Lawyer declined the request — {reason}",
+    "status_changed": "Status changed to “{to}”",
+    "document_uploaded": "Document uploaded: {file_name}",
+    "document_requested": "Lawyer requested a document",
+    "clarification_requested": "Lawyer requested clarification",
+    "manual_created": "Lawyer added the case manually",
+    "by": {
+      "client": "Client",
+      "lawyer": "Lawyer",
+      "admin": "Admin",
+      "system": "System"
+    }
+  },
+  "messages": {
+    "placeholder": "Write your message...",
+    "empty": "No messages yet.",
+    "closedNotice": "Messages can't be sent in this status.",
+    "requestedNotice": "You'll be able to message once the lawyer accepts the request.",
+    "documentRequest": "Request document",
+    "clarificationRequest": "Request clarification",
+    "requestDocumentPrompt": "Which document do you need?",
+    "clarificationPrompt": "What clarification do you need?",
+    "read": "Read",
+    "sent": "Sent",
+    "kindDocument": "Document request",
+    "kindClarification": "Clarification request",
+    "requestHint": "Write your message above, then choose “Request document” or “Request clarification” to send it as a formal request that appears in the case timeline.",
+    "send": "Send"
+  },
+  "documents": {
+    "empty": "No documents yet.",
+    "upload": "Upload a document",
+    "uploading": "Uploading...",
+    "uploadedBy": "Uploaded by {who} · {date}",
+    "closedNotice": "Documents can't be uploaded in this status.",
+    "uploaded": "Document uploaded.",
+    "deleted": "Document deleted.",
+    "demoDownload": "File downloads are not available in the demo.",
+    "privateNote": "Documents are private: only you and the assigned lawyer can see them."
+  },
+  "notes": {
+    "placeholder": "Private note (never visible to the client)...",
+    "add": "Add note",
+    "empty": "No notes.",
+    "private": "Only you can see this"
+  },
+  "client": {
+    "manual": "Client added manually (no account)",
+    "contactHidden": "Contact details appear after you accept the request."
+  },
+  "report": {
+    "title": "Report",
+    "reasonLabel": "Reason for the report",
+    "reasonPlaceholder": "e.g. Unprofessional behaviour",
+    "detailsLabel": "Details (optional)",
+    "submit": "Send report",
+    "success": "Your report was sent to the admins.",
+    "loginRequired": "Sign in to send a report."
+  },
+  "review": {
+    "afterResolved": "You can review the lawyer once the case is resolved."
+  },
+  "errors": {
+    "not_authenticated": "You need to sign in first.",
+    "not_allowed": "This action isn't available for your account.",
+    "forbidden": "You don't have permission for this action.",
+    "lawyer_unavailable": "This lawyer isn't available to receive requests.",
+    "lawyer_not_accepting": "This lawyer is not accepting new cases right now.",
+    "invalid_title": "The case title must be between 3 and 200 characters.",
+    "invalid_description": "The description must be between 10 and 5000 characters.",
+    "invalid_urgency": "The urgency level is not valid.",
+    "invalid_category": "The category is not valid.",
+    "invalid_message": "The message is empty or too long.",
+    "invalid_transition": "The status can't be changed that way.",
+    "case_not_found": "Case not found.",
+    "case_not_open_for_messages": "Messages can't be sent in the case's current status.",
+    "case_not_open_for_documents": "Documents can't be uploaded in the case's current status.",
+    "rejection_reason_required": "Please choose a reason for declining.",
+    "no_recipient": "There is no recipient for this message.",
+    "file_too_large": "The file is larger than 10 MB.",
+    "file_type_not_allowed": "This file type isn't allowed.",
+    "not_configured": "The service isn't configured.",
+    "unknown": "Something went wrong. Please try again."
+  }
+}

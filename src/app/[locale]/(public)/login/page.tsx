@@ -1,0 +1,120 @@
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
+import { Scale } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
+import { DemoEntryButtons } from "@/components/shared/demo-entry-buttons";
+import { toast } from "sonner";
+import { loginAction } from "@/lib/auth/actions";
+import { safeNextPath } from "@/lib/auth/next-path";
+import { clearDemoCookie } from "@/lib/demo/mode";
+
+function LoginForm() {
+  const t = useTranslations("auth.login");
+  const tc = useTranslations("common");
+  const locale = useLocale();
+  const params = useSearchParams();
+  const next = safeNextPath(params.get("next"));
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (params.get("error") === "account_disabled") toast.error(t("accountDisabledNotice"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (redirectTo) window.location.href = redirectTo;
+  }, [redirectTo]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    const result = await loginAction(email, password);
+    if (!result.ok) {
+      setSubmitting(false);
+      toast.error(result.error === "account_disabled" ? t("accountDisabled") : t("invalidCredentials"));
+      return;
+    }
+    // A real login always leaves the sample-data demo behind.
+    clearDemoCookie();
+    toast.success(t("success"));
+    setRedirectTo(next ?? `/${locale}/${result.role}/dashboard`);
+  };
+
+  const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-surface-muted/40 px-4 py-16">
+      <div className="w-full max-w-md">
+        <Link href="/" className="mb-8 flex items-center justify-center gap-2 font-semibold text-ink">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-gold">
+            <Scale className="h-4 w-4" />
+          </span>
+          <span className="text-xl">{tc("brand.name")}</span>
+        </Link>
+
+        <Card>
+          <CardContent className="p-8">
+            <h1 className="text-xl font-semibold">{t("title")}</h1>
+            <p className="mt-1 text-sm text-foreground-muted">{next ? t("signInToContinue") : t("subtitle")}</p>
+
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="email">{t("email")}</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">{t("password")}</Label>
+                  <Link href="/forgot-password" className="text-xs text-navy hover:underline dark:text-gold">
+                    {t("forgotPassword")}
+                  </Link>
+                </div>
+                <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
+              </div>
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {t("submit")}
+              </Button>
+            </form>
+
+            <p className="mt-4 text-center text-sm text-foreground-muted">
+              {t("noAccount")}{" "}
+              <Link href={signupHref} className="font-medium text-navy hover:underline dark:text-gold">
+                {t("signup")}
+              </Link>
+            </p>
+
+            <div className="my-6 flex items-center gap-3">
+              <Separator className="flex-1" />
+              <span className="text-xs text-foreground-muted">{t("orDemo")}</span>
+              <Separator className="flex-1" />
+            </div>
+
+            <DemoEntryButtons variant="login" />
+            <p className="mt-3 text-center text-xs text-foreground-muted">{t("demoNote")}</p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}

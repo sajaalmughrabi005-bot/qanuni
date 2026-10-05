@@ -1,0 +1,65 @@
+"use client";
+import { DataLoadError } from "@/components/shared/data-load-error";
+
+import { useTranslations } from "next-intl";
+import { Users } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/shared/empty-state";
+import { useCases } from "@/lib/data/hooks";
+import { initials } from "@/lib/utils";
+
+export default function ClientsPage() {
+  const t = useTranslations("lawyer.clients");
+  const { data: myCases , error: dataError0 } = useCases();
+
+  // Only cases the lawyer actually took on count as clients; pending/declined requests are not.
+  const clients = Array.from(
+    myCases
+      .filter((c) => c.clientId && c.status !== "requested" && c.status !== "rejected")
+      .reduce((map, c) => {
+      const existing = map.get(c.clientId as string) || { name: c.clientName, total: 0, active: 0, activeCaseId: undefined as string | undefined };
+      existing.total += 1;
+      if (c.status !== "closed") {
+        existing.active += 1;
+        existing.activeCaseId = existing.activeCaseId || c.id;
+      }
+      map.set(c.clientId as string, existing);
+      return map;
+    }, new Map<string, { name: string; total: number; active: number; activeCaseId?: string }>())
+  );
+
+  if(dataError0) return <DataLoadError/>;
+  return (
+    <div className="mx-auto max-w-4xl space-y-6">
+      <h1 className="text-2xl font-semibold">{t("title")}</h1>
+      {clients.length === 0 ? (
+        <EmptyState icon={Users} title={t("empty")} />
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {clients.map(([id, c]) => (
+            <Link key={id} href={`/lawyer/clients/${id}`}>
+              <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+                <CardContent className="flex items-center gap-3 p-4">
+                  <Avatar>
+                    <AvatarFallback>{initials(c.name)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="font-medium">{c.name}</p>
+                    <div className="mt-1 flex gap-3 text-xs text-foreground-muted">
+                      <span>{t("activeCases")}: {c.active}</span>
+                      <span>{t("totalCases")}: {c.total}</span>
+                    </div>
+                  </div>
+                  {c.active > 0 && <Badge variant="gold">{c.active}</Badge>}
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

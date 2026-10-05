@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict';
+import {buildAnalysisReport} from '../../src/lib/documents/report.ts';
+const document={id:'private-document-id',fileName:'<script>alert(1)</script> Mixed حق',documentType:'employment',citizenDescription:'حق 317',language:'ar'};
+const analysis={id:'private-analysis-id',createdAt:'2026-10-04T10:00:00Z',summaryAr:'ملخص 317',summaryEn:'Actual result 317',overallRisk:'unknown',legalSources:[{id:'invented-law'}],coverage:{analyzedCharacters:6,totalCharacters:6,isTruncated:false}};
+for(const name of ['yourObligations','otherPartyObligations','deadlines','paymentTerms','cancellationTerms','concerns','questionsForLawyer'])for(const lang of ['Ar','En'])analysis[name+lang]=['Long term '+('mixed حق 17 '.repeat(400))];
+const clauses=[{id:'private-clause-id',clauseNumber:'1',sourceText:'حق',sourceStart:0,sourceEnd:2,clauseTextAr:'translated',clauseTextEn:'translated',riskLevel:'unknown',explanationAr:'تفسير غير متحقق',explanationEn:'Unverified interpretation',legalSourceId:'invented-law'}];
+for(const lang of ['ar','en']){const html=buildAnalysisReport(document,analysis,clauses,lang,[],new Date('2026-10-04T10:00:00Z'));assert.ok(html.includes(lang==='ar'?'dir="rtl"':'dir="ltr"'));assert.ok(html.includes('317'));assert.ok(html.includes('حق'));assert.ok(!html.includes('private-document-id'));assert.ok(!html.includes('private-analysis-id'));assert.ok(!html.includes('private-clause-id'));assert.ok(!html.includes('invented-law'));assert.ok(!html.includes('<script>'));assert.ok(html.includes('&lt;script&gt;'));assert.ok(html.includes('break-after:avoid'));}
+console.log('report-tests: 20 assertions passed; current data, RTL/LTR, long text, safe escaping, no private IDs or invented references.');

@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {verifiedHighlights} from '../../src/lib/documents/highlights.ts';
+import {selectDocumentContext} from '../../src/lib/documents/context.ts';
+import {curatedSources,validateCitation} from '../../src/lib/legal/corpus.ts';
+import {retrieveLegalSources,cosine} from '../../src/lib/legal/retrieval.ts';
+const clause=(id,text,start,end)=>({id,sourceText:text,sourceStart:start,sourceEnd:end});
+assert.equal(verifiedHighlights('Rent 317.',[clause('a','Rent 317.',0,9)]).length,1);
+assert.equal(verifiedHighlights('Rent 317.',[clause('a','Rent 317.',1,9)]).length,0);
+assert.equal(verifiedHighlights('Pay. Pay.',[clause('a','Pay.',0,4)]).length,0);
+assert.equal(verifiedHighlights('Rent 317.',[clause('a','Rent 317.',0,9),clause('b','317',5,8)]).length,0);
+assert.equal(verifiedHighlights('حق 317',[clause('a','حق',0,2)]).length,1);
+const source=curatedSources[0];assert.equal(validateCitation(source.id,source.excerptAr,curatedSources).id,source.id);
+assert.equal(validateCitation('invented','made up',curatedSources),undefined);
+assert.equal(validateCitation(source.id,'changed quotation',curatedSources),undefined);
+assert.equal(validateCitation(source.id,source.excerptAr,[{...source,verified:false}]),undefined);
+const text=('Unrelated background section.\n').repeat(3000)+'FINAL SPECIAL TERM: refund on termination within 17 days.';
+const context=selectDocumentContext(text,'refund termination');assert.ok(context.text.includes('17 days'));assert.equal(context.partial,true);assert.equal(context.totalCharacters,text.length);assert.ok(context.includedCharacters<=32000);
+assert.equal(selectDocumentContext('short contract','refund').partial,false);assert.equal(cosine([1,0],[1,0]),1);assert.equal(cosine([1,0],[0,1]),0);
+const original=globalThis.fetch;process.env.OPENAI_API_KEY='mock-only';
+globalThis.fetch=async(_url,options)=>{const body=JSON.parse(options.body);assert.equal(body.store,undefined);return new Response(JSON.stringify({data:body.input.map((_,index)=>({index,embedding:Array(1536).fill(0)}))}));};
+try{assert.equal((await retrieveLegalSources('An employee waives annual leave.')).length,2);assert.equal((await retrieveLegalSources('Apartment paint colours')).length,0);}finally{globalThis.fetch=original;}
+console.log('context-and-citations-tests: 18 assertions passed (mocked embeddings; no legal applicability claim)');
