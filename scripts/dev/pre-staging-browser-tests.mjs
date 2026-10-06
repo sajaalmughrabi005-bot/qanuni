@@ -51,7 +51,10 @@ try{
  }
  for(const locale of ['en','ar']){
   const context=await browser.newContext({reducedMotion:'reduce'}),page=await context.newPage();await context.route(url=>url.hostname.endsWith('.supabase.co'),route=>route.abort());
-  await page.goto(`${base}/${locale}`);await page.locator('[data-legal-motion="reduced"]').waitFor();await page.getByRole('link',{name:messages(locale,'landing').hero.ctaSecondary,exact:true}).first().click();await page.waitForURL(`**/${locale}/lawyers`);assert.equal(await page.locator('[data-route-transition]').count(),0);console.log(`${locale}: reduced-motion navigation has no scale pulse PASS`);await context.close();
+  await page.goto(`${base}/${locale}`);await page.locator('[data-legal-motion="reduced"]').waitFor();
+  const staticCue=page.waitForFunction(()=>{const cue=document.querySelector('[data-route-transition][data-route-motion="reduced"]');return cue&&Number(getComputedStyle(cue).opacity)>.5&&cue.querySelector('[data-justice-scale]');});
+  await page.getByRole('link',{name:messages(locale,'landing').hero.ctaSecondary,exact:true}).first().click();await staticCue;await page.waitForURL(`**/${locale}/lawyers`);
+  await page.locator('[data-route-transition]').waitFor({state:'detached'});console.log(`${locale}: reduced-motion navigation shows static justice scale and clears after short fade PASS`);await context.close();
  }
  if(process.argv.includes('--live'))for(const locale of ['en','ar']){
   const ar=locale==='ar',context=await browser.newContext({viewport:{width:ar?390:1440,height:900},reducedMotion:'reduce'}),page=await context.newPage();let remote=0;const errors=[];
