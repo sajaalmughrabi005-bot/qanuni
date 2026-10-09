@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { NAVIGATION_START, type NavigationStart } from "@/lib/navigation-transition";
 
-const MIN_HOLD_MS = 450;
+const MIN_HOLD_MS = 250;
 const PENDING_TIMEOUT_MS = 5_000;
 
 /** Navigation-start visual; its timers/animation never control route rendering. */
@@ -35,7 +35,7 @@ export function RouteScaleTransition() {
       const navigation = active.current;
       element.dataset.routePhase = "fading";
       fading = animate(element, { opacity: 0 }, {
-        duration: reducedPreference.current ? 0.1 : 0.15,
+        duration: reducedPreference.current ? 0.067 : 0.1,
         onComplete: () => { if (active.current === navigation) hide(); },
       });
     };

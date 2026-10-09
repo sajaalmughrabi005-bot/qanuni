@@ -139,11 +139,11 @@ async function navigate(page, control, destination, label, reduced, locale, view
     assert.ok(arrival, 'Arrival must be observed while the overlay is visible.');
     // Slow routes must remain pending through arrival, rather than being hidden
     // prematurely to satisfy a fixed total-time assertion. Allow frame overhead.
-    const expected = Math.max(450, arrival.time - first.time) + (reduced ? 100 : 150);
-    assert.ok(duration >= 500 && duration <= expected + 160, `Observed cue ${duration} ms; arrival ${arrival.time - first.time} ms; expected approximately ${expected} ms.`);
+    const expected = Math.max(250, arrival.time - first.time) + (reduced ? 67 : 100);
+    assert.ok(duration >= 280 && duration <= expected + 160, `Observed cue ${duration} ms; arrival ${arrival.time - first.time} ms; expected approximately ${expected} ms.`);
     evidence.at(-1).timing = {visibleMs: duration, arrivalMs: arrival.time - first.time, expectedMs: expected};
     const opaque = shown.filter(frame => frame.opacity >= 0.99);
-    assert.ok(opaque.at(-1).time - opaque[0].time >= 400, 'Human-perceptible minimum solid-navy hold.');
+    assert.ok(opaque.at(-1).time - opaque[0].time >= 200, 'Human-perceptible minimum solid-navy hold.');
     if (holdResponse) assert.ok(shown.some(frame => frame.path === source && frame.phase === 'pending'), 'Painted overlay on source before arrival.');
     assert.ok(shown.some(frame => frame.path === destination), 'Destination renders while the balance is still visible.');
   }
