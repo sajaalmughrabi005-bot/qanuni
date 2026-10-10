@@ -18,8 +18,8 @@ export default function LawyerDashboardPage() {
   const locale = useLocale();
   const { profile } = useSession();
 
-  const { data: myCases , error: dataError0 } = useCases();
-  const { data: allAppointments , error: dataError1 } = useAppointments();
+  const { data: myCases , error: dataError0, loading: casesLoading } = useCases();
+  const { data: allAppointments , error: dataError1, loading: appointmentsLoading } = useAppointments();
 
   const newCases = myCases.filter((c) => c.status === "requested");
   const activeCases = myCases.filter((c) => ["accepted", "active", "waiting_for_client", "waiting_for_lawyer"].includes(c.status));
@@ -29,12 +29,21 @@ export default function LawyerDashboardPage() {
     .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
   if(dataError0 || dataError1) return <DataLoadError/>;
+  if(casesLoading || appointmentsLoading) return <p role="status">{locale === "ar" ? "جارٍ تحميل لوحة المحامي…" : "Loading lawyer dashboard…"}</p>;
   return (
     <div className="mx-auto max-w-6xl space-y-8">
       <div>
         <h1 className="text-2xl font-semibold">{t("welcome", { name: profile?.fullName.split(" ").slice(-1)[0] || "" })}</h1>
-        <p className="mt-1 text-foreground-muted">{t("subtitle")}</p>
+        <p className="mt-1 text-foreground-muted">{locale === "ar" ? "طلبات المواطنين ورسائلك وملفك المهني في مكان واضح." : "Citizen requests, messages and your professional profile in one clear place."}</p>
       </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        {[["/lawyer/requests", locale === "ar" ? "طلبات المواطنين" : "Citizen requests", locale === "ar" ? `${newCases.length} طلبات واردة` : `${newCases.length} incoming requests`], ["/lawyer/messages", locale === "ar" ? "الرسائل" : "Messages", locale === "ar" ? "تواصل ضمن مسار الطلبات الحالي" : "Communicate through the existing request workflow"], ["/lawyer/profile", locale === "ar" ? "الملف المهني" : "Professional profile", locale === "ar" ? "راجع معلوماتك وتخصصاتك وتوافرك" : "Review your details, specialties and availability"]].map(([href,label,description]) => <Link key={href} href={href} className="rounded-xl border border-border bg-surface p-5 hover:bg-surface-muted"><h2 className="font-semibold">{label}</h2><p className="mt-3 text-sm text-foreground-muted">{description}</p></Link>)}
+      </div>
+
+      <details className="rounded-xl border border-border p-4">
+        <summary className="cursor-pointer text-sm font-medium">{locale === "ar" ? "عرض أدوات العمل الإضافية الحالية" : "View existing additional workspace tools"}</summary>
+        <div className="mt-5 space-y-6">
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="border-gold/30">
@@ -95,6 +104,8 @@ export default function LawyerDashboardPage() {
       </div>
 
       <VoiceCommandWidget />
+        </div>
+      </details>
     </div>
   );
 }

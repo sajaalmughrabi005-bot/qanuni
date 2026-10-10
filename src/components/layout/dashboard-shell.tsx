@@ -32,9 +32,11 @@ export interface NavItem {
 
 export function DashboardShell({
   navItems,
+  secondaryNavItems = [],
   children,
 }: {
   navItems: NavItem[];
+  secondaryNavItems?: NavItem[];
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -74,6 +76,7 @@ export function DashboardShell({
             <Link
               key={item.href}
               href={item.href}
+              aria-current={active ? "page" : undefined}
               onClick={() => setOpen(false)}
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
@@ -85,6 +88,13 @@ export function DashboardShell({
             </Link>
           );
         })}
+        {secondaryNavItems.length > 0 && <details className="pt-2 text-white/80" open={secondaryNavItems.some(item => pathname === item.href || pathname.startsWith(item.href + "/")) || undefined}>
+          <summary className="cursor-pointer rounded-xl px-3 py-2.5 text-sm focus-visible:outline-2 focus-visible:outline-gold">{locale === "ar" ? "أدوات إضافية" : "Additional tools"}</summary>
+          <div className="mt-1 space-y-1">{secondaryNavItems.map(item => {
+            const active = pathname === item.href || pathname.startsWith(item.href + "/");
+            return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} onClick={() => setOpen(false)} className={cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm", active ? "bg-white/10 font-medium text-white" : "text-white/65 hover:bg-white/5 hover:text-white")}><item.icon className="h-4 w-4 text-gold/70"/>{item.label}</Link>;
+          })}</div>
+        </details>}
       </nav>
       <div className="border-t border-white/10 p-3">
         <button
