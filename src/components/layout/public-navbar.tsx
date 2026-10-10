@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useState } from "react";
 import { Scale, Menu, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -11,12 +11,14 @@ import { useSession } from "@/lib/auth/use-session";
 
 export function PublicNavbar() {
   const t = useTranslations("common");
+  const ar = useLocale() === "ar";
   const { session } = useSession();
   const [open, setOpen] = useState(false);
 
   const links = [
     { href: "/#how-it-works", label: t("nav.howItWorks") },
     { href: "/lawyers", label: t("nav.findLawyer") },
+    { href: "/enterprise", label: ar ? "حق للشركات" : "HAQ Enterprise" },
   ];
 
   return (
