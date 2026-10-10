@@ -156,7 +156,7 @@ export function DashboardShell({
         {isDemo && (
           <div role="status" className="flex flex-wrap items-center gap-3 border-b border-gold/40 bg-gold/15 px-4 py-2 text-sm sm:px-6">
             <FlaskConical className="h-4 w-4 shrink-0 text-gold" />
-            <span className="min-w-0 flex-1 font-medium">{tDemo("text")}</span>
+            <span className="min-w-0 basis-full font-medium sm:flex-1 sm:basis-0">{tDemo("text")}</span>
             <Button asChild size="sm" variant="gold">
               <Link href="/signup">{tDemo("signup")}</Link>
             </Button>

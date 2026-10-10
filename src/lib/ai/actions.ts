@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { ChatMessage, DocumentClause, DocumentType, ExtractedCaseData, LegalSource, Locale, UserRole } from "@/types";
 import { retrieveLegalSources } from "@/lib/legal/retrieval";
 import { validateCitation } from "@/lib/legal/corpus";
+import { selectScenarioEvidence } from "../legal/scenario-evidence";
 import { selectDocumentContext } from "@/lib/documents/context";
 import { checkProviderHealth, requestJSON, requestText, AIError } from "./provider";
 import { getAccessContext, getProfessionalAccessContext } from "@/lib/auth/access";
@@ -95,9 +96,13 @@ export async function askTheLawAction(params:QuestionParams) {
 export async function simulateScenarioAction(params:QuestionParams) {
   const access=await authorize(["citizen","lawyer"]);validateTextSize(params.question,4000);
   const context=await authorizedContext(params,access);
-  const res=await requestJSON({name:"scenario",schema:z.object({consequenceAr:z.string(),consequenceEn:z.string(),affectedClauseId:z.string().nullable(),questionsAr:z.array(z.string()),questionsEn:z.array(z.string())}),system:LEGAL_SYSTEM,
-    user:JSON.stringify({task:"Explain this hypothetical scenario, separating contract facts from assumptions, never a guaranteed legal outcome.",document:selectDocumentContext(context.text,params.question),clauseIds:context.clauseIds,question:params.question})});
-  return {...res,affectedClauseId:res.affectedClauseId&&context.clauseIds.includes(res.affectedClauseId)?res.affectedClauseId:undefined,source:"ai" as const};
+  const selected=selectDocumentContext(context.text,params.question);
+  const sources=selectScenarioEvidence(params.question,selected.text);
+  const res=await requestJSON({name:"scenario",schema:z.object({consequenceAr:z.string(),consequenceEn:z.string(),affectedClauseId:z.string().nullable(),questionsAr:z.array(z.string()),questionsEn:z.array(z.string()),citations:z.array(z.object({sourceId:z.string(),quote:z.string()}))}),system:LEGAL_SYSTEM,
+    user:JSON.stringify({task:"Explain this hypothetical scenario, separating document facts, hypothetical assumptions, legal-source text and uncertain interpretation. Never guarantee an outcome, invent deadlines, compensation, obligations, remedies or citations. If document.partial=true disclose that only retrieved sections were considered. Use previous turns only as context, not authoritative evidence. Cite only supplied excerpts with their exact full Arabic text. Missing evidence is unverified and needs professional review; absence from lexical retrieval does not establish absence in law. Selected Labour Law excerpts only, with later amendments, exceptions, event dates and applicability unverified. Do not cite other legislation.",locale:params.locale,document:selected,clauseIds:context.clauseIds,history:context.history,verifiedExcerpts:sources,question:params.question})});
+  const citations=res.citations.filter(c=>validateCitation(c.sourceId,c.quote,sources));
+  const sourceIds=[...new Set(citations.map(c=>c.sourceId))];
+  return {consequenceAr:res.consequenceAr,consequenceEn:res.consequenceEn,questionsAr:res.questionsAr,questionsEn:res.questionsEn,citations,sourceIds,affectedClauseId:res.affectedClauseId&&context.clauseIds.includes(res.affectedClauseId)?res.affectedClauseId:undefined,source:"ai" as const};
 }
 export async function extractCaseDataAction(text:string):Promise<ExtractedCaseData & {source:"ai"}> {
   await authorize(["lawyer"]);validateTextSize(text);

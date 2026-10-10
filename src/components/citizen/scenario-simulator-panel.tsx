@@ -8,29 +8,32 @@ import { FlaskConical, Sparkles } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { LegalEvidence } from "./legal-evidence";
 import { RiskBadge } from "@/components/shared/risk-badge";
 import { simulateScenarioAction } from "@/lib/ai/actions";
+import { readScenarioHistory } from "@/lib/ai/scenario-history";
 import { useSession } from "@/lib/auth/use-session";
 import { useAiHistory } from "@/lib/data/hooks";
 import { saveAiHistory } from "@/lib/data/actions";
 import { curatedSources as legalSources } from "@/lib/legal/corpus";
 import { useDemoStore } from "@/lib/demo/store";
-import { DocumentClause } from "@/types";
+import type { DocumentClause, DocumentType } from "@/types";
 
 interface ScenarioOutcome {
   question: string;
   consequence: string;
   affectedClause?: DocumentClause;
   questions: string[];
+  sourceIds: string[];
 }
 
-export function ScenarioSimulatorPanel({ clauses, documentId }: { clauses: DocumentClause[]; documentId?: string }) {
+export function ScenarioSimulatorPanel({ clauses, documentId, documentType }: { clauses: DocumentClause[]; documentId?: string; documentType?: DocumentType }) {
   const {session}=useSession();
-  return <ScopedScenarioPanel key={`${session?.userId}:${documentId||"general"}`} clauses={clauses} documentId={documentId}/>;
+  return <ScopedScenarioPanel key={`${session?.userId}:${documentId||"general"}`} clauses={clauses} documentId={documentId} documentType={documentType}/>;
 }
 
-function ScopedScenarioPanel({ clauses, documentId }: { clauses: DocumentClause[]; documentId?: string }) {
+function ScopedScenarioPanel({ clauses, documentId, documentType }: { clauses: DocumentClause[]; documentId?: string; documentType?: DocumentType }) {
   const t = useTranslations("citizen.scenario");
   const tAsk = useTranslations("citizen.askTheLaw");
   const locale = useLocale();
@@ -42,19 +45,24 @@ function ScopedScenarioPanel({ clauses, documentId }: { clauses: DocumentClause[
   const { data: history, refetch: refetchHistory, loading:historyLoading,error:historyError } = useAiHistory("scenario", documentId);
 
   const showSaved = (h: (typeof history)[number]) => {
-    const a = h.answer as { consequence?: string; affectedClauseId?: string; questions?: string[] };
+    const a = readScenarioHistory(h.answer, clauses.map(c => c.id));
+    if (!a) { toast.error(locale === "ar" ? "تعذر قراءة النتيجة المحفوظة؛ لم تُنشأ نتيجة بديلة." : "Unable to read the saved result; no substitute was generated."); return; }
     setResult({
       question: h.prompt,
       consequence: a.consequence ?? "",
       affectedClause: clauses.find((c) => c.id === a.affectedClauseId),
       questions: a.questions ?? [],
+      sourceIds: a.sourceIds ?? [],
     });
   };
 
-  const presets = ["leaveEarly", "notPay", "damage"] as const;
+  const presets = documentType === "employment"
+    ? locale === "ar" ? ["شو بصير لو صاحب العمل أنهى العقد؟", "شو بصير لو تركت الشغل قبل انتهاء العقد؟", "شو بصير لو تأخر راتبي؟"] : ["What if my employer ends the contract?", "What if I leave before the contract ends?", "What if my salary is delayed?"]
+    : documentType === "rental" ? [t("presets.leaveEarly"), t("presets.notPay"), t("presets.damage")]
+    : locale === "ar" ? ["شو بصير لو الطرف الآخر أنهى العقد؟", "شو بصير لو تأخر الدفع المذكور؟", "شو بصير لو اختلفنا على معنى البند؟"] : ["What if the other party ends the contract?", "What if the stated payment is delayed?", "What if we disagree on the clause meaning?"];
 
   const run = async (question: string) => {
-    if (loading) return;
+    if (loading || !question.trim() || question.length > 4000) return;
     setLoading(true);
     setResult(null);
     try {
@@ -71,6 +79,7 @@ function ScopedScenarioPanel({ clauses, documentId }: { clauses: DocumentClause[
       consequence: locale === "ar" ? res.consequenceAr : res.consequenceEn,
       affectedClause: clauses.find((c) => c.id === res.affectedClauseId),
       questions: locale === "ar" ? res.questionsAr : res.questionsEn,
+      sourceIds: res.sourceIds,
     };
     setResult(outcome);
 
@@ -81,7 +90,7 @@ function ScopedScenarioPanel({ clauses, documentId }: { clauses: DocumentClause[
         kind: "scenario",
         documentId,
         prompt: question,
-        answer: { consequence: outcome.consequence, affectedClauseId: res.affectedClauseId ?? null, questions: outcome.questions },
+        answer: { consequence: outcome.consequence, affectedClauseId: res.affectedClauseId ?? null, questions: outcome.questions, sourceIds: outcome.sourceIds, citations: res.citations },
       });
       if(saved.ok)await refetchHistory();
       else toast.warning(locale==="ar"?"تعذر حفظ النتيجة.":"Unable to save this result.");
@@ -94,24 +103,27 @@ function ScopedScenarioPanel({ clauses, documentId }: { clauses: DocumentClause[
     <div className="space-y-5">
       {historyError?<DataLoadError/>:historyLoading&&!history.length?<p role="status">{tCommon("loading")}</p>:null}
       <p className="text-sm text-foreground-muted">{t("subtitle")}</p>
+      <p role="note" className="rounded-lg bg-surface-muted p-3 text-sm">{locale === "ar" ? "حدد الافتراض الذي تريد فهمه. الإجابة تفسير آلي محتمل وليست توقعاً لقرار محكمة أو استحقاق تعويض. المصادر والتغطية قد تكون محدودة." : "State the assumption you want to explore. The answer is a possible AI interpretation, not a prediction of a court decision or compensation. Source coverage may be limited."}</p>
 
       <div className="grid gap-2 sm:grid-cols-3">
-        {presets.map((key) => (
+        {presets.map((question) => (
           <Button
-            key={key}
+            key={question}
             variant="outline"
             className="h-auto justify-start whitespace-normal py-3 text-start"
-            onClick={() => run(t(`presets.${key}`))}
+            onClick={() => run(question)}
             disabled={loading}
           >
             <FlaskConical className="h-4 w-4 shrink-0 text-gold" />
-            {t(`presets.${key}`)}
+            {question}
           </Button>
         ))}
       </div>
 
-      <div className="flex gap-2">
-        <Input value={custom} onChange={(e) => setCustom(e.target.value)} placeholder={t("customPlaceholder")} />
+      <div className="space-y-3">
+        <label htmlFor="scenario-question" className="block text-sm font-medium">{locale === "ar" ? "شو بصير لو…؟" : "What would happen if…?"}</label>
+        <Textarea id="scenario-question" value={custom} onChange={(e) => setCustom(e.target.value)} maxLength={4000} placeholder={t("customPlaceholder")} aria-describedby="scenario-question-limit" disabled={loading}/>
+        <p id="scenario-question-limit" className="text-xs text-foreground-muted">{locale === "ar" ? "اكتب سؤالاً محدداً عن المستند. بحد أقصى 4000 حرف." : "Ask a specific question about the document. Maximum 4000 characters."}</p>
         <Button onClick={() => custom.trim() && run(custom.trim())} disabled={!custom.trim() || loading}>
           {t("run")}
         </Button>
@@ -136,8 +148,8 @@ function ScopedScenarioPanel({ clauses, documentId }: { clauses: DocumentClause[
       )}
 
       {loading && (
-        <div className="flex items-center gap-2 text-sm text-foreground-muted">
-          <Sparkles className="h-4 w-4 animate-pulse text-gold" />
+        <div role="status" className="flex items-center gap-2 text-sm text-foreground-muted">
+          <Sparkles className="h-4 w-4 text-gold motion-safe:animate-pulse" />
           {t("run")}...
         </div>
       )}
@@ -147,7 +159,9 @@ function ScopedScenarioPanel({ clauses, documentId }: { clauses: DocumentClause[
           <CardContent className="space-y-3 p-5">
             <p className="text-xs font-medium uppercase tracking-wide text-gold">{t("disclaimer")}</p>
             <p className="text-sm font-medium">{result.question}</p>
-            <p className="text-sm text-foreground-muted">{result.consequence}</p>
+            <p className="whitespace-pre-wrap break-words text-sm text-foreground-muted">{result.consequence}</p>
+            {!result.sourceIds.length && <p role="note" className="text-sm">{locale === "ar" ? "لا يوجد استشهاد متحقق لهذه النتيجة؛ لا تفترض أنها حكم قانوني مدعوم." : "There is no checked citation for this result; do not assume it is a supported legal conclusion."}</p>}
+            <LegalEvidence sourceIds={result.sourceIds}/>
 
             {result.affectedClause && (
               <div className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2">

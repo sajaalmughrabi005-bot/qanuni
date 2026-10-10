@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { FileQuestion, Briefcase, FileWarning } from "lucide-react";
+import { FileQuestion, Briefcase } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -22,7 +22,7 @@ import { TermSimplifierCard } from "@/components/citizen/term-simplifier-card";
 import { CaseRequestDialog } from "@/components/cases/case-request-dialog";
 import { useLawyerDirectory } from "@/lib/auth/use-lawyer";
 import { DataLoadError } from "@/components/shared/data-load-error";
-import { RiskBadge } from "@/components/shared/risk-badge";
+import { ResultsSummary, ResultsFindings } from "@/components/citizen/results-brief";
 import { useScopedQuery } from "@/lib/data/use-scoped-query";
 import { useSession } from "@/lib/auth/use-session";
 import { matchLawyersToCase } from "@/lib/ai/engine";
@@ -41,6 +41,7 @@ export default function AnalysisResultsPage() {
   const demoLiveClauses = useDemoStore(s => s.clauses);
   const t = useTranslations("citizen.results");
   const [caseDialogOpen, setCaseDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("risk");
   const { session,loading:sessionLoading,isDemo: demoSession, profile } = useSession();
   const { lawyers,error:directoryError,loading:directoryLoading,refetch:retryDirectory } = useLawyerDirectory();
   // The bundled sample analysis is only reachable from the isolated demo, never from a real account.
@@ -80,44 +81,32 @@ export default function AnalysisResultsPage() {
 
   const riskOrder = { high: 0, unknown: 1, medium: 2, low: 3 };
   const sortedClauses = [...clauses].sort((a, b) => riskOrder[a.riskLevel] - riskOrder[b.riskLevel]);
-  const importantClauses = sortedClauses.filter(c=>c.riskLevel!=="low").slice(0,3);
   const ar=locale==="ar";
-  const concerns=ar?analysis.concernsAr:analysis.concernsEn;
   const questions=ar?analysis.questionsForLawyerAr:analysis.questionsForLawyerEn;
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <DocumentOverview document={document} />
-      <section aria-labelledby="result-explanation" className="rounded-2xl border border-border bg-surface p-5 sm:p-7">
-        <div className="flex flex-wrap items-center justify-between gap-3"><h1 id="result-explanation" className="text-xl font-semibold">{ar?"مستندك، بلغة واضحة":"Your document, in plain language"}</h1><RiskBadge level={analysis.overallRisk}/></div>
-        <p className="mt-4 whitespace-pre-wrap leading-relaxed">{ar?analysis.summaryAr:analysis.summaryEn}</p>
-      </section>
+      <ResultsSummary document={document} analysis={analysis} clauses={clauses}/>
+      <details className="rounded-xl border border-border p-4"><summary className="cursor-pointer font-medium">{ar?"معلومات المستند":"Document information"}</summary><div className="mt-4"><DocumentOverview document={document}/></div></details>
       <AiDisclaimer />
       <AnalysisExport document={document} analysis={analysis} clauses={clauses}/>
       {isSample && <p role="note">{locale === "ar" ? "مثال ثابت للتوضيح — ليس تحليلاً لمستندك." : "Static illustration — this is not an analysis of your document."}</p>}
-      {analysis.coverage?.isTruncated && (
-        <div className="flex items-start gap-2 rounded-xl border border-gold/25 bg-gold/5 px-3 py-2.5 text-xs text-foreground-muted">
-          <FileWarning className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold" />
-          <span>{t("partialCoverage", { percent: analysis.coverage.coveragePercent })}</span>
-        </div>
-      )}
 
-      <Tabs defaultValue="risk">
+
+      <div className="flex flex-wrap gap-3 text-sm"><button type="button" className="underline underline-offset-4" onClick={() => {
+        setActiveTab("risk");
+        requestAnimationFrame(() => window.document.getElementById("original-document")?.scrollIntoView());
+      }}>{ar?"عرض المستند الأصلي":"View original document"}</button><Link href="/lawyers" className="underline underline-offset-4">{ar?"تواصل مع محامٍ":"Contact a lawyer"}</Link></div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex-wrap">
           <TabsTrigger value="risk">{t("tabRisk")}</TabsTrigger>
           <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
-          <TabsTrigger value="ask">{t("tabAsk")}</TabsTrigger>
-          <TabsTrigger value="scenario">{t("tabScenario")}</TabsTrigger>
+          <TabsTrigger value="ask">{ar?"اسأل حق":t("tabAsk")}</TabsTrigger>
+          <TabsTrigger value="scenario">{ar?"شو بصير لو…؟":t("tabScenario")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="risk" className="space-y-6">
-          <section><h2 className="mb-3 text-base font-semibold">{ar?"أهم ما يحتاج انتباهك":"What needs your attention"}</h2>
-            {concerns.length?<ul className="space-y-2 text-sm">{concerns.slice(0,3).map((c,i)=><li key={i} className="border-s-2 border-gold ps-3">{c}</li>)}</ul>:<p className="text-sm text-foreground-muted">{ar?"راجع البنود أدناه. عدم ظهور ملاحظة لا يعني أن المستند خالٍ من المخاطر.":"Review the clauses below. An absence of flagged concerns does not establish that the document is risk-free."}</p>}
-          </section>
-          <div>
-            <h2 className="mb-3 text-base font-semibold">{t("clauseMap")}</h2>
-            {importantClauses.length?<ClauseMap clauses={importantClauses} documentText={document.citizenDescription} detailed/>:<p className="text-sm text-foreground-muted">{ar?"لم تُحدد بنود ذات أولوية؛ راجع جميع البنود في التفاصيل أدناه.":"No priority clauses were identified; review all clauses in the details below."}</p>}
-          </div>
+          <ResultsFindings document={document} analysis={analysis} clauses={clauses}/>
           <div className="rounded-2xl border border-border bg-surface p-5">
             <h2 className="mb-3 font-semibold">{ar?"خطوتك التالية":"Your next step"}</h2>
             <p className="mb-3 text-sm text-foreground-muted">{ar?"قارن الشرح بالنص الأصلي، واطلب توضيح البنود غير المفهومة. يمكن لمحامٍ مراجعة أثرها على ظروفك قبل التوقيع أو التصرف.":"Compare this explanation with the original and ask about unclear terms. A lawyer can review their effect on your circumstances before you sign or act."}</p>
@@ -133,7 +122,7 @@ export default function AnalysisResultsPage() {
           </div>
           <LegalEvidence sourceIds={(analysis.legalSources||[]).map(s=>s.id)}/>
           <details className="rounded-xl border border-border p-4"><summary className="cursor-pointer font-medium">{ar?"التفاصيل المتقدمة وجميع البنود":"Advanced details and all clauses"}</summary><div className="mt-5 space-y-5"><RiskOverview analysis={analysis}/><ClauseMap clauses={sortedClauses}/></div></details>
-          <SourceDocument document={document} clauses={clauses}/>
+          <div id="original-document"><SourceDocument document={document} clauses={clauses}/></div>
         </TabsContent>
         <TabsContent value="summary" className="space-y-4">
           <CaseUnderstanding analysis={analysis} />
@@ -143,7 +132,7 @@ export default function AnalysisResultsPage() {
           <AskTheLawPanel clauses={clauses} documentId={document.id} />
         </TabsContent>
         <TabsContent value="scenario">
-          <ScenarioSimulatorPanel clauses={clauses} documentId={document.id} />
+          <ScenarioSimulatorPanel clauses={clauses} documentId={document.id} documentType={document.documentType} />
         </TabsContent>
       </Tabs>
 
