@@ -1,0 +1,71 @@
+# HAQ V2 implementation tracker — 2026-10-10
+
+Baseline: `staging-prep`, `58399533d6dac6ac81fe42117884619613da90d0`. Main is unchanged at `db5bfb50785cf3d06f4256aceaa968b5d8755fa5`.
+
+Preexisting work preserved: modified IMPLEMENTATION_STATUS.md; untracked docs/CASE_REQUEST_WRAPPER_REPAIR.md, docs/MIGRATION_READINESS_AUDIT.md, scripts/dev/case-request-wrapper-patch-tests.mjs, supabase/patches/. Private initial hashes and original ledger backup: `%TEMP%/haq-v2-20261010-dB4zp2/baseline.json` and `status-original.md`. Pending repair files are excluded from all changes/commits/tests. The existing ledger is appended only and excluded from V2 commits to avoid committing prior work.
+
+Statuses: NOT STARTED / IN PROGRESS / IMPLEMENTED / TESTED / BLOCKED / DEFERRED. TESTED always has bounded evidence; it never implies real-account, provider, legal or hosted acceptance.
+
+| Phase | Status | Scope / evidence |
+|---|---|---|
+| 0 Safety/baseline | TESTED | Fresh lint/types/build exit 0 (83 pages), 18/18 non-SQL existing suites pass; five SQL suites skipped, not passed. Actual old-build ar/390 and en/1440 screenshots captured before UI replacement |
+| 1 Citizen results | TESTED | Fresh lint/types/build and actual demo browser ar/360/390 + en/390/1440 after banner/original-tab correction; twelve bilingual controlled render cases; actual-account integration not tested |
+| 2 Next Steps | TESTED | 24 pure cases, bilingual templates and identity/mapping/evidence/coverage guards; no LLM/legal remedies |
+| 3 What-if | TESTED | 14 mocked actual-action/history cases; actual built-app unavailable-provider recovery in 4 contexts and MOCK QA success/save/reopen in ar/390 + en/1440; no embeddings/second engine/fake fallback; real-provider/account outcomes unverified |
+| 4 Enterprise | TESTED | 11 schema cases; actual built-app ar/360/390 + en/390/1440 inquiry/6-scenario dashboard tests: production disabled, fictional validation only, zero submission POST, refresh clears form/list, derived counts, keyboard trace. Service fulfillment unavailable |
+| 5 Legislative impact | TESTED | 24 pure cases, six browser scenarios, 3-contract/4-clause fixture; broader live/legal/persistence integration unavailable |
+| 6 Lawyer focus | TESTED | Six primary links/eight preserved legacy links, dashboard/preview/reviews/messages/requests in ar/390 + en/1440 actual demo browsers; five read-only review adapter/render adverse cases; real-account DB integration unverified |
+| 7 Review/efficiency | TESTED | 92 new cases, 18 existing non-SQL suites, lint/types/build, 12 mock/demo browser groups, final contrast/hit-target and preservation checks; no new dependencies/model/provider or production readiness claim |
+| Remote submission/storage integration | BLOCKED | Database freeze; missing wrapper remains unresolved; no SQL or production requests |
+
+Baseline/final SQL suites BLOCKED by explicit database freeze: authz-tests, smoke, security-regression-tests, source-storage-tests, curated-source-tests. Full `npm run test:safe` is therefore not represented as passing. Other existing suites run individually with empty provider/Supabase credentials. No credentialed/live suites run.
+
+## Findings before implementation
+
+- Results currently show generic next-step copy, no per-finding evidence/action chain or actual total attention count. Coverage absent/invalid is not disclosed; only isTruncated is checked. Retain highlight validator instead of guessing original mappings.
+- What-if already reloads authorized document context and filters returned clause IDs, but its prompt does not include curated evidence although the general chat action does. Narrow grounding correction is authorized; no second engine or heuristic fallback.
+- Enterprise/impact types, engine and presentation are absent. Persistence, verified amendments, inquiries and legal approvals remain blocked or future integration.
+- Lawyer primary navigation currently emphasizes case/firm operations. Existing functionality must remain reachable, without inventing subscription entitlements.
+
+## Verification log
+
+Baseline logs: private evidence directory, `baseline-*.log`. Fresh `npm run lint` and `npx tsc --noEmit` also exit 0 after citizen/engine changes. `node scripts/dev/v2-next-steps-tests.mjs`: 22/22 synthetic cases pass. Includes wrong analysis/owner/clauses, malformed/unknown risk, partial/invalid/missing coverage, conflicting/forged sources, repeated/overlapping exact text, unsupported domain, duplicate counts and no invented numeric deadlines/remedies/references. New-build browser gate pending.
+
+Intermediate QA setup failures: Windows NODE_OPTIONS path escaping, then a missing closing brace in a private egress guard, then Playwright's absent default browser binary; corrected private harness to slash-normalized path, complete guard and installed Chrome (no new dependencies). First citizen browser attempt mistakenly tested the old baseline build with new selectors; timed out, not passed. Baseline screenshots then explicitly captured from that unchanged old build. Arabic strings inserted via a PowerShell pipe were corrupted to question marks; caught on immediate source inspection and restored via UTF-8 patch before new build/browser checks. No failed run is a passing gate.
+
+## Legal and safety boundaries
+
+Adversarial review: conflicting definitions of a clause ID now fail closed; alleged complete coverage with the wrong original character length is unknown. General analysis concerns are preserved in disclosure without double-counting clause findings or falsely asserting their absence. Saved What-if JSON is schema-checked and clause-scoped; source IDs alone cannot establish a checked citation, exact canonical quotes are required. Legacy saved results lacking quotes stay usable as explicitly unverified interpretations. Malformed impact provenance is marked missing rather than crashing. Punctuation-only phones are rejected. Normal-text demo brand label now uses foreground contrast with a gold border. New read-only lawyer review page tests verify target ID/session scope, RLS/query failure, load/error states, demo foreign-review isolation and escaped text/no self-review form.
+
+New feature suite counts after these adverse corrections: Next Steps 24, citizen renders 14, impact 24, inquiry 11, What-if 14, lawyer reviews 5 (92 total). Final repeated runs/gates and screenshots still pending. No provider/Supabase access is involved.
+
+Combined built-browser attempt: all four citizen/provider-unavailable flows and all four Enterprise inquiry/portfolio scenario flows passed, with zero outbound browser requests/page errors; the run then failed on a lawyer mobile strict selector that matched both hidden desktop and visible mobile summaries. Narrowed the test to the visible navigation; full rerun is required. This partial run is not a full-browser pass.
+
+Citizen initial browser matrix PASS: actual local built app in Arabic 360/390 and English 390/1440, normal/reduced motion; true three-visible-findings limit, missing coverage, unsupported rental evidence, native disclosure via keyboard, clause dialog and chat/scenario tabs, zero external traffic/page errors. First matrix assertion counted hidden native-details children; corrected to visible count, full rerun passes. Source inspection of screenshots found the inherited demo banner squeezing long Arabic into a narrow column at 360px; changed only mobile text basis to a full row in DashboardShell. Also made original-document action switch back from chat/scenario to the result tab before scrolling; follow-up browser/build gate pending. Twelve bilingual synthetic render cases pass for partial/unknown/empty/missing-source/escaped-markup/wrong-owner/top-three contracts. New code files: src/lib/legal/next-steps.ts, src/components/citizen/results-brief.tsx, existing results page, focused banner fix; three V2 test scripts so far.
+
+Impact engine: src/lib/impact/engine.ts and fixtures.ts; scripts/dev/v2-impact-tests.mjs passes 23 cases. No amendment/unrelated article, one-to-many/duplicates, missing/unsafe provenance, expired/superseded/future versions, unsupported jurisdiction/domain, invalid dependencies/dates/IDs, traceability and no automatic violation are tested. Pure status is potential_reassessment/not_reviewed; no authoritative law text, Gazette or URL exists in fixtures.
+
+Source-text verification is distinct from interpretation, temporal applicability and human legal review. Existing corpus covers selected Labour Law excerpts only; no broad Jordanian-law support, new legal source, remedy/deadline or compliance certification is claimed. All new impact scenarios are hypothetical synthetic material. No database/schema/patch/env changes, deployment, remote communications, billing or paid provider tests are authorized.
+
+## Local commits / next steps
+
+Verified local feature commits: `3e35ec4` pure impact engine; `d40b165` citizen results/Next Steps/grounded What-if/mobile banner; `0dbf75d` Enterprise intro/inquiry/portfolio. Lawyer commit and final documentation/checkpoint hashes are recorded in the final ledger/report/Git history. Only authored files were staged; the banner-only hunk was staged separately from lawyer navigation to preserve focused commits.
+
+Fresh final gate before the last visual review: lint/types/build exit 0, 91 pages; `npm run test:safe -- --no-db` exit 0, 24/29 suites pass with five explicit SQL skips. Six V2 suites total 92 cases. Full `v2-browser-tests.mjs --all` exit 0: four citizen/What-if error flows, four Enterprise flows and two lawyer flows, no external browser requests, page/hydration errors or horizontal overflow. Screenshots visually reviewed for Arabic citizen/Enterprise mobile and English Enterprise desktop. See private final-browser.log, browser-citizen.json, final-safe-runner.log and final-*.log.
+
+Additional actual-app success probe: `v2-scenario-browser-tests.mjs` exit 0 for ar/390 and en/1440. Private process-only harness redirects the existing provider transport to loopback :3016 with visibly labelled MOCK QA responses; all other egress prohibited, Supabase keys empty. Real server action -> synthetic fixture result -> in-memory saved scenario -> reopen; exactly one browser action POST per context, no further action on reopening, zero external traffic/page errors/overflow. No real provider success, legal accuracy or real account claim. Mock session state is held in memory, never saved as an artifact.
+
+Final screenshot review also found inherited white-on-gold citizen handoff buttons and a fixed assistant potentially covering the last What-if CTA. Narrow follow-up changes: navy text on these two controls, bottom clearance in the scenario panel. Add browser contrast >=4.5 and actual hit-target checks. Closeout gates/browser reruns are pending before committing these last changes.
+
+Milestone gate: sanitized lint/types/build and all 18 non-SQL existing suites exit 0 again (milestone-*.log). New inquiry tests validate local-only outcomes/field errors/limits/consent/contact preferences, never return private form values. What-if action tests verify real-context reload over forged browser inputs, denied/anonymous/wrong-role/oversize closure, exact allowlisted citations, existing authorized history and provider rejection; all transports are doubles, no SQL or paid call. First scenario test failed on a missing test dependency alias for the real context helper; corrected the dependency double, then all ten pass. No production authorization or schema change.
+
+Local commits: `3e35ec4` impact; `d40b165` citizen/Next Steps/What-if; `0dbf75d` Enterprise; `c3a0382` lawyer focus; `c8dfccc` citizen action contrast/clearance. Final documentation/browser/runner checkpoint is reported by Git/ledger/final response (a document cannot contain its own commit hash). All commits are local on staging-prep; no prior repair files/ledger work were staged.
+
+## Final closeout
+
+- Fresh `closeout-*.log`: lint/types/build exit 0, 91 pages; 18/18 existing non-SQL suites pass again. Last literal npm run lint also exits 0 after browser-script additions. Full flagged runner (`npm run test:safe -- --no-db`) exits 0 again: 24/29 suites pass, 5 explicitly skipped; six V2 suites = 92 cases.
+- `closeout-browser.log`: all four citizen/What-if error + four Enterprise + two lawyer groups pass again, including citizen gold handoff contrast >=4.5. `closeout-scenario-mock-browser.log`: both ar/390 and en/1440 success/history groups pass again, including What-if action contrast >=4.5 and actual center hit-target not covered by the fixed assistant. The two visually inspected handoff controls now use navy text, scenario footer has 80px clearance. No application changes followed the passing build/tests/browser checks.
+- Actual before/after screenshot names and scope are in HAQ_V2_LOCAL_REPORT.md, section F; private `%TEMP%/haq-v2-20261010-dB4zp2`. Screenshot review is visual inspection of automated Chrome output, not owner manual approval or physical mobile/screen-reader acceptance.
+- Private safety evidence verifies 11 frozen/preexisting files, original ledger prefix and main; authored/client scan reports zero privileged values. Final snapshot repeats preservation after commits. No SQL, remote writes, paid provider, deployment, push, merge or main operation. Own QA :3015/:3016 listeners stopped; owner's :3000 untouched.
+- BLOCKED: real case wrapper/storage/database integration, Enterprise backend/tenant/version persistence/monitoring, live provider/registered workflows and hosted acceptance. DEFERRED: amendment upload parser, citizen monitoring opt-in, billing and broad cleanup. Legal expert/owner service/terms decisions remain required. Readiness is bounded LOCAL IMPLEMENTED/TESTED, never production/legal certification.
+- One next action: review synthetic employment finding/source/next-step chains with a Jordanian legal professional, then refine reviewed templates within the freeze. Future tenant/source/review/queue adapters must preserve server authorization, provenance and privacy; no schema has been proposed/applied in this task.
