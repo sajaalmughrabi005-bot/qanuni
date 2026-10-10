@@ -115,7 +115,7 @@ export default function AnalysisResultsPage() {
             {directoryError?<div className="mt-4"><DataLoadError onRetry={retryDirectory}/></div>:directoryLoading?<p role="status" className="mt-3 text-sm">{ar?"جارٍ تحميل المحامين…":"Loading lawyers…"}</p>:null}
             <p className="mt-3 font-semibold">{t("createCase")}</p>
             <p className="mt-1 text-sm text-foreground-muted">{t("createCaseDesc")}</p>
-            <Button variant="gold" className="mt-4" onClick={() => setCaseDialogOpen(true)}>
+            <Button variant="gold" className="mt-4 text-navy" onClick={() => setCaseDialogOpen(true)}>
               <Briefcase className="h-4 w-4" />
               {t("createCase")}
             </Button>

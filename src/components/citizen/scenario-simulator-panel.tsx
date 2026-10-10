@@ -100,7 +100,7 @@ function ScopedScenarioPanel({ clauses, documentId, documentType }: { clauses: D
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 pb-20">
       {historyError?<DataLoadError/>:historyLoading&&!history.length?<p role="status">{tCommon("loading")}</p>:null}
       <p className="text-sm text-foreground-muted">{t("subtitle")}</p>
       <p role="note" className="rounded-lg bg-surface-muted p-3 text-sm">{locale === "ar" ? "حدد الافتراض الذي تريد فهمه. الإجابة تفسير آلي محتمل وليست توقعاً لقرار محكمة أو استحقاق تعويض. المصادر والتغطية قد تكون محدودة." : "State the assumption you want to explore. The answer is a possible AI interpretation, not a prediction of a court decision or compensation. Source coverage may be limited."}</p>
@@ -183,7 +183,7 @@ function ScopedScenarioPanel({ clauses, documentId, documentType }: { clauses: D
               </div>
             )}
 
-            <Button asChild size="sm" variant="gold">
+            <Button asChild size="sm" variant="gold" className="text-navy">
               <Link href="/lawyers">{tAsk("talkToLawyer")}</Link>
             </Button>
           </CardContent>
