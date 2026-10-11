@@ -15,7 +15,7 @@ export function SourceDocument({document,clauses}:{document:LegalDocument;clause
  const ar=useLocale()==="ar",{isDemo}=useSession();const [selected,setSelected]=useState<DocumentClause|null>(null),[busy,setBusy]=useState(false);
  const text=document.citizenDescription||"", mapped=verifiedHighlights(text,clauses);
  const pieces=[];let end=0;
- for(const c of mapped) {pieces.push(<span key={`text-${c.id}`}>{text.slice(end,c.sourceStart)}</span>);pieces.push(<button key={c.id} onClick={()=>setSelected(c)} className="rounded bg-gold/20 text-start underline decoration-dotted underline-offset-4 focus-visible:ring-2 focus-visible:ring-gold" title={`${ar?"تقييم آلي غير متحقق":"Unverified AI risk"}: ${c.riskLevel}`} aria-label={`${ar?"البند":"Clause"} ${c.clauseNumber}: ${c.riskLevel}`}><mark className="bg-transparent text-inherit">{c.sourceText}</mark></button>);end=c.sourceEnd!;}
+ for(const c of mapped) {pieces.push(<span key={`text-${c.id}`}>{text.slice(end,c.sourceStart)}</span>);pieces.push(<button key={c.id} data-source-clause={c.id} onClick={()=>setSelected(c)} className="rounded bg-gold/20 text-start underline decoration-dotted underline-offset-4 focus-visible:ring-2 focus-visible:ring-gold" title={`${ar?"تقييم آلي غير متحقق":"Unverified AI risk"}: ${c.riskLevel}`} aria-label={`${ar?"البند":"Clause"} ${c.clauseNumber}: ${c.riskLevel}`}><mark className="bg-transparent text-inherit">{c.sourceText}</mark></button>);end=c.sourceEnd!;}
  pieces.push(<span key="tail">{text.slice(end)}</span>);
  const download=async()=>{setBusy(true);try {
   const file=isDemo?useDemoStore.getState().sourceFiles[document.id]:undefined;

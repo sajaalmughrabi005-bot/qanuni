@@ -7,7 +7,6 @@ import { FileQuestion, Briefcase } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
-import { AiDisclaimer } from "@/components/shared/ai-disclaimer";
 import { AnalysisExport } from "@/components/citizen/analysis-export";
 import { SourceDocument } from "@/components/citizen/source-document";
 import { Link } from "@/i18n/navigation";
@@ -31,6 +30,8 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { mapAnalysis, mapClause, mapDocument } from "@/lib/supabase/mappers";
 import { demoAnalysis, demoClauses, demoDocument, DEMO_DOCUMENT_ID } from "@/lib/mock-data";
 import { useDemoStore } from "@/lib/demo/store";
+import { deriveNextSteps, stepText } from "@/lib/legal/next-steps";
+import { curatedSources } from "@/lib/legal/corpus";
 import type { Analysis, DocumentClause, LegalDocument } from "@/types";
 
 export default function AnalysisResultsPage() {
@@ -83,20 +84,31 @@ export default function AnalysisResultsPage() {
   const sortedClauses = [...clauses].sort((a, b) => riskOrder[a.riskLevel] - riskOrder[b.riskLevel]);
   const ar=locale==="ar";
   const questions=ar?analysis.questionsForLawyerAr:analysis.questionsForLawyerEn;
+  const nextSteps = deriveNextSteps(document, analysis, clauses, curatedSources);
+  // Presentation only: native disclosure reveals the existing viewer. Focus a clause
+  // only if that viewer's unchanged exact-text validator actually rendered its marker.
+  const viewOriginal = (clause?: DocumentClause) => {
+    setActiveTab("risk");
+    requestAnimationFrame(() => {
+      const original = window.document.getElementById("original-document") as HTMLDetailsElement | null;
+      if (!original) return;
+      original.open = true;
+      const match = clause && Array.from(original.querySelectorAll<HTMLButtonElement>("[data-source-clause]")).find(node => node.dataset.sourceClause === clause.id);
+      const target = match || original.querySelector("summary");
+      target?.scrollIntoView({ block: "center" });
+      target?.focus({ preventScroll: true });
+    });
+  };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <ResultsSummary document={document} analysis={analysis} clauses={clauses}/>
       <details className="rounded-xl border border-border p-4"><summary className="cursor-pointer font-medium">{ar?"معلومات المستند":"Document information"}</summary><div className="mt-4"><DocumentOverview document={document}/></div></details>
-      <AiDisclaimer />
       <AnalysisExport document={document} analysis={analysis} clauses={clauses}/>
       {isSample && <p role="note">{locale === "ar" ? "مثال ثابت للتوضيح — ليس تحليلاً لمستندك." : "Static illustration — this is not an analysis of your document."}</p>}
 
 
-      <div className="flex flex-wrap gap-3 text-sm"><button type="button" className="underline underline-offset-4" onClick={() => {
-        setActiveTab("risk");
-        requestAnimationFrame(() => window.document.getElementById("original-document")?.scrollIntoView());
-      }}>{ar?"عرض المستند الأصلي":"View original document"}</button><Link href="/lawyers" className="underline underline-offset-4">{ar?"تواصل مع محامٍ":"Contact a lawyer"}</Link></div>
+      <div className="text-sm"><button type="button" className="underline underline-offset-4" onClick={() => viewOriginal()}>{ar?"عرض المستند الأصلي":"View original document"}</button></div>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex-wrap">
           <TabsTrigger value="risk">{t("tabRisk")}</TabsTrigger>
@@ -106,23 +118,26 @@ export default function AnalysisResultsPage() {
         </TabsList>
 
         <TabsContent value="risk" className="space-y-6">
-          <ResultsFindings document={document} analysis={analysis} clauses={clauses}/>
-          <div className="rounded-2xl border border-border bg-surface p-5">
-            <h2 className="mb-3 font-semibold">{ar?"خطوتك التالية":"Your next step"}</h2>
-            <p className="mb-3 text-sm text-foreground-muted">{ar?"قارن الشرح بالنص الأصلي، واطلب توضيح البنود غير المفهومة. يمكن لمحامٍ مراجعة أثرها على ظروفك قبل التوقيع أو التصرف.":"Compare this explanation with the original and ask about unclear terms. A lawyer can review their effect on your circumstances before you sign or act."}</p>
-            {questions.length>0&&<details className="mb-4 text-sm"><summary className="cursor-pointer">{t("questionsForLawyer")}</summary><ul className="mt-3 list-disc space-y-2 ps-5">{questions.map((q,i)=><li key={i}>{q}</li>)}</ul></details>}
-            <Button asChild variant="outline"><Link href="/lawyers">{locale === "ar" ? "\u0627\u0628\u062d\u062b \u0639\u0646 \u0645\u062d\u0627\u0645\u064d" : "Find a lawyer"}</Link></Button>
+          <ResultsFindings document={document} analysis={analysis} clauses={clauses} onViewOriginalAction={viewOriginal}/>
+          <section data-next-actions className="rounded-xl border border-border bg-surface p-4 sm:p-5">
+            <h2 className="text-base font-semibold">{ar?"خطوتك التالية":"Your next step"}</h2>
+            <ul className="mt-3 list-disc space-y-2 ps-5 text-sm text-foreground-muted">{nextSteps.generalSteps.filter(s => s.category !== "information").map(s => <li key={s.category}>{stepText(s, ar ? "ar" : "en")}</li>)}
+              {!nextSteps.generalSteps.some(s => s.category === "professional_review") && <li>{ar ? "ناقش البنود وأثرها على ظروفك مع محامٍ قبل اتخاذ قرار." : "Discuss these clauses and their effect on your circumstances with a lawyer before deciding."}</li>}
+            </ul>
+            <details className="mt-3 text-sm"><summary className="cursor-pointer font-medium">{ar ? "أسئلة وخيارات التواصل" : "Questions and contact options"}</summary>
+              {questions.length>0&&<div className="mt-3"><h3 className="font-medium">{t("questionsForLawyer")}</h3><ul className="mt-2 list-disc space-y-2 ps-5">{questions.map((q,i)=><li key={i}>{q}</li>)}</ul></div>}
+              <Link href="/lawyers" className="mt-3 inline-block underline underline-offset-4">{ar ? "تصفح دليل المحامين" : "Browse the lawyer directory"}</Link>
+            </details>
             {directoryError?<div className="mt-4"><DataLoadError onRetry={retryDirectory}/></div>:directoryLoading?<p role="status" className="mt-3 text-sm">{ar?"جارٍ تحميل المحامين…":"Loading lawyers…"}</p>:null}
-            <p className="mt-3 font-semibold">{t("createCase")}</p>
-            <p className="mt-1 text-sm text-foreground-muted">{t("createCaseDesc")}</p>
+            <p className="mt-3 text-xs text-foreground-muted">{t("createCaseDesc")}</p>
             <Button variant="gold" className="mt-4 text-navy" onClick={() => setCaseDialogOpen(true)}>
               <Briefcase className="h-4 w-4" />
               {t("createCase")}
             </Button>
-          </div>
+          </section>
           <LegalEvidence sourceIds={(analysis.legalSources||[]).map(s=>s.id)}/>
           <details className="rounded-xl border border-border p-4"><summary className="cursor-pointer font-medium">{ar?"التفاصيل المتقدمة وجميع البنود":"Advanced details and all clauses"}</summary><div className="mt-5 space-y-5"><RiskOverview analysis={analysis}/><ClauseMap clauses={sortedClauses}/></div></details>
-          <div id="original-document"><SourceDocument document={document} clauses={clauses}/></div>
+          <details id="original-document" className="rounded-xl border border-border bg-surface p-4"><summary className="cursor-pointer font-medium">{ar ? "النص الأصلي والتظليل" : "Original text and highlights"}</summary><div className="mt-4"><SourceDocument document={document} clauses={clauses}/></div></details>
         </TabsContent>
         <TabsContent value="summary" className="space-y-4">
           <CaseUnderstanding analysis={analysis} />

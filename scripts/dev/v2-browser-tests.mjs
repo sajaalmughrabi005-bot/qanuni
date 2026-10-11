@@ -34,7 +34,7 @@ try {
   assert.ok(await page.locator('[data-step-category="unsupported_action"]').count()>0);
   const caseAction=page.locator('main button.bg-gold').first();
   const contrast=await caseAction.evaluate(node=>{const css=getComputedStyle(node),rgb=c=>c.match(/[\d.]+/g).slice(0,3).map(Number),lum=c=>rgb(c).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);const a=lum(css.color),b=lum(css.backgroundColor);return(Math.max(a,b)+.05)/(Math.min(a,b)+.05);});assert.ok(contrast>=4.5,'Citizen handoff action readable contrast');
-  const more=page.locator('[data-more-findings] summary');
+  const more=page.locator('[data-more-findings] > summary');
   if(await more.count()){await more.focus();await page.keyboard.press('Enter');assert.ok(await page.locator('[data-action-finding]:visible').count()>count);}
   await noOverflow();await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:path.join(out,`citizen-${locale}-${width}-${reducedMotion}.png`),fullPage:true});
   await page.screenshot({path:path.join(out,`citizen-viewport-${locale}-${width}-${reducedMotion}.png`)});
