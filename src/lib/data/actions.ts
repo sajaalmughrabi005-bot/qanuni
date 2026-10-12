@@ -7,6 +7,7 @@ import { isDemoActive } from "@/lib/demo/mode";
 import { isGovernorate } from "@/lib/governorates";
 import { useDemoStore } from "@/lib/demo/store";
 import { DEMO_LAWYER_ID } from "@/lib/demo/lawyers";
+import { operationFailure } from "./operation-failure";
 import type {
   Analysis,
   Appointment,
@@ -58,14 +59,20 @@ export async function createDraftDocument(input: {
   language: Locale;
   citizenDescription?: string;
 }): Promise<string | null> {
+  const result = await createDraftDocumentResult(input);
+  return result.ok ? result.data : null;
+}
+
+/** Detailed upload adapter; legacy nullable callers remain compatible. */
+export async function createDraftDocumentResult(input: Parameters<typeof createDraftDocument>[0]): Promise<ActionResult<string>> {
   if (isDemoActive()) {
     const id = input.id || crypto.randomUUID();
-    if(useDemoStore.getState().documents.some(d=>d.id===id))return id;
+    if(useDemoStore.getState().documents.some(d=>d.id===id))return ok(id);
     useDemoStore.getState().addDocument({ id, ...input, status: "processing", createdAt: new Date().toISOString() });
-    return id;
+    return ok(id);
   }
   const result=await createCitizenDocumentAction({...input,id:input.id||crypto.randomUUID(),citizenDescription:input.citizenDescription||""});
-  return result.ok?result.id:null;
+  return result.ok ? ok(result.id) : fail(result.error);
 }
 
 /** Persists the AI-produced clauses + analysis against a real document id, then marks the document analyzed. */
@@ -75,17 +82,25 @@ export async function finalizeDocumentAnalysis(
   clauses: DocumentClause[],
   analysis: Omit<Analysis, "id" | "documentId" | "userId" | "createdAt"> & {detectedDocumentType?:DocumentType}
 ): Promise<boolean> {
+  return (await finalizeDocumentAnalysisResult(documentId, userId, clauses, analysis)).ok;
+}
+
+/** Preserve atomic RPC/idempotency semantics; a failure never means cleanup is safe. */
+export async function finalizeDocumentAnalysisResult(
+  ...[documentId, userId, clauses, analysis]: Parameters<typeof finalizeDocumentAnalysis>
+): Promise<ActionResult> {
   if (isDemoActive()) {
     if(analysis.detectedDocumentType) useDemoStore.setState(s=>({documents:s.documents.map(d=>d.id===documentId?{...d,documentType:analysis.detectedDocumentType!}:d)}));
-    if (!useDemoStore.getState().documents.some(d => d.id === documentId)) return false;
+    if (!useDemoStore.getState().documents.some(d => d.id === documentId)) return fail("document_not_found");
     useDemoStore.getState().saveAnalysis(documentId, clauses, { ...analysis, id: crypto.randomUUID(), documentId, userId, createdAt: new Date().toISOString() });
-    return true;
+    return ok(undefined);
   }
   const supabase = createSupabaseBrowserClient();
-  if (!supabase) return false;
+  if (!supabase) return noClient();
 
-  const { error } = await supabase.rpc("finalize_document_analysis", { p_document_id: documentId, p_clauses: clauses, p_analysis: analysis });
-  return !error;
+  const { data, error } = await supabase.rpc("finalize_document_analysis", { p_document_id: documentId, p_clauses: clauses, p_analysis: analysis });
+  if (error) return fail(operationFailure(error, "analysis_save_failed"));
+  return typeof data === "string" && data.trim() ? ok(undefined) : fail("analysis_save_unconfirmed");
 }
 
 export async function deleteDocument(documentId: string): Promise<void> {
@@ -125,8 +140,13 @@ export async function requestCase(input: RequestCaseInput): Promise<ActionResult
   if (!supabase) return noClient();
   const { submissionKey, ...request } = input;
   const { data, error } = await supabase.rpc("request_case_once", { p_key: submissionKey || crypto.randomUUID(), p_request: request });
-  if (error) return dbError(error);
-  return ok(data as string);
+  if (error) {
+    const category = operationFailure(error);
+    return category === "unknown" ? dbError(error) : fail(category);
+  }
+  // A successful HTTP response without a case ID is not successful submission.
+  if (typeof data !== "string" || !data.trim()) return fail("submission_uncertain");
+  return ok(data);
 }
 
 export async function respondToCase(

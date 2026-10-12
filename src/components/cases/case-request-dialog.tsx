@@ -40,7 +40,7 @@ export interface CaseRequestPrefill {
 
 /**
  * The core citizen -> lawyer request form. Creates a REAL case through the
- * request_case RPC: the client is the signed-in citizen and the lawyer is the
+ * request_case_once RPC: the client is the signed-in citizen and the lawyer is the
  * one chosen here, both validated by the database — nothing identity-related
  * is trusted from the browser.
  */
@@ -84,6 +84,8 @@ function ScopedCaseRequestDialog({
   const [message, setMessage] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const submitBusy = useRef(false);
   const submission = useRef<{ key: string; content: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -115,12 +117,16 @@ function ScopedCaseRequestDialog({
   };
 
   const submit = async () => {
-    if (!canSubmit || !selectedLawyer) return;
+    if (!canSubmit || !selectedLawyer || submitBusy.current) return;
+    submitBusy.current = true;
     setBusy(true);
+    setSubmitError(null);
+    // Key creation belongs inside recovery: an unavailable crypto API must not
+    // strand the form. Unchanged retries reuse the key, never fall back to legacy RPC.
+    try {
     const linkedPrefill = prefill && documentId === prefill.document.id ? prefill : undefined;
     const fingerprint = JSON.stringify({ lawyerId: selectedLawyer.id, title, category, description, urgency, documentId, message });
     if (!submission.current || submission.current.content !== fingerprint) submission.current = { key: crypto.randomUUID(), content: fingerprint };
-    try {
     const res = await requestCase({
       submissionKey: submission.current.key,
       lawyerId: selectedLawyer.id,
@@ -141,7 +147,7 @@ function ScopedCaseRequestDialog({
     });
     if (!res.ok) {
       setBusy(false);
-      toast.error(t(`errors.${errorKey(res.error)}` as "errors.unknown"));
+      setSubmitError(t(`errors.${errorKey(res.error)}` as "errors.unknown"));
       return;
     }
     let uploadFailed = false;
@@ -154,7 +160,7 @@ function ScopedCaseRequestDialog({
     else toast.success(t("request.success"));
     onOpenChange(false);
     router.push(`/citizen/cases/${res.data}`);
-    } catch { toast.error(t("errors.unknown")); } finally { setBusy(false); }
+    } catch { setSubmitError(t("errors.unknown")); } finally { setBusy(false); submitBusy.current = false; }
   };
 
   // ---- gates: sign-in and role ----
@@ -198,6 +204,7 @@ function ScopedCaseRequestDialog({
         </DialogHeader>
 
         <div className="space-y-4">
+          {submitError && <p role="alert" className="rounded-lg border border-border p-3 text-sm">{submitError}</p>}
           {isDemo && (
             <p className="rounded-lg bg-gold/10 px-3 py-2 text-xs text-gold">
               {locale === "ar" ? "نسخة تجريبية: لن يُرسل هذا الطلب لأي محامٍ حقيقي." : "Demo: this request will not be sent to any real lawyer."}

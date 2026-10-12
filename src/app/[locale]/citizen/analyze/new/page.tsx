@@ -13,7 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { useSession } from "@/lib/auth/use-session";
-import { createDraftDocument, finalizeDocumentAnalysis } from "@/lib/data/actions";
+import { createDraftDocumentResult, finalizeDocumentAnalysisResult } from "@/lib/data/actions";
+import { uploadFailureMessage } from "@/lib/data/operation-failure";
 import { storeCitizenSourceAction } from "@/lib/documents/storage-actions";
 import { useDemoStore } from "@/lib/demo/store";
 import { analyzeDocumentAction } from "@/lib/ai/actions";
@@ -45,6 +46,8 @@ export default function NewAnalysisPage() {
   const cameraInputRef=useRef<HTMLInputElement>(null);
   const pendingDocument = useRef<{text:string;id:string;fingerprint:string} | null>(null);
   const analysisBusy=useRef(false);
+  const [failure, setFailure] = useState<string | null>(null);
+  const [extractedFileText, setExtractedFileText] = useState<string | null>(null);
 
   const openSample = () => {
     router.push(`/citizen/analyze/${DEMO_DOCUMENT_ID}`);
@@ -83,6 +86,8 @@ export default function NewAnalysisPage() {
       }
       setFile(f);
       setPastedText(result.text);
+      setExtractedFileText(result.text.trim());
+      setFailure(null);
       if(result.warningAr || result.warningEn) toast.warning(locale === "ar" ? result.warningAr : result.warningEn);
     } catch {
       // extractTextFromFileAction is designed to always return a typed
@@ -103,6 +108,8 @@ export default function NewAnalysisPage() {
     analysisBusy.current=true;
     setPhase("processing");
     setStepIndex(0);
+    setFailure(null);
+    let stage: "draft" | "source" | "analysis" | "save" = "draft";
     try {
 
     const fileName = file?.name || (locale === "ar" ? "مستند-ملصق.txt" : "pasted-document.txt");
@@ -110,7 +117,7 @@ export default function NewAnalysisPage() {
 
     const fingerprint=JSON.stringify({text,fileName,size:file?.size,lastModified:file?.lastModified});
     if(pendingDocument.current?.fingerprint!==fingerprint) pendingDocument.current={id:crypto.randomUUID(),text,fingerprint};
-    const documentId = await createDraftDocument({
+    const draft = await createDraftDocumentResult({
       id:pendingDocument.current.id,
       userId: session.userId,
       fileName,
@@ -118,18 +125,21 @@ export default function NewAnalysisPage() {
       language: locale as "ar" | "en",
       citizenDescription: pastedText.trim() || undefined,
     });
-    if (!documentId) {
+    if (!draft.ok) {
       setPhase("form");
-      toast.error(locale === "ar" ? "تعذر حفظ المستند. حاول مرة أخرى." : "Couldn't save the document. Please try again.");
+      setFailure(uploadFailureMessage(stage, draft.error, locale === "ar"));
       return;
     }
+    const documentId = draft.data;
 
     pendingDocument.current = { text: pastedText.trim(), id: documentId, fingerprint };
     if(file) {
+      stage = "source";
       if(isDemo) useDemoStore.getState().setSourceFile(documentId,file);
       else { const fd=new FormData();fd.set("file",file);const stored=await storeCitizenSourceAction(documentId,fd);if(!stored.ok) throw new Error(stored.error); }
     }
     setStepIndex(1);
+    stage = "analysis";
 
     const result = await analyzeDocumentAction({
       text,
@@ -146,20 +156,21 @@ export default function NewAnalysisPage() {
 
     if (result.status !== "ok") {
       setPhase("form");
-      toast.error(locale === "ar" ? result.reasonAr : result.reasonEn);
+      setFailure(locale === "ar" ? result.reasonAr : result.reasonEn);
       return;
     }
 
     setStepIndex(2);
-    const saved = await finalizeDocumentAnalysis(documentId, session.userId, result.clauses, { ...result.analysis, detectedDocumentType:result.documentType });
-    if (!saved) {
+    stage = "save";
+    const saved = await finalizeDocumentAnalysisResult(documentId, session.userId, result.clauses, { ...result.analysis, detectedDocumentType:result.documentType });
+    if (!saved.ok) {
       setPhase("form");
-      toast.error(locale === "ar" ? "تعذر حفظ نتيجة التحليل. حاول مرة أخرى." : "Couldn't save the analysis. Please try again.");
+      setFailure(uploadFailureMessage(stage, saved.error, locale === "ar"));
       return;
     }
 
     router.push(`/citizen/analyze/${documentId}`);
-    } catch { toast.error(locale === "ar" ? "تعذر إتمام العملية. النص محفوظ في النموذج؛ حاول مجدداً." : "Unable to finish. Your text is retained in the form; please retry."); } finally { analysisBusy.current=false; setPhase("form"); }
+    } catch (cause) { setFailure(uploadFailureMessage(stage, cause instanceof Error ? cause.message : "unknown", locale === "ar")); } finally { analysisBusy.current=false; setPhase("form"); }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -204,6 +215,8 @@ export default function NewAnalysisPage() {
 
       <Card>
         <CardContent className="space-y-5 p-6">
+          {failure && <p role="alert" className="rounded-lg border border-border p-3 text-sm">{failure}</p>}
+          {file && extractedFileText !== pastedText.trim() && <p data-edited-file-text role="note" className="text-sm text-foreground-muted">{locale === "ar" ? "النص المستخرج عُدّل. راجع التصحيحات مقابل الملف الأصلي؛ التحليل يستخدم النص المعدل، والملف الأصلي يبقى دون تغيير." : "Extracted text was edited. Check corrections against the original; analysis uses the edited text and the original file stays unchanged."}</p>}
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -247,6 +260,8 @@ export default function NewAnalysisPage() {
               </>
             )}
           </div>
+
+          {file && <Button variant="outline" size="sm" disabled={extracting} onClick={() => { setFile(null); setExtractedFileText(null); setFailure(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}>{locale === "ar" ? "فصل الملف والإبقاء على النص" : "Detach file and keep text"}</Button>}
 
           <input ref={cameraInputRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" className="hidden" onChange={e=>{const f=e.target.files?.[0];if(f)void acceptFile(f);}}/>
           <Button variant="outline" size="sm" disabled={extracting} onClick={()=>cameraInputRef.current?.click()}>{locale === "ar" ? "التقاط صورة (على الأجهزة المدعومة)" : "Take a photo (on supported devices)"}</Button>

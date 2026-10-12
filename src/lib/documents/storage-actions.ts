@@ -5,6 +5,7 @@ import { validateFileBytes, validateFileMetadata } from "./validation";
 import { consumeRateLimit } from "@/lib/ai/limits";
 import { z } from "zod";
 import { createHash } from "node:crypto";
+import { operationFailure } from "../data/operation-failure";
 type FileResult={ok:true}|{ok:false;error:string};
 async function caller() {
  const access=await getAccessContext();
@@ -21,10 +22,10 @@ export async function createCitizenDocumentAction(input:unknown):Promise<{ok:tru
   const {id,role,supabase}=await caller();if(role!=="citizen")return {ok:false,error:"not_allowed"};
   consumeRateLimit(`document-create:${id}`,20);
   const previous=await supabase.from("documents").select("id,user_id,file_name,citizen_description").eq("id",value.id).maybeSingle();
-  if(previous.error)return {ok:false,error:"document_read_failed"};
+  if(previous.error)return {ok:false,error:operationFailure(previous.error,"document_read_failed")};
   if(previous.data)return previous.data.user_id===id&&previous.data.file_name===value.fileName&&previous.data.citizen_description===value.citizenDescription?{ok:true,id:value.id}:{ok:false,error:"submission_changed"};
   const saved=await supabase.from("documents").insert({id:value.id,user_id:id,file_name:value.fileName,document_type:value.documentType,language:value.language,citizen_description:value.citizenDescription,status:"processing"});
-  if(saved.error)return {ok:false,error:"document_save_failed"};return {ok:true,id:value.id};
+  if(saved.error)return {ok:false,error:operationFailure(saved.error,"document_save_failed")};return {ok:true,id:value.id};
  }catch{return {ok:false,error:"document_save_failed"};}
 }
 export async function storeCitizenSourceAction(documentId:string,form:FormData):Promise<FileResult> {
@@ -32,7 +33,7 @@ export async function storeCitizenSourceAction(documentId:string,form:FormData):
   const {id,role,supabase}=await caller();if(role!=="citizen") return {ok:false,error:"not_allowed"};
   consumeRateLimit(`source-upload:${id}`,12);
   const {data:doc,error:readError}=await supabase.from("documents").select("id,original_storage_path").eq("id",documentId).eq("user_id",id).single();
-  if(readError||!doc) return {ok:false,error:"forbidden"};
+  if(readError||!doc) return {ok:false,error:operationFailure(readError,"forbidden")};
   const {bytes,metadata}=await checkedFile(form);
   const digest=createHash("sha256").update(bytes).digest("hex");
   const path=`${id}/${documentId}/${digest}.${metadata.ext}`;
@@ -58,7 +59,7 @@ export async function storeCitizenSourceAction(documentId:string,form:FormData):
    const confirmed=await supabase.from("documents").select("original_storage_path").eq("id",documentId).eq("user_id",id).single();
    if(!confirmed.error&&confirmed.data?.original_storage_path===path)return {ok:true};
    // The write may still have committed. Retain bytes for a safe retry/reconciliation.
-   return {ok:false,error:"source_metadata_uncertain"};
+   return {ok:false,error:operationFailure(error,"source_metadata_uncertain")};
   }
   if(!saved) {
    const retry=await supabase.from("documents").select("original_storage_path").eq("id",documentId).eq("user_id",id).single();

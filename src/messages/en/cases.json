@@ -226,6 +226,9 @@
     "file_too_large": "The file is larger than 10 MB.",
     "file_type_not_allowed": "This file type isn't allowed.",
     "not_configured": "The service isn't configured.",
-    "unknown": "Something went wrong. Please try again."
+    "unknown": "Something went wrong. Please try again.",
+    "schema_unavailable": "Request submission is currently unavailable. Sending was not confirmed; your input remains in the form. Retry once service is restored.",
+    "submission_changed": "The details differ from an earlier attempt. Review the request before submitting again.",
+    "submission_uncertain": "Request creation could not be confirmed. Check your requests before retrying."
   }
 }

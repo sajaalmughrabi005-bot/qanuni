@@ -21,6 +21,7 @@ import { governorateKey } from "@/lib/governorates";
 import { GovernorateSelect, useGovernorateLabel } from "@/components/shared/governorate-select";
 import { initials, cn } from "@/lib/utils";
 import type { Lawyer, LawyerSpecialty } from "@/types";
+import { ConsultationPriceEditor } from "@/components/lawyer/consultation-price-editor";
 
 const ALL_SPECIALTIES: LawyerSpecialty[] = [
   "rental",
@@ -53,7 +54,6 @@ export default function LawyerProfileSettingsPage() {
     setForm({
       bio: lawyer.bio,
       city: governorateKey(lawyer.city) ?? "",
-      consultationPrice: lawyer.consultationPrice,
       yearsExperience: lawyer.yearsExperience,
       availabilityStatus: lawyer.availabilityStatus,
       acceptingNewCases: lawyer.acceptingNewCases,
@@ -64,9 +64,8 @@ export default function LawyerProfileSettingsPage() {
   };
 
   const save = async () => {
-    const price = Number(form.consultationPrice ?? 0);
     const years = Number(form.yearsExperience ?? 0);
-    if (!Number.isFinite(price) || price < 0 || price > 10000 || !Number.isFinite(years) || years < 0 || years > 70) {
+    if (!Number.isFinite(years) || years < 0 || years > 70) {
       return toast.error(t("invalidNumbers"));
     }
     if (!form.specialties || form.specialties.length === 0) return toast.error(t("specialtiesRequired"));
@@ -74,7 +73,6 @@ export default function LawyerProfileSettingsPage() {
     const res = await updateMyLawyerProfile(lawyer.id, {
       bio: (form.bio ?? "").slice(0, 2000),
       city: form.city ?? "",
-      consultationPrice: price,
       yearsExperience: Math.round(years),
       availabilityStatus: form.availabilityStatus,
       acceptingNewCases: form.acceptingNewCases,
@@ -237,15 +235,6 @@ export default function LawyerProfileSettingsPage() {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>{t("price")}</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={form.consultationPrice ?? 0}
-                  onChange={(e) => setForm((f) => ({ ...f, consultationPrice: Number(e.target.value) }))}
-                />
-              </div>
-              <div className="space-y-1.5">
                 <Label>{t("experience")}</Label>
                 <Input
                   type="number"
@@ -303,6 +292,7 @@ export default function LawyerProfileSettingsPage() {
       </Card>
 
       {/* Personal account details (name, phone, photo) + account deletion */}
+      <ConsultationPriceEditor key={lawyer.id} lawyerId={lawyer.id} price={lawyer.consultationPrice} onSavedAction={refresh}/>
       <ProfileCard embedded />
     </div>
   );

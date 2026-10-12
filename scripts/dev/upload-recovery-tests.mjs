@@ -12,7 +12,7 @@ const bucket={
 };
 const supabase={storage:{from:()=>bucket},from(table){let update;
  return {select(){return this;},eq(){return this;},is(){return this;},update(value){update=value;return this;},
-  async single(){if(table==='cases')return {data:{id:doc},error:null};return metadataReadError?{data:null,error:{code:'READ_FAILURE'}}:{data:{id:doc,original_storage_path:docPath},error:null};},
+  async single(){if(table==='cases')return {data:{id:doc},error:null};if(mode==='schema_read')return {data:null,error:{code:'42703',message:'private schema details'}};return metadataReadError?{data:null,error:{code:'READ_FAILURE'}}:{data:{id:doc,original_storage_path:docPath},error:null};},
   async maybeSingle(){writes++;if(mode==='metadata_lost'){docPath=update.original_storage_path;return {data:null,error:{code:'LOST_RESPONSE'}};}if(mode==='metadata_uncertain'){metadataReadError=true;return {data:null,error:{code:'LOST_RESPONSE'}};}if(mode==='other_writer'){docPath='confirmed-other-path';return {data:null,error:null};}docPath=update.original_storage_path;return {data:{id:doc},error:null};},
   async insert(){writes++;return mode==='case_metadata_lost'?{error:{code:'LOST_RESPONSE'}}:{error:null};}
  };
@@ -35,4 +35,5 @@ await test('only confirmed unreferenced duplicate is cleaned',async()=>{reset('o
 await test('invalid MIME rejected before Storage write',async()=>{reset();assert.equal((await actions.storeCitizenSourceAction(doc,form(text,'image/png'))).ok,false);assert.equal(uploads,0);});
 await test('case insert response lost retains original object, reports uncertainty',async()=>{reset('case_metadata_lost');assert.equal((await actions.uploadCaseFileAction(doc,form())).error,'upload_metadata_uncertain');assert.equal(removed.length,0);assert.equal(stored.size,1);});
 await test('known upload rejection does not claim metadata saved',async()=>{reset('upload_failed');assert.equal((await actions.uploadCaseFileAction(doc,form())).error,'upload_failed');assert.equal(writes,0);assert.equal(removed.length,0);});
+await test('missing original column is separate schema category, before Storage writes',async()=>{reset('schema_read');const result=await actions.storeCitizenSourceAction(doc,form());assert.deepEqual(result,{ok:false,error:'schema_unavailable'});assert.equal(uploads,0);assert.equal(writes,0);assert.doesNotMatch(JSON.stringify(result),/private schema details/);});
 console.log(`upload-recovery-tests: ${passed} scenarios passed; no actual Supabase requests.`);
