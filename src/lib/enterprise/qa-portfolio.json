@@ -1,0 +1,1158 @@
+{
+  "dataset": "HAQ_QA_Dataset_v1",
+  "source_sha256": "daf0d65a4dfac1f3f4279a355da0aca750eefa659b41a9c7044dbd56e7eb41c0",
+  "organizations": [
+    {
+      "id": "ORG-001",
+      "name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "industry": "تركيب وصيانة الأنظمة الكهربائية",
+      "city": "عمّان",
+      "target": 14
+    },
+    {
+      "id": "ORG-002",
+      "name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "industry": "تقنية المعلومات والخدمات الرقمية",
+      "city": "إربد",
+      "target": 12
+    },
+    {
+      "id": "ORG-003",
+      "name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "industry": "خدمات طبية وإدارية",
+      "city": "الزرقاء",
+      "target": 10
+    }
+  ],
+  "contracts": [
+    {
+      "contract_id": "ORG-001-EMP-001",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-01-13",
+      "document_title": "عقد مهندس موقع - أيمن القضاة (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-001-EMP-001.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "2b80a13bdf140ce7a8aabeb18631faf535122a8f7ee85f4710a73f9e130cb7d1"
+    },
+    {
+      "contract_id": "ORG-001-EMP-002",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-01-25",
+      "document_title": "عقد مسؤول خدمة عملاء - سارة سليمان (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-001-EMP-002.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "be04b06b1f14ae22234105031ce9612e3990a902e20eb9a381382520c4e60401"
+    },
+    {
+      "contract_id": "ORG-001-EMP-003",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-02-06",
+      "document_title": "عقد فني تركيب - يوسف الخطيب (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-001-EMP-003.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "3c47d52ab32bd2463dda6228561bebe604e2d73997b94c605d39e70afa886f41"
+    },
+    {
+      "contract_id": "ORG-001-EMP-004",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-02-18",
+      "document_title": "عقد مشرف فني - منى النجار (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-001-EMP-004.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "limited",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "bab15dda8de6bcb62a714a38f9014d8ec94b7ec242c7356c5552975aa5a0b9a3"
+    },
+    {
+      "contract_id": "ORG-001-EMP-005",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-03-02",
+      "document_title": "عقد فني صيانة - إياد الحوامدة (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-001-EMP-005.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "vague",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "59eed97551e4a383449eb0cdc72b4f9afb3fc8ddbba4a1184266bd76ed28a0cc"
+    },
+    {
+      "contract_id": "ORG-001-EMP-006",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-03-14",
+      "document_title": "عقد مهندس موقع - إسراء العبادي (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-001-EMP-006.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "8ef765c49c990c02ae6d98a1a3913a69d47ec7347fb88500d70b4cb331c2faaf"
+    },
+    {
+      "contract_id": "ORG-001-EMP-007",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-03-26",
+      "document_title": "عقد مسؤول خدمة عملاء - سامر الشبول (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-001-EMP-007.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "long_unpaid",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "limited",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "fffcfcdd881b7cfd95c6ab6873d6609c496a852890c729590f5606bd359c9a5e"
+    },
+    {
+      "contract_id": "ORG-001-EMP-008",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-04-07",
+      "document_title": "عقد فني تركيب - دينا المجالي (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-001-EMP-008.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "delay",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "420a2a57f2d496572300e3ed81da222f70fe6fc46b3e40e48c4f0f2b9c17e5ac"
+    },
+    {
+      "contract_id": "ORG-001-EMP-009",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-04-19",
+      "document_title": "عقد مشرف فني - أنس الطراونة (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-001-EMP-009.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "5f556a925e294203f4f701220b2acbed2d18c127515d11a40c1be178a465b498"
+    },
+    {
+      "contract_id": "ORG-001-EMP-010",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-05-01",
+      "document_title": "عقد فني صيانة - ياسمين السرحان (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-001-EMP-010.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "vague",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "0d4358300bcd43eac671372023f129310e9352d0c065e1c6f35c62cc697268f0"
+    },
+    {
+      "contract_id": "ORG-001-SERVICE-001",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "service_contract",
+      "contract_date": "2026-02-01",
+      "document_title": "اتفاقية خدمات مهنية",
+      "file_path": "enterprise_contracts/ORG-001-SERVICE-001.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "2ef289478f3af36854d1f54422ecd30b7f63f98099af40fc2f54de054c9d525b"
+    },
+    {
+      "contract_id": "ORG-001-SUPPLY-002",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "supply_contract",
+      "contract_date": "2026-02-22",
+      "document_title": "اتفاقية توريد معدات",
+      "file_path": "enterprise_contracts/ORG-001-SUPPLY-002.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "46a9c4544678d4e2aa3c1855b0dbe3e4692c40cd908340131d1fde8199977926"
+    },
+    {
+      "contract_id": "ORG-001-NDA-003",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "nda",
+      "contract_date": "2026-03-15",
+      "document_title": "اتفاقية سرية معلومات",
+      "file_path": "enterprise_contracts/ORG-001-NDA-003.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "83b1f89500cc0532a47d1992bda48219adb1c5890361491a47c80357f49e5bd2"
+    },
+    {
+      "contract_id": "ORG-001-SERVICE-004",
+      "organization_id": "ORG-001",
+      "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+      "document_type": "service_contract",
+      "contract_date": "2026-04-05",
+      "document_title": "اتفاقية خدمات مهنية",
+      "file_path": "enterprise_contracts/ORG-001-SERVICE-004.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "67adabf754e9cbcc960c3682886a1095d04f86512a8df47f4ca81346619ac726"
+    },
+    {
+      "contract_id": "ORG-002-EMP-001",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-01-13",
+      "document_title": "عقد محلل نظم - دينا سليمان (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-002-EMP-001.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "ee196a2c4a493da9d56fb6b0f53bd85dec77a956f5de1043439513545f46cf61"
+    },
+    {
+      "contract_id": "ORG-002-EMP-002",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-01-25",
+      "document_title": "عقد مصمم واجهات - أنس الخطيب (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-002-EMP-002.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "d3d65c805dc1eecac878025096361d5afe530b20220348ef0ee8dcbf55b1f597"
+    },
+    {
+      "contract_id": "ORG-002-EMP-003",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-02-06",
+      "document_title": "عقد دعم فني - ياسمين النجار (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-002-EMP-003.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "38bdc190772f12b1d5373a279d3cef1b63abd341c6381b57bfa566e4740fef7f"
+    },
+    {
+      "contract_id": "ORG-002-EMP-004",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-02-18",
+      "document_title": "عقد منسق مشاريع - ليث الحوامدة (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-002-EMP-004.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "limited",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "e104c593069cc0b9e9cd2618530bff8c0397b5b9bdd221f584629fc2bd2abaf6"
+    },
+    {
+      "contract_id": "ORG-002-EMP-005",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-03-02",
+      "document_title": "عقد مطور برمجيات - رنا العبادي (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-002-EMP-005.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "vague",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "860bd7cfc4c8bb545db0b71bfef108021bed15972d17f355dd27776dc6b3ae88"
+    },
+    {
+      "contract_id": "ORG-002-EMP-006",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-03-14",
+      "document_title": "عقد محلل نظم - مالك الشبول (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-002-EMP-006.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "42f852de7686e483075b5688665f51e3b843e972cbb32ab13878e6d77e0c9a69"
+    },
+    {
+      "contract_id": "ORG-002-EMP-007",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-03-26",
+      "document_title": "عقد مصمم واجهات - هدى المجالي (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-002-EMP-007.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "long_unpaid",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "limited",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "c6bf65acc9b4e1e65094b557f5b5a5523d248eb544da39619b11dc7a765474de"
+    },
+    {
+      "contract_id": "ORG-002-EMP-008",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-04-07",
+      "document_title": "عقد دعم فني - رامي الطراونة (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-002-EMP-008.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "delay",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "b612968102818b0c8d6c0155ebdbcc0994bec1d369a0affeb567de1844a964f6"
+    },
+    {
+      "contract_id": "ORG-002-SERVICE-001",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "service_contract",
+      "contract_date": "2026-02-01",
+      "document_title": "اتفاقية خدمات مهنية",
+      "file_path": "enterprise_contracts/ORG-002-SERVICE-001.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "c7cdb5ae116bf21caa934e0832d5ccea68bf8bb67d86752279f625e38effc664"
+    },
+    {
+      "contract_id": "ORG-002-SERVICE-002",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "service_contract",
+      "contract_date": "2026-02-22",
+      "document_title": "اتفاقية خدمات مهنية",
+      "file_path": "enterprise_contracts/ORG-002-SERVICE-002.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "30d78d5905af5abdeee5a4e37dd673904fa0b4569cebeda0d097cccae60785ea"
+    },
+    {
+      "contract_id": "ORG-002-NDA-003",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "nda",
+      "contract_date": "2026-03-15",
+      "document_title": "اتفاقية سرية معلومات",
+      "file_path": "enterprise_contracts/ORG-002-NDA-003.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "adb1e1bb590379d4d431ce820d74783410cc9be8c7cef7f9294b3244a57922e2"
+    },
+    {
+      "contract_id": "ORG-002-LEASE-004",
+      "organization_id": "ORG-002",
+      "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+      "document_type": "lease_contract",
+      "contract_date": "2026-04-05",
+      "document_title": "عقد إيجار مقر تجاري",
+      "file_path": "enterprise_contracts/ORG-002-LEASE-004.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "26285ae4969af1a04a30d2dd941a8da9cd2d5838fdd3e86be5e7566f85abd41b"
+    },
+    {
+      "contract_id": "ORG-003-EMP-001",
+      "organization_id": "ORG-003",
+      "organization_name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-01-13",
+      "document_title": "عقد مسؤول ملفات - رامي الخطيب (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-003-EMP-001.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "5f4e55a3a95bc16b9e12dde05e2acf2ecaccdbca83686c1e003892c8b20cec84"
+    },
+    {
+      "contract_id": "ORG-003-EMP-002",
+      "organization_id": "ORG-003",
+      "organization_name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-01-25",
+      "document_title": "عقد مساعد إداري - لينا النجار (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-003-EMP-002.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "ba517183430763f8214b2ce1fd7fc9990b9b9fdd3c588bcb62660bbac6a33fca"
+    },
+    {
+      "contract_id": "ORG-003-EMP-003",
+      "organization_id": "ORG-003",
+      "organization_name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-02-06",
+      "document_title": "عقد موظف خدمات - أحمد الحوامدة (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-003-EMP-003.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "24a16fb841777f4fc5a01fd776f283601ff189d217e2474c96a4a7b14896e8ff"
+    },
+    {
+      "contract_id": "ORG-003-EMP-004",
+      "organization_id": "ORG-003",
+      "organization_name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-02-18",
+      "document_title": "عقد مسؤول مشتريات - أسماء العبادي (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-003-EMP-004.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "limited",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "14460c185fdad936ab2a264e1f4aa253b8ed9d63a15e8dba35ed0aeeb9fde3db"
+    },
+    {
+      "contract_id": "ORG-003-EMP-005",
+      "organization_id": "ORG-003",
+      "organization_name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-03-02",
+      "document_title": "عقد موظف استقبال - محمد الشبول (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-003-EMP-005.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "vague",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "a2e9f5ac73c3672a71db6d7e4eab4e784f001a046fafb9e8138813617f930fc7"
+    },
+    {
+      "contract_id": "ORG-003-EMP-006",
+      "organization_id": "ORG-003",
+      "organization_name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-03-14",
+      "document_title": "عقد مسؤول ملفات - آلاء المجالي (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-003-EMP-006.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "balanced",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "normal",
+          "expected_class": "normal"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "923a3cf45f204e1a24e4810d018e3ae399d3d81feed35782052dc08d27b4a0a7"
+    },
+    {
+      "contract_id": "ORG-003-EMP-007",
+      "organization_id": "ORG-003",
+      "organization_name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "document_type": "employment_contract",
+      "contract_date": "2026-03-26",
+      "document_title": "عقد مساعد إداري - أيمن الطراونة (شخصية خيالية)",
+      "file_path": "enterprise_contracts/ORG-003-EMP-007.pdf",
+      "supported_scope": "labour_law_review_candidate",
+      "synthetic": true,
+      "expected_topic_flags": [
+        {
+          "clause": "الأجر وطريقة الصرف",
+          "topic": "wage_payment",
+          "marker": "normal",
+          "expected_class": "normal"
+        },
+        {
+          "clause": "ساعات العمل",
+          "topic": "working_hours",
+          "marker": "long_unpaid",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "الإجازات",
+          "topic": "annual_leave",
+          "marker": "limited",
+          "expected_class": "needs_review"
+        },
+        {
+          "clause": "مدة العقد وإنهاؤه",
+          "topic": "termination",
+          "marker": "unclear",
+          "expected_class": "needs_clarification"
+        }
+      ],
+      "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+      "pdf_sha256": "6ef5d54724423e7bc6f86342970acb64c19473df5b5ecea373dbb746e8192d90"
+    },
+    {
+      "contract_id": "ORG-003-VENDOR-001",
+      "organization_id": "ORG-003",
+      "organization_name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "document_type": "vendor_contract",
+      "contract_date": "2026-02-01",
+      "document_title": "اتفاقية خدمات توريد وتشغيل",
+      "file_path": "enterprise_contracts/ORG-003-VENDOR-001.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "73efc68005e1f026f996e8d29bbd63fdbcce9e17f23a1081d42ca1db2c23d875"
+    },
+    {
+      "contract_id": "ORG-003-VENDOR-002",
+      "organization_id": "ORG-003",
+      "organization_name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "document_type": "vendor_contract",
+      "contract_date": "2026-02-22",
+      "document_title": "اتفاقية خدمات توريد وتشغيل",
+      "file_path": "enterprise_contracts/ORG-003-VENDOR-002.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "0c273fd231f791522c935ea7e6aff0292c380362900d0d35005204e5922f3653"
+    },
+    {
+      "contract_id": "ORG-003-SERVICE-003",
+      "organization_id": "ORG-003",
+      "organization_name": "مركز نسيم للخدمات الصحية (خيالي)",
+      "document_type": "service_contract",
+      "contract_date": "2026-03-15",
+      "document_title": "اتفاقية خدمات مهنية",
+      "file_path": "enterprise_contracts/ORG-003-SERVICE-003.pdf",
+      "supported_scope": "unsupported_without_curated_law_sources",
+      "synthetic": true,
+      "expected_topic_flags": [],
+      "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+      "pdf_sha256": "771f2aa64724c083db88461400cae12a0041b30d91baab7610d0eb722354b1f8"
+    }
+  ]
+}
