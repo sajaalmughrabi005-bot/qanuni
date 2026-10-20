@@ -36,6 +36,8 @@ Risks are unverified AI interpretations, never litigation probabilities or inven
 
 ## Start here: private team handoff
 
+Read [START_HERE_TEAM.md](START_HERE_TEAM.md) **first** for the current capabilities, exact continuation checkpoint, confidential local ZIP boundary and production NO-GO gates.
+
 Read [TEAM_ONBOARDING](docs/TEAM_ONBOARDING.md), [TEAM_WORKFLOW](docs/TEAM_WORKFLOW.md), the [developer handoff](docs/HAQ_V2_DEVELOPER_HANDOFF.md) and [TEAM_BACKLOG](docs/TEAM_BACKLOG.md). Exact current evidence and independent GitHub/production decisions are in [TEAM_HANDOFF_READINESS](docs/TEAM_HANDOFF_READINESS.md).
 
 Use **Node 24**, npm and the committed lockfile. In a clean clone, no secrets or environment file are needed for the isolated demo:

@@ -2,6 +2,8 @@
 
 Prepared 2026-10-20, Asia/Amman. This is a source/team handoff, not a deployment or SQL approval.
 
+Latest publication task: the owner now authorizes the reviewed `staging-prep` push and one local unencrypted full-configuration ZIP. Authenticated metadata confirms PRIVATE `OmarKerdase/HAQ` and remote main `db5bfb50785cf3d06f4256aceaa968b5d8755fa5`. Available GitHub hooks/deployments/environments/workflows are empty; local safe CI has no deploy step. External Vercel settings are not accessible; no automatic production deployment trigger was identified. See [START_HERE_TEAM.md](../START_HERE_TEAM.md) for the current entry point. The earlier publication NO-GO below records the previous task's access evidence, now superseded within this specific authorization. Production remains NO-GO. Final push/ZIP outcomes must be verified and reported, not inferred from these pre-push checks.
+
 ## Independent decisions
 
 - **NO-GO FOR PRIVATE GITHUB TEAM HANDOFF (PUBLICATION).** The local package passed its documented verification, but repository privacy/access and staging-prep automatic-deploy settings are unverified. The owner explicitly answered: "Not yet verified; keep publication blocked." No push/merge is authorized or performed. These are publication gates, not failed local application checks.
