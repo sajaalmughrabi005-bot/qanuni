@@ -709,3 +709,8 @@ Clean-checkout first run at146ac73: locked npm ci --ignore-scripts --no-audit --
 
 
 QA boundary correction verified before commit: native blob/data and loopback fetch succeed; external fetch/http denied before network; focused probe exit0, fresh lint0 and full --no-db runner0 (24/29 passed,5 SQL suites explicitly skipped). Added probe to secret-free CI/onboarding. Only QA helper/test/workflow/docs changed; no application/auth/legal/data feature changed. Clean-clone full rerun/build/browser still pending after syncing this focused fix.
+
+
+Second clean run: lint0/types0/--no-db0 (24/29,5 SQL skipped)/acceptance0 (23 cases); build underway. Preservation probe separately caught Git autocrlf changing original fixture TEXT line endings in a clean clone, despite unchanged working-source bytes and binary PDFs. This would make original fixture-source digests nonportable. Documented before correction: mark qa-fixtures/** -text and re-add only the reviewed original pack from unchanged source bytes; verify staged blob hashes equal the snapshot. SQL remains LF-pinned and C1/C2/C3 untouched. No feature/fixture content edit or history rewrite. Final verification will use another fresh clone so prior checkout conversions are not mistaken for preservation.
+
+Fixture byte-preserving staging initially failed git diff --check because CRLF is now intentionally opaque text and Git interpreted CR as trailing whitespace. Added a fixture-only whitespace attribute retaining blank-at-eol/blank-at-eof/space-before-tab checks while recognizing cr-at-eol. No fixture bytes changed; this is not a skipped content check or weakened SQL guard. Recheck/staged exact-byte validation follows before commit.

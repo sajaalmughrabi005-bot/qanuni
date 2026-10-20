@@ -1,6 +1,8 @@
 # Reviewed SQL fingerprints must survive Windows/autocrlf checkouts unchanged.
 supabase/patches/*.sql text eol=lf
 supabase/diagnostics/*.sql text eol=lf
+# Preserve the owner's reviewed source-pack bytes, including mixed text endings.
+qa-fixtures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 # Synthetic fixture bytes are hashed; never convert their line endings.
 *.pdf binary
 *.png binary
