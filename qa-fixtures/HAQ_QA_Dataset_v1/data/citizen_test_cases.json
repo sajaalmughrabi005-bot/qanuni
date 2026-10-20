@@ -1,0 +1,160 @@
+[
+  {
+    "contract_id": "CIT-EMP-007",
+    "organization_id": "ORG-001",
+    "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+    "document_type": "employment_contract",
+    "contract_date": "2026-03-26",
+    "document_title": "عقد مسؤول خدمة عملاء - سامر الشبول (شخصية خيالية)",
+    "file_path": "citizen_test_contracts/CIT-EMP-007.pdf",
+    "supported_scope": "labour_law_review_candidate",
+    "synthetic": true,
+    "expected_topic_flags": [
+      {
+        "clause": "الأجر وطريقة الصرف",
+        "topic": "wage_payment",
+        "marker": "normal",
+        "expected_class": "normal"
+      },
+      {
+        "clause": "ساعات العمل",
+        "topic": "working_hours",
+        "marker": "long_unpaid",
+        "expected_class": "needs_review"
+      },
+      {
+        "clause": "الإجازات",
+        "topic": "annual_leave",
+        "marker": "limited",
+        "expected_class": "needs_review"
+      },
+      {
+        "clause": "مدة العقد وإنهاؤه",
+        "topic": "termination",
+        "marker": "unclear",
+        "expected_class": "needs_clarification"
+      }
+    ],
+    "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+    "expected_gate": "legal",
+    "scenario": "employment_clause_review"
+  },
+  {
+    "contract_id": "CIT-EMP-011",
+    "organization_id": "ORG-001",
+    "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+    "document_type": "employment_contract",
+    "contract_date": "2026-05-13",
+    "document_title": "عقد مهندس موقع - ليث الحسيني (شخصية خيالية)",
+    "file_path": "citizen_test_contracts/CIT-EMP-011.pdf",
+    "supported_scope": "labour_law_review_candidate",
+    "synthetic": true,
+    "expected_topic_flags": [
+      {
+        "clause": "الأجر وطريقة الصرف",
+        "topic": "wage_payment",
+        "marker": "normal",
+        "expected_class": "normal"
+      },
+      {
+        "clause": "ساعات العمل",
+        "topic": "working_hours",
+        "marker": "balanced",
+        "expected_class": "normal"
+      },
+      {
+        "clause": "الإجازات",
+        "topic": "annual_leave",
+        "marker": "normal",
+        "expected_class": "normal"
+      },
+      {
+        "clause": "مدة العقد وإنهاؤه",
+        "topic": "termination",
+        "marker": "normal",
+        "expected_class": "normal"
+      }
+    ],
+    "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+    "expected_gate": "legal",
+    "scenario": "employment_clause_review"
+  },
+  {
+    "contract_id": "CIT-EMP-014",
+    "organization_id": "ORG-001",
+    "organization_name": "شركة مدار الأنظمة الفنية (خيالية)",
+    "document_type": "employment_contract",
+    "contract_date": "2026-06-18",
+    "document_title": "عقد مشرف فني - هدى سليمان (شخصية خيالية)",
+    "file_path": "citizen_test_contracts/CIT-EMP-014.pdf",
+    "supported_scope": "labour_law_review_candidate",
+    "synthetic": true,
+    "expected_topic_flags": [
+      {
+        "clause": "الأجر وطريقة الصرف",
+        "topic": "wage_payment",
+        "marker": "normal",
+        "expected_class": "normal"
+      },
+      {
+        "clause": "ساعات العمل",
+        "topic": "working_hours",
+        "marker": "long_unpaid",
+        "expected_class": "needs_review"
+      },
+      {
+        "clause": "الإجازات",
+        "topic": "annual_leave",
+        "marker": "limited",
+        "expected_class": "needs_review"
+      },
+      {
+        "clause": "مدة العقد وإنهاؤه",
+        "topic": "termination",
+        "marker": "unclear",
+        "expected_class": "needs_clarification"
+      }
+    ],
+    "golden_note": "Fixture expectations are lexical/test prompts, not validated Jordanian legal judgments.",
+    "expected_gate": "legal",
+    "scenario": "employment_clause_review"
+  },
+  {
+    "contract_id": "CIT-LEASE-001",
+    "organization_id": "ORG-002",
+    "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+    "document_type": "lease_contract",
+    "contract_date": "2026-03-15",
+    "document_title": "عقد إيجار مقر تجاري",
+    "file_path": "citizen_test_contracts/CIT-LEASE-001.pdf",
+    "supported_scope": "unsupported_without_curated_law_sources",
+    "synthetic": true,
+    "expected_topic_flags": [],
+    "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+    "expected_gate": "legal",
+    "scenario": "legal_but_limited_source_coverage"
+  },
+  {
+    "contract_id": "CIT-SERVICE-001",
+    "organization_id": "ORG-002",
+    "organization_name": "شركة أفق البرمجيات للخدمات (خيالية)",
+    "document_type": "service_contract",
+    "contract_date": "2026-03-15",
+    "document_title": "اتفاقية خدمات مهنية",
+    "file_path": "citizen_test_contracts/CIT-SERVICE-001.pdf",
+    "supported_scope": "unsupported_without_curated_law_sources",
+    "synthetic": true,
+    "expected_topic_flags": [],
+    "golden_note": "No validated law/compliance conclusion is expected from labour-only coverage.",
+    "expected_gate": "legal",
+    "scenario": "legal_but_limited_source_coverage"
+  },
+  {
+    "contract_id": "CIT-NONLEGAL-001",
+    "document_type": "nonlegal_list",
+    "file_path": "citizen_test_contracts/CIT-NONLEGAL-001.pdf",
+    "expected_gate": "non_legal",
+    "scenario": "classification_rejection",
+    "synthetic": true
+  }
+]

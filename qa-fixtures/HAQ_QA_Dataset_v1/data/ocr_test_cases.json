@@ -1,0 +1,50 @@
+[
+  {
+    "path": "ocr_scans/OCR-CLEAN-CIT-EMP-007.png",
+    "original_fixture": "CIT-EMP-007",
+    "scan_quality": "clean",
+    "expected_ocr": "readable",
+    "legal_gate": "legal",
+    "synthetic": true
+  },
+  {
+    "path": "ocr_scans/OCR-PHONE-CIT-EMP-011.png",
+    "original_fixture": "CIT-EMP-011",
+    "scan_quality": "phone",
+    "expected_ocr": "readable",
+    "legal_gate": "legal",
+    "synthetic": true
+  },
+  {
+    "path": "ocr_scans/OCR-FAINT-CIT-LEASE-001.png",
+    "original_fixture": "CIT-LEASE-001",
+    "scan_quality": "faint",
+    "expected_ocr": "readable",
+    "legal_gate": "legal",
+    "synthetic": true
+  },
+  {
+    "path": "ocr_scans/OCR-BLURRED-CIT-SERVICE-001.png",
+    "original_fixture": "CIT-SERVICE-001",
+    "scan_quality": "blurred",
+    "expected_ocr": "possibly_uncertain",
+    "legal_gate": "legal",
+    "synthetic": true
+  },
+  {
+    "path": "ocr_scans/OCR-IMAGE-ONLY-SCAN.pdf",
+    "original_fixture": "CIT-EMP-011",
+    "scan_quality": "image_only_pdf",
+    "expected_ocr": "readable",
+    "legal_gate": "legal",
+    "synthetic": true
+  },
+  {
+    "path": "ocr_scans/OCR-BLANK-REJECT.png",
+    "original_fixture": null,
+    "scan_quality": "blank",
+    "expected_ocr": "reject",
+    "legal_gate": "non_legal",
+    "synthetic": true
+  }
+]

@@ -1,0 +1,6 @@
+# Reviewed SQL fingerprints must survive Windows/autocrlf checkouts unchanged.
+supabase/patches/*.sql text eol=lf
+supabase/diagnostics/*.sql text eol=lf
+# Synthetic fixture bytes are hashed; never convert their line endings.
+*.pdf binary
+*.png binary

@@ -1,0 +1,37 @@
+﻿contract_id,organization_id,organization_name,document_type,document_title,contract_date,file_path,supported_scope,synthetic
+ORG-001-EMP-001,ORG-001,شركة مدار الأنظمة الفنية (خيالية),employment_contract,عقد مهندس موقع - أيمن القضاة (شخصية خيالية),2026-01-13,enterprise_contracts/ORG-001-EMP-001.pdf,labour_law_review_candidate,True
+ORG-001-EMP-002,ORG-001,شركة مدار الأنظمة الفنية (خيالية),employment_contract,عقد مسؤول خدمة عملاء - سارة سليمان (شخصية خيالية),2026-01-25,enterprise_contracts/ORG-001-EMP-002.pdf,labour_law_review_candidate,True
+ORG-001-EMP-003,ORG-001,شركة مدار الأنظمة الفنية (خيالية),employment_contract,عقد فني تركيب - يوسف الخطيب (شخصية خيالية),2026-02-06,enterprise_contracts/ORG-001-EMP-003.pdf,labour_law_review_candidate,True
+ORG-001-EMP-004,ORG-001,شركة مدار الأنظمة الفنية (خيالية),employment_contract,عقد مشرف فني - منى النجار (شخصية خيالية),2026-02-18,enterprise_contracts/ORG-001-EMP-004.pdf,labour_law_review_candidate,True
+ORG-001-EMP-005,ORG-001,شركة مدار الأنظمة الفنية (خيالية),employment_contract,عقد فني صيانة - إياد الحوامدة (شخصية خيالية),2026-03-02,enterprise_contracts/ORG-001-EMP-005.pdf,labour_law_review_candidate,True
+ORG-001-EMP-006,ORG-001,شركة مدار الأنظمة الفنية (خيالية),employment_contract,عقد مهندس موقع - إسراء العبادي (شخصية خيالية),2026-03-14,enterprise_contracts/ORG-001-EMP-006.pdf,labour_law_review_candidate,True
+ORG-001-EMP-007,ORG-001,شركة مدار الأنظمة الفنية (خيالية),employment_contract,عقد مسؤول خدمة عملاء - سامر الشبول (شخصية خيالية),2026-03-26,enterprise_contracts/ORG-001-EMP-007.pdf,labour_law_review_candidate,True
+ORG-001-EMP-008,ORG-001,شركة مدار الأنظمة الفنية (خيالية),employment_contract,عقد فني تركيب - دينا المجالي (شخصية خيالية),2026-04-07,enterprise_contracts/ORG-001-EMP-008.pdf,labour_law_review_candidate,True
+ORG-001-EMP-009,ORG-001,شركة مدار الأنظمة الفنية (خيالية),employment_contract,عقد مشرف فني - أنس الطراونة (شخصية خيالية),2026-04-19,enterprise_contracts/ORG-001-EMP-009.pdf,labour_law_review_candidate,True
+ORG-001-EMP-010,ORG-001,شركة مدار الأنظمة الفنية (خيالية),employment_contract,عقد فني صيانة - ياسمين السرحان (شخصية خيالية),2026-05-01,enterprise_contracts/ORG-001-EMP-010.pdf,labour_law_review_candidate,True
+ORG-001-SERVICE-001,ORG-001,شركة مدار الأنظمة الفنية (خيالية),service_contract,اتفاقية خدمات مهنية,2026-02-01,enterprise_contracts/ORG-001-SERVICE-001.pdf,unsupported_without_curated_law_sources,True
+ORG-001-SUPPLY-002,ORG-001,شركة مدار الأنظمة الفنية (خيالية),supply_contract,اتفاقية توريد معدات,2026-02-22,enterprise_contracts/ORG-001-SUPPLY-002.pdf,unsupported_without_curated_law_sources,True
+ORG-001-NDA-003,ORG-001,شركة مدار الأنظمة الفنية (خيالية),nda,اتفاقية سرية معلومات,2026-03-15,enterprise_contracts/ORG-001-NDA-003.pdf,unsupported_without_curated_law_sources,True
+ORG-001-SERVICE-004,ORG-001,شركة مدار الأنظمة الفنية (خيالية),service_contract,اتفاقية خدمات مهنية,2026-04-05,enterprise_contracts/ORG-001-SERVICE-004.pdf,unsupported_without_curated_law_sources,True
+ORG-002-EMP-001,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),employment_contract,عقد محلل نظم - دينا سليمان (شخصية خيالية),2026-01-13,enterprise_contracts/ORG-002-EMP-001.pdf,labour_law_review_candidate,True
+ORG-002-EMP-002,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),employment_contract,عقد مصمم واجهات - أنس الخطيب (شخصية خيالية),2026-01-25,enterprise_contracts/ORG-002-EMP-002.pdf,labour_law_review_candidate,True
+ORG-002-EMP-003,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),employment_contract,عقد دعم فني - ياسمين النجار (شخصية خيالية),2026-02-06,enterprise_contracts/ORG-002-EMP-003.pdf,labour_law_review_candidate,True
+ORG-002-EMP-004,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),employment_contract,عقد منسق مشاريع - ليث الحوامدة (شخصية خيالية),2026-02-18,enterprise_contracts/ORG-002-EMP-004.pdf,labour_law_review_candidate,True
+ORG-002-EMP-005,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),employment_contract,عقد مطور برمجيات - رنا العبادي (شخصية خيالية),2026-03-02,enterprise_contracts/ORG-002-EMP-005.pdf,labour_law_review_candidate,True
+ORG-002-EMP-006,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),employment_contract,عقد محلل نظم - مالك الشبول (شخصية خيالية),2026-03-14,enterprise_contracts/ORG-002-EMP-006.pdf,labour_law_review_candidate,True
+ORG-002-EMP-007,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),employment_contract,عقد مصمم واجهات - هدى المجالي (شخصية خيالية),2026-03-26,enterprise_contracts/ORG-002-EMP-007.pdf,labour_law_review_candidate,True
+ORG-002-EMP-008,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),employment_contract,عقد دعم فني - رامي الطراونة (شخصية خيالية),2026-04-07,enterprise_contracts/ORG-002-EMP-008.pdf,labour_law_review_candidate,True
+ORG-002-SERVICE-001,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),service_contract,اتفاقية خدمات مهنية,2026-02-01,enterprise_contracts/ORG-002-SERVICE-001.pdf,unsupported_without_curated_law_sources,True
+ORG-002-SERVICE-002,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),service_contract,اتفاقية خدمات مهنية,2026-02-22,enterprise_contracts/ORG-002-SERVICE-002.pdf,unsupported_without_curated_law_sources,True
+ORG-002-NDA-003,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),nda,اتفاقية سرية معلومات,2026-03-15,enterprise_contracts/ORG-002-NDA-003.pdf,unsupported_without_curated_law_sources,True
+ORG-002-LEASE-004,ORG-002,شركة أفق البرمجيات للخدمات (خيالية),lease_contract,عقد إيجار مقر تجاري,2026-04-05,enterprise_contracts/ORG-002-LEASE-004.pdf,unsupported_without_curated_law_sources,True
+ORG-003-EMP-001,ORG-003,مركز نسيم للخدمات الصحية (خيالي),employment_contract,عقد مسؤول ملفات - رامي الخطيب (شخصية خيالية),2026-01-13,enterprise_contracts/ORG-003-EMP-001.pdf,labour_law_review_candidate,True
+ORG-003-EMP-002,ORG-003,مركز نسيم للخدمات الصحية (خيالي),employment_contract,عقد مساعد إداري - لينا النجار (شخصية خيالية),2026-01-25,enterprise_contracts/ORG-003-EMP-002.pdf,labour_law_review_candidate,True
+ORG-003-EMP-003,ORG-003,مركز نسيم للخدمات الصحية (خيالي),employment_contract,عقد موظف خدمات - أحمد الحوامدة (شخصية خيالية),2026-02-06,enterprise_contracts/ORG-003-EMP-003.pdf,labour_law_review_candidate,True
+ORG-003-EMP-004,ORG-003,مركز نسيم للخدمات الصحية (خيالي),employment_contract,عقد مسؤول مشتريات - أسماء العبادي (شخصية خيالية),2026-02-18,enterprise_contracts/ORG-003-EMP-004.pdf,labour_law_review_candidate,True
+ORG-003-EMP-005,ORG-003,مركز نسيم للخدمات الصحية (خيالي),employment_contract,عقد موظف استقبال - محمد الشبول (شخصية خيالية),2026-03-02,enterprise_contracts/ORG-003-EMP-005.pdf,labour_law_review_candidate,True
+ORG-003-EMP-006,ORG-003,مركز نسيم للخدمات الصحية (خيالي),employment_contract,عقد مسؤول ملفات - آلاء المجالي (شخصية خيالية),2026-03-14,enterprise_contracts/ORG-003-EMP-006.pdf,labour_law_review_candidate,True
+ORG-003-EMP-007,ORG-003,مركز نسيم للخدمات الصحية (خيالي),employment_contract,عقد مساعد إداري - أيمن الطراونة (شخصية خيالية),2026-03-26,enterprise_contracts/ORG-003-EMP-007.pdf,labour_law_review_candidate,True
+ORG-003-VENDOR-001,ORG-003,مركز نسيم للخدمات الصحية (خيالي),vendor_contract,اتفاقية خدمات توريد وتشغيل,2026-02-01,enterprise_contracts/ORG-003-VENDOR-001.pdf,unsupported_without_curated_law_sources,True
+ORG-003-VENDOR-002,ORG-003,مركز نسيم للخدمات الصحية (خيالي),vendor_contract,اتفاقية خدمات توريد وتشغيل,2026-02-22,enterprise_contracts/ORG-003-VENDOR-002.pdf,unsupported_without_curated_law_sources,True
+ORG-003-SERVICE-003,ORG-003,مركز نسيم للخدمات الصحية (خيالي),service_contract,اتفاقية خدمات مهنية,2026-03-15,enterprise_contracts/ORG-003-SERVICE-003.pdf,unsupported_without_curated_law_sources,True

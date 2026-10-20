@@ -1,0 +1,72 @@
+[
+  {
+    "scenario_id": "SIM-ART-WORKING-HOURS-V2",
+    "label_ar": "تعديل افتراضي على تنظيم ساعات العمل",
+    "hypothetical_only": true,
+    "law": "SYNTHETIC-NOT-OFFICIAL",
+    "article_id": "SIM-LABOUR-WORK-HOURS",
+    "old_version": "SIM-v1",
+    "new_version": "SIM-v2",
+    "mapping_topic": "working_hours",
+    "impact_rule": "potential_reassessment",
+    "expected_affected_contract_ids": [
+      "ORG-001-EMP-001",
+      "ORG-001-EMP-002",
+      "ORG-001-EMP-003",
+      "ORG-001-EMP-004",
+      "ORG-001-EMP-005",
+      "ORG-001-EMP-006",
+      "ORG-001-EMP-007",
+      "ORG-001-EMP-008",
+      "ORG-001-EMP-009",
+      "ORG-001-EMP-010",
+      "ORG-002-EMP-001",
+      "ORG-002-EMP-002",
+      "ORG-002-EMP-003",
+      "ORG-002-EMP-004",
+      "ORG-002-EMP-005",
+      "ORG-002-EMP-006",
+      "ORG-002-EMP-007",
+      "ORG-002-EMP-008",
+      "ORG-003-EMP-001",
+      "ORG-003-EMP-002",
+      "ORG-003-EMP-003",
+      "ORG-003-EMP-004",
+      "ORG-003-EMP-005",
+      "ORG-003-EMP-006",
+      "ORG-003-EMP-007"
+    ],
+    "caution_ar": "هذه محاكاة تعتمد على علاقة الموضوع بالبند ولا تثبت المخالفة أو نفاذ تعديل قانوني."
+  },
+  {
+    "scenario_id": "SIM-SIX-DAY-SCHEDULE",
+    "label_ar": "محاكاة تغيير خاص بالدوام الطويل ستة أيام",
+    "hypothetical_only": true,
+    "law": "SYNTHETIC-NOT-OFFICIAL",
+    "article_id": "SIM-LABOUR-SIX-DAY-SCHEDULE",
+    "old_version": "SIM-v1",
+    "new_version": "SIM-v2",
+    "mapping_topic": "working_hours",
+    "specific_mapping_key": "long_unpaid",
+    "impact_rule": "potential_reassessment",
+    "expected_affected_contract_ids": [
+      "ORG-001-EMP-007",
+      "ORG-002-EMP-007",
+      "ORG-003-EMP-007"
+    ],
+    "caution_ar": "ملاحظة فنية: هذه علاقة موضوعية للاختبار فقط وليست تشخيص مخالفة قانونية."
+  },
+  {
+    "scenario_id": "SIM-ART-VENDOR-REF",
+    "label_ar": "تعديل افتراضي لا يتعلق بعقود العمل",
+    "hypothetical_only": true,
+    "law": "SYNTHETIC-NOT-OFFICIAL",
+    "article_id": "SIM-VENDOR-SERVICE",
+    "old_version": "SIM-v1",
+    "new_version": "SIM-v2",
+    "mapping_topic": "unmapped_vendor_only",
+    "impact_rule": "potential_reassessment",
+    "expected_affected_contract_ids": [],
+    "caution_ar": "لا يتم اختيار أي عقد دون علاقة مسبقة متحققة بين البند والمادة."
+  }
+]
