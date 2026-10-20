@@ -49,3 +49,19 @@ next-env.d.ts
 public/__qa/
 
 .claude/
+
+# Private local verification/recovery outputs; source SQL remains versioned.
+/artifacts/
+/test-results/
+/playwright-report/
+/backups/
+/storage-backups/
+/logs/
+*.dump
+*.backup
+*.bak
+*.key
+*.p12
+*.pfx
+.pgpass
+.pg_service.conf
