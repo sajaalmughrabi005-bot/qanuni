@@ -36,7 +36,7 @@ If dirty, divergent, detached or unexpected, stop and preserve work first. Never
 
 ## Safe CI and owner administration
 
-.github/workflows/safe-checks.yml uses read-only contents permissions, immutable action SHAs, Node24, ignored lifecycle scripts, empty integration credentials, lint, TypeScript and --no-db tests. It never deploys, executes SQL/migrations or consumes repository secrets. It uses pull_request rather than pull_request_target, disables checkout credential persistence and uploads no artifacts. Hosted CI remains unverified until the owner publishes/enables it. Branch protection/required-check configuration are owner-admin tasks, not configured here.
+.github/workflows/safe-checks.yml uses read-only contents permissions, immutable action SHAs, Node24, ignored lifecycle scripts, empty integration credentials, lint, TypeScript, --no-db tests and an in-memory/loopback/external-denial boundary probe. It never deploys, executes SQL/migrations or consumes repository secrets. It uses pull_request rather than pull_request_target, disables checkout credential persistence and uploads no artifacts. Hosted CI remains unverified until the owner publishes/enables it. Branch protection/required-check configuration are owner-admin tasks, not configured here.
 
 Before first push, owner must confirm PRIVATE destination and least-privilege collaborators, enable secret scanning/push protection where available, and inspect/disable automatic Vercel/other development-branch deployment integrations. A remote URL does not prove privacy. Previously committed credentials block publication until rotation and separately approved history remediation. Do not rewrite history here or add production CI secrets to make checks pass.
 

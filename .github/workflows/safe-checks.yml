@@ -40,3 +40,5 @@ jobs:
         run: npx --no-install tsc --noEmit
       - name: Non-database tests only
         run: npm run test:safe -- --no-db
+      - name: QA network boundary
+        run: node scripts/dev/qa-egress-tests.mjs

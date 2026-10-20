@@ -35,6 +35,7 @@ Optional labelled MOCK transport: stop the helper, then run it with --mock inste
 npm run lint
 npx --no-install tsc --noEmit
 npm run test:safe -- --no-db
+node scripts/dev/qa-egress-tests.mjs
 node scripts/dev/v2-acceptance-tests.mjs
 npm run build
 ```
