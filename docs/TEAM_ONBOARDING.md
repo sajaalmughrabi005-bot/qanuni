@@ -55,3 +55,5 @@ This blocks browser egress and covers ar360/ar390/en390/en1440, reduced motion, 
 .env.example is empty/safe. After owner approval, privately configure a specifically designated isolated Supabase project and authorized provider account in ignored .env.local. Never copy production configuration; localhost does not establish project isolation. Keep provider/service-role/signing keys server-only. Review Auth redirects, signing requirements and provider costs. Cloning/configuring an environment does not authorize SQL.
 
 Read PRODUCTION_COMPATIBILITY_CANDIDATES.md and TEAM_BACKLOG.md before real persistence work. Preserve C1 exactly and C2/C3 guards/placeholders. Original Storage, finalizer, wrapper, recovery and staging gates remain open. TEAM_WORKFLOW.md defines review and approval boundaries.
+
+The instructions inside the original fictional fixture pack describe historical test scenarios; they do not authorize seeding, SQL execution or repeating completed feature work.

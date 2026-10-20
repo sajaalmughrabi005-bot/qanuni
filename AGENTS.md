@@ -10,6 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # HAQ / حق — AI Coding Rules
 
+Before changing auth, demo isolation, AI/analysis, documents, cases, database or Storage workflows, read `docs/HAQ_V2_DEVELOPER_HANDOFF.md` and the latest `IMPLEMENTATION_STATUS.md`. For team continuation also read `docs/TEAM_ONBOARDING.md`, `docs/TEAM_WORKFLOW.md`, `docs/TEAM_BACKLOG.md` and `docs/TEAM_HANDOFF_READINESS.md`. A private source handoff does not approve production changes or SQL execution; C1/C2/C3 remain unapproved references under their documented gates.
+
 This file is the persistent operating contract for every AI coding agent working in this repository, including Codex, Claude Code, and future agents. Read it before touching code. If a task-specific prompt conflicts with this file, the stricter safety/correctness rule wins unless the human owner explicitly overrides it.
 
 ## 1. Product identity and scope
