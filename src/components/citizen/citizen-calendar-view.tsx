@@ -117,7 +117,18 @@ export function CitizenCalendarView() {
                     "rounded-xl border border-border p-3",
                     e.caseId && "cursor-pointer transition hover:bg-surface-muted"
                   )}
+                  role={e.caseId ? "button" : undefined}
+                  tabIndex={e.caseId ? 0 : undefined}
                   onClick={() => e.caseId && router.push(`/citizen/cases/${e.caseId}`)}
+                  onKeyDown={(ev) => {
+                    // Ignore keydowns bubbling up from the nested lawyer-profile Link below —
+                    // only react when the card itself is the focused/activated element.
+                    if (!e.caseId || ev.target !== ev.currentTarget) return;
+                    if (ev.key === "Enter" || ev.key === " ") {
+                      ev.preventDefault();
+                      router.push(`/citizen/cases/${e.caseId}`);
+                    }
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <Icon className="h-3.5 w-3.5 text-gold" />
