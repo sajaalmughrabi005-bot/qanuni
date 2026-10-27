@@ -71,13 +71,38 @@ function extOf(fileName: string): string {
 // a scanned document as if it had genuine, analyzable content.
 const PAGE_MARKER_RE = /^--\s*\d+\s*of\s*\d+\s*--$/gm;
 
+// Some embedded PDF fonts map their "lam with alef" ligature glyph (the
+// combined glyph Arabic text shaping always uses when lam is immediately
+// followed by an alef variant) to its two Unicode codepoints in reversed
+// order, e.g. "الأجرة" (the rent) extracts as "األجرة". This is a property
+// of the source PDF's font data, not of pdf-parse/pdfjs's own processing —
+// pdfjs faithfully reports whatever the font's ToUnicode mapping declares.
+//
+// This is only corrected for the single unambiguous case: alef (ا) directly
+// followed by another alef variant (آأإا) directly followed by lam (ل), with
+// nothing between them. Two bare alef-class letters can never be adjacent in
+// correctly-ordered Arabic — alef never cursively joins to what follows it,
+// so that pairing can only arise here from a displaced lam. A broader fix
+// (any alef variant immediately followed by lam, unconditionally reordered)
+// was deliberately rejected: that exact two-character shape also occurs in
+// genuinely correct, unrelated words such as "تألق"/"تألم"/"تألف" (alef then
+// lam, which never ligates in that order and is therefore never scrambled).
+// Reordering those would silently corrupt otherwise-correct legal text.
+const REVERSED_LAM_ALEF_RE = /ا([آأإا])ل/g;
+// Exported only so the narrow Unicode transform can be unit-tested directly
+// (scripts/dev/extract-text-tests.mjs) without needing a dedicated PDF
+// fixture for every ligature variant and false-positive case.
+export function fixReversedLamAlefLigature(text: string): string {
+  return text.replace(REVERSED_LAM_ALEF_RE, "ال$1");
+}
+
 export async function extractPdf(buffer: Buffer): Promise<ExtractTextResult> {
   let parser: PDFParse | undefined;
   try {
     parser = new PDFParse({ data: buffer });
     const result = await parser.getText();
     if(result.total > 40) return { status: "too_large", ...REASONS.tooLarge };
-    const text = result.text.trim();
+    const text = fixReversedLamAlefLigature(result.text.trim());
     const meaningful = text.replace(PAGE_MARKER_RE, "").trim();
     if (result.total === 0) return { status: "empty", ...REASONS.emptyPdf };
     if (!meaningful || result.pages.some(page => !page.text.replace(PAGE_MARKER_RE, "").trim())) return { status: "no_text_layer", ...REASONS.noTextLayerPdf };

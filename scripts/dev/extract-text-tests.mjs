@@ -13,7 +13,7 @@
 // resolver can't follow without an explicit extension; the loader handles it
 // the same way it already does for @/ aliases.)
 import { readFileSync } from "fs";
-import { extractDirectFile as extractTextFromFileAction } from "../../src/lib/documents/direct-extraction.ts";
+import { extractDirectFile as extractTextFromFileAction, fixReversedLamAlefLigature } from "../../src/lib/documents/direct-extraction.ts";
 
 const dir = new URL("./fixtures/extract-text/", import.meta.url);
 const read = (name) => readFileSync(new URL(name, dir));
@@ -79,25 +79,20 @@ await test("Arabic text survives PDF extraction intact (not corrupted, not reord
   assert(iTitle < iLandlord && iLandlord < iRent, "clause order looks scrambled");
 });
 
-await test("KNOWN LIMITATION: pdf-parse can swap glyph order inside a Lam-Alef ligature (PDF only, not DOCX)", async () => {
-  // Documented, not silently fixed: the source PDF (Word's own PDF export)
-  // spells the word "الأجرة" (ا-ل-أ) correctly, but this specific PDF/library
-  // combination extracts it as "األجرة" (ا-أ-ل — the Lam and Alef-with-hamza
-  // swapped) inside one otherwise-correct sentence. It is isolated to this one
-  // ligature, not a general text-garbling problem: confirmed by the previous
-  // test that everything else in the same sentence/document is intact and in
-  // order, and by the DOCX test below extracting the identical sentence
-  // perfectly via mammoth. This is a real, narrow accuracy gap worth knowing
-  // about before relying on PDF-extracted Arabic verbatim — flagging it here
-  // rather than silently passing keeps it visible instead of hidden.
+await test("FIXED: PDF no longer swaps glyph order inside a Lam-Alef ligature (PDF only, DOCX untouched)", async () => {
+  // The source PDF (Word's own PDF export) spells the word "الأجرة" (ا-ل-أ-ج-ر-ة)
+  // correctly, but this specific PDF's embedded font maps its combined
+  // lam+alef-hamza ligature glyph to its two Unicode codepoints in reversed
+  // order, so raw pdf-parse output has it as "األجرة" (ا-أ-ل-ج-ر-ة — lam and
+  // alef-with-hamza swapped) inside an otherwise-correct sentence.
+  // fixReversedLamAlefLigature() in direct-extraction.ts corrects exactly
+  // this narrow, unambiguous case (see its own comment for why only this
+  // case is safe to auto-correct). This test pins the corrected output.
   const pdfFd = formDataFor(read("arabic-contract.pdf"), "arabic-contract.pdf", "application/pdf");
   const pdfRes = await extractTextFromFileAction(pdfFd);
   assert(pdfRes.status === "ok", "expected ok, got " + pdfRes.status);
-  const pdfHasCorrectSpelling = pdfRes.text.includes("الأجرة");
-  console.log(
-    "        note: PDF spelling of الأجرة is currently",
-    pdfHasCorrectSpelling ? "correct" : "scrambled (known limitation, see comment above)"
-  );
+  assert(pdfRes.text.includes("الأجرة"), "PDF should now extract this word correctly: " + JSON.stringify(pdfRes.text.slice(0, 400)));
+  assert(!pdfRes.text.includes("األجرة"), "scrambled spelling should no longer be present");
 
   const docxFd = formDataFor(
     read("arabic-contract.docx"),
@@ -107,6 +102,55 @@ await test("KNOWN LIMITATION: pdf-parse can swap glyph order inside a Lam-Alef l
   const docxRes = await extractTextFromFileAction(docxFd);
   assert(docxRes.status === "ok", "expected ok, got " + docxRes.status);
   assert(docxRes.text.includes("الأجرة"), "DOCX (mammoth) should extract this word correctly — if this now fails, DOCX extraction has regressed");
+});
+
+await test("fixReversedLamAlefLigature: corrects all four lam-alef ligature variants", () => {
+  // The four Unicode "lam with alef" ligature forms (FEF5-FEFC) all share the
+  // same two-letter shape: lam followed by one of the four alef variants.
+  // Simulate the font's reversed-CMap bug for each by swapping positions 2
+  // and 3 of a correctly-spelled "al-" + hamza/madda-initial word, matching
+  // the exact transposition reproduced from the real PDF fixture above.
+  const cases = [
+    ["الأجرة", "األجرة"], // alef + hamza-above (the actual bug, confirmed against the real fixture)
+    ["الآن", "اآلن"], // alef + madda-above
+    ["الإنذار", "اإلنذار"], // alef + hamza-below
+  ];
+  for (const [correct, scrambled] of cases) {
+    const actual = fixReversedLamAlefLigature(scrambled);
+    assert(actual === correct, `expected "${scrambled}" to be corrected to "${correct}", got "${actual}"`);
+  }
+});
+
+await test("fixReversedLamAlefLigature: never touches genuinely correct text (no false positives)", () => {
+  // Alef never cursively joins to what follows it, so lam immediately after
+  // an alef variant never ligates and is never scrambled by this font bug.
+  // These words are already in correct order and must pass through exactly
+  // as-is — a naive "alef-variant then lam, swap it" rule (without requiring
+  // the extra leading bare alef) would corrupt every one of these.
+  const untouched = [
+    "تألق", // shine
+    "تألم", // suffer
+    "تألف", // compose
+    "المؤجر", // the landlord — "ال" followed by a non-alef letter, no ligature at all
+    "الزعبي", // surname — same shape
+    "عقد إيجار سكني وبدون إنذار مسبق", // ordinary running Arabic sentence
+  ];
+  for (const text of untouched) {
+    const actual = fixReversedLamAlefLigature(text);
+    assert(actual === text, `should not alter "${text}", got "${actual}"`);
+  }
+});
+
+await test("fixReversedLamAlefLigature: ordinary English and mixed Arabic/English text pass through unchanged", () => {
+  const samples = [
+    "This is a one-year residential lease agreement at a monthly rent of 300 JOD.",
+    "عقد إيجار سكني — English summary: monthly rent of 300 JOD.",
+    "",
+  ];
+  for (const text of samples) {
+    const actual = fixReversedLamAlefLigature(text);
+    assert(actual === text, `should not alter "${text}", got "${actual}"`);
+  }
 });
 
 await test("Arabic text survives DOCX extraction intact", async () => {
