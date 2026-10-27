@@ -77,6 +77,27 @@ export default function AnalysisResultsPage() {
   if(loadError && !isDemo) return <DataLoadError onRetry={real.refetch}/>;
 
   if (!document || !analysis) {
+    // Demo data is deliberately in-memory only (src/lib/demo/store.ts) and is
+    // rebuilt fresh on reload — a missing demo document here means the demo
+    // session reset, not that anything real was lost. Say so instead of
+    // showing the same silent, unexplained empty state real users get.
+    if (isDemo) {
+      return (
+        <EmptyState
+          icon={FileQuestion}
+          title={locale === "ar" ? "انتهت بيانات هذه التجربة" : "This demo session has reset"}
+          description={locale === "ar"
+            ? "بيانات التحليل التجريبي مؤقتة ولا تُحفظ، وتُعاد تلقائياً عند تحديث الصفحة أو إعادة فتحها. لم يُفقد أي شيء حقيقي — ابدأ تحليلاً جديداً للمتابعة."
+            : "Demo analysis data is temporary and isn't saved; it resets automatically when the page is refreshed or reopened. Nothing real was lost — start a new analysis to continue."}
+          action={
+            <Button asChild variant="gold" className="text-navy">
+              <Link href="/citizen/analyze/new">{locale === "ar" ? "ابدأ تحليلاً جديداً" : "Start a new analysis"}</Link>
+            </Button>
+          }
+          className="mx-auto mt-12 max-w-lg"
+        />
+      );
+    }
     return <EmptyState icon={FileQuestion} title={t("overview")} className="mx-auto mt-12 max-w-lg" />;
   }
 
